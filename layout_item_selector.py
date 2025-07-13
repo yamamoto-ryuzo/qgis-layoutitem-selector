@@ -1627,6 +1627,7 @@ class LayoutSelectorDialog(QDialog):
         except Exception as e:
             print(f"画像プロパティ収集エラー: {str(e)}")
 
+
 class LayoutFileSelectDialog(QDialog):
     """レイアウトファイル選択ダイアログ"""
     
