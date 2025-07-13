@@ -25,6 +25,13 @@ def read_metadata():
         return None
     return metadata
 
+def get_plugin_name():
+    """PEP 8準拠のプラグイン名を取得"""
+    current_dir = os.path.basename(os.getcwd())
+    # ハイフンをアンダースコアに変換してPEP 8準拠にする
+    plugin_name = current_dir.replace('-', '_')
+    return plugin_name
+
 def get_repo_name():
     """現在のディレクトリからリポジトリ名を取得"""
     current_dir = os.path.basename(os.getcwd())
@@ -40,10 +47,11 @@ def create_plugin_zip():
     
     # リポジトリ名を自動取得
     repo_name = get_repo_name()
+    plugin_name = get_plugin_name()  # PEP 8準拠の名前
     version = metadata.get('version', '1.0.0')
     
-    # 配布用ディレクトリ名（リポジトリ名のまま）
-    dist_dir = repo_name
+    # 配布用ディレクトリ名（PEP 8準拠）
+    dist_dir = plugin_name
     zip_filename = f"{repo_name}_v{version}.zip"
     
     # 含めるファイルのリスト

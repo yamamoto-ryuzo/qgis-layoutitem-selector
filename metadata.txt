@@ -1,15 +1,19 @@
 [general]
 name=Layout Item Selector
-qgisMinimumVersion=3.0
-description=Layout Item Selector and Pre-edit Tool / レイアウト印刷を選択してレイアウトマネージャを開き、アイテムの事前編集も可能なプラグイン
-description[en]=A plugin that allows you to select layout prints, open the layout manager, and pre-edit layout items with detailed property management
+qgisMinimumVersion=3.10
+qgisMaximumVersion=3.99
+description=Layout Item Selector and Pre-edit Tool for efficient layout management and template creation
+description[en]=A comprehensive QGIS plugin for selecting layouts, pre-editing items, and creating reusable templates for efficient map production workflows
+description[ja]=レイアウト選択、アイテム事前編集、テンプレート作成により効率的な地図作成ワークフローを実現するQGISプラグイン
 version=1.3.0
-author=yamamoto-ryuzo
+author=Yamamoto Ryuzo
 email=ryu@yamakun.net
 
-about=このプラグインは、QGISのレイアウト印刷を選択してレイアウトマネージャを開く機能に加え、レイアウトアイテムの詳細情報表示と事前編集機能を提供します。レイアウトマネージャを開く前にアイテムのプロパティを確認・編集できるため、効率的なレイアウト作業が可能です。
+about=This comprehensive QGIS plugin enhances layout management by providing advanced selection and pre-editing capabilities. Key features include: Layout Selection & Management for browsing project layouts and launching layout manager efficiently, Item Pre-editing for modifying layout item properties (position, size, content) before opening layout manager, Template System for saving entire layout properties as JSON templates and batch applying to other layouts, Workflow Optimization for creating multiple drawings and registers with unified design efficiently, and Multilingual Support with full English and Japanese language support. Perfect for cartographers and GIS professionals who need to create consistent, professional map series and documentation.
 
-about[en]=This plugin provides functionality to select QGIS layout prints and open the layout manager, with additional features for displaying detailed information and pre-editing layout items. You can check and edit item properties before opening the layout manager, enabling efficient layout work.
+about[en]=This comprehensive QGIS plugin enhances layout management by providing advanced selection and pre-editing capabilities. Key features include layout selection & management, item pre-editing, template system for saving/loading properties, workflow optimization for creating multiple drawings with unified design, and full multilingual support. Perfect for cartographers and GIS professionals who need to create consistent, professional map series and documentation.
+
+about[ja]=このプラグインは、QGISのレイアウト管理を強化し、高度な選択・事前編集機能を提供します。主な機能：レイアウト選択・管理、アイテム事前編集、プロパティ保存・読み込みテンプレートシステム、統一デザインでの効率的な複数図面作成、完全な多言語対応。一貫性のあるプロフェッショナルな地図シリーズやドキュメントを作成する必要がある地図作成者やGIS専門家に最適です。
 
 # Uncomment the following line and add your changelog:
 changelog=
@@ -45,12 +49,14 @@ changelog[en]=
     1.0.0: Initial release - layout selection functionality
 
 # Tags are comma separated with spaces allowed
-tags=layout, print, manager, item, properties, international, english, japanese
+tags=layout,print,manager,item,properties,template,cartography,map,design,workflow,productivity,batch
 
 homepage=https://github.com/yamamoto-ryuzo/qgis-layoutitem-selector
+tracker=https://github.com/yamamoto-ryuzo/qgis-layoutitem-selector/issues
+repository=https://github.com/yamamoto-ryuzo/qgis-layoutitem-selector
 category=Plugins
 icon=icon.png
-# experimental flag
+# experimental flag (False for stable release)
 experimental=False
 
 # deprecated flag (applies to the whole plugin, not just a single version)
@@ -63,3 +69,6 @@ deprecated=False
 
 # If the plugin can run on QGIS Server.
 server=False
+
+# Plugin has processing algorithms
+hasProcessingProvider=False
