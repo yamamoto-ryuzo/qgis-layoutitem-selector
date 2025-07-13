@@ -1,16 +1,19 @@
 [general]
 name=Layout Item Selector
 qgisMinimumVersion=3.0
-description=レイアウト印刷を選択してレイアウトマネージャを開き、アイテムの事前編集も可能なプラグイン
+description=Layout Item Selector and Pre-edit Tool / レイアウト印刷を選択してレイアウトマネージャを開き、アイテムの事前編集も可能なプラグイン
+description[en]=A plugin that allows you to select layout prints, open the layout manager, and pre-edit layout items with detailed property management
 version=1.3.0
 author=yamamoto-ryuzo
 email=ryu@yamakun.net
 
 about=このプラグインは、QGISのレイアウト印刷を選択してレイアウトマネージャを開く機能に加え、レイアウトアイテムの詳細情報表示と事前編集機能を提供します。レイアウトマネージャを開く前にアイテムのプロパティを確認・編集できるため、効率的なレイアウト作業が可能です。
 
+about[en]=This plugin provides functionality to select QGIS layout prints and open the layout manager, with additional features for displaying detailed information and pre-editing layout items. You can check and edit item properties before opening the layout manager, enabling efficient layout work.
+
 # Uncomment the following line and add your changelog:
 changelog=
-    1.3.0: レイアウト全体のプロパティ保存・読み込み機能を追加、一括プロパティ管理
+    1.3.0: レイアウト全体のプロパティ保存・読み込み機能を追加、一括プロパティ管理、英語対応
     1.2.9: アイテムプロパティのファイル保存・読み込み機能を追加、JSON形式での設定保存
     1.2.8: ツールバーアイコン表示問題の修正、新しいリソースファイル生成
     1.2.7: プロパティ適用後のアイテム選択状態保持機能を追加
@@ -25,8 +28,24 @@ changelog=
     1.1.0: アイテム情報の事前表示・編集機能を追加
     1.0.0: 初期リリース - レイアウト選択機能
 
+changelog[en]=
+    1.3.0: Added layout-wide property save/load functionality, batch property management, English language support
+    1.2.9: Added item property file save/load functionality, JSON format setting save
+    1.2.8: Fixed toolbar icon display issue, generated new resource file
+    1.2.7: Added item selection state retention after property application
+    1.2.6: Fixed beginCommand argument error, normalized undo stack processing
+    1.2.5: Fundamental fix for property updates, improved position/size/text updates
+    1.2.4: Fixed label text update issue, enhanced item update processing
+    1.2.3: Fixed QgsMessageBar message level constant error, syntax error fixes
+    1.2.2: Investigation and fix for item acquisition issues, added detailed debug information
+    1.2.1: Fixed QgsLayoutItem type constant error, improved item determination
+    1.2.0: Display item selection and properties on the same screen, added instant detail confirmation
+    1.1.1: Fixed QGraphicsRectItem error, enhanced error handling
+    1.1.0: Added item information pre-display and edit functionality
+    1.0.0: Initial release - layout selection functionality
+
 # Tags are comma separated with spaces allowed
-tags=layout, print, manager, item, properties
+tags=layout, print, manager, item, properties, international, english, japanese
 
 homepage=https://github.com/yamamoto-ryuzo/qgis-layoutitem-selector
 category=Plugins
