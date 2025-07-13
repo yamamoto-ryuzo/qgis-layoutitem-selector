@@ -34,6 +34,7 @@ from qgis.PyQt.QtWidgets import (QAction, QDialog, QVBoxLayout, QListWidget, QLi
 from qgis.core import QgsProject, QgsLayoutManager, QgsLayoutItem, Qgis, QgsLayoutPoint, QgsLayoutSize, QgsUnitTypes
 from qgis.gui import QgsMessageBar
 import json
+import os
 
 # Initialize Qt resources from file resources.py
 try:
@@ -276,6 +277,17 @@ class LayoutSelectorDialog(QDialog):
         self.refresh_button.setEnabled(False)
         button_layout.addWidget(self.refresh_button)
         
+        # レイアウト全体の保存・読み込みボタン
+        self.save_layout_button = QPushButton("レイアウト全体を保存")
+        self.save_layout_button.clicked.connect(self.save_layout_properties)
+        self.save_layout_button.setEnabled(False)
+        button_layout.addWidget(self.save_layout_button)
+        
+        self.load_layout_button = QPushButton("レイアウト全体を読み込み")
+        self.load_layout_button.clicked.connect(self.load_layout_properties)
+        self.load_layout_button.setEnabled(False)
+        button_layout.addWidget(self.load_layout_button)
+        
         self.cancel_button = QPushButton("キャンセル")
         self.cancel_button.clicked.connect(self.reject)
         button_layout.addWidget(self.cancel_button)
@@ -338,14 +350,6 @@ class LayoutSelectorDialog(QDialog):
         update_properties_btn.clicked.connect(self.update_item_properties)
         properties_buttons_layout.addWidget(update_properties_btn)
         
-        save_properties_btn = QPushButton("プロパティを保存")
-        save_properties_btn.clicked.connect(self.save_item_properties)
-        properties_buttons_layout.addWidget(save_properties_btn)
-        
-        load_properties_btn = QPushButton("プロパティを読み込み")
-        load_properties_btn.clicked.connect(self.load_item_properties_from_file)
-        properties_buttons_layout.addWidget(load_properties_btn)
-        
         properties_layout.addLayout(properties_buttons_layout)
         
         properties_widget.setLayout(properties_layout)
@@ -390,12 +394,16 @@ class LayoutSelectorDialog(QDialog):
             self.current_layout = None
             self.open_button.setEnabled(False)
             self.refresh_button.setEnabled(False)
+            self.save_layout_button.setEnabled(False)
+            self.load_layout_button.setEnabled(False)
             self.clear_item_info()
             return
             
         self.current_layout = current.data(Qt.UserRole)
         self.open_button.setEnabled(True)
         self.refresh_button.setEnabled(True)
+        self.save_layout_button.setEnabled(True)
+        self.load_layout_button.setEnabled(True)
         self.load_layout_items()
         self.load_layout_info()
     
@@ -977,6 +985,510 @@ class LayoutSelectorDialog(QDialog):
                 level=Qgis.Critical, duration=5
             )
     
+    def save_layout_properties(self):
+        """レイアウト全体のアイテムプロパティをファイルに保存"""
+        if not self.current_layout:
+            self.iface.messageBar().pushMessage(
+                "警告", "レイアウトを選択してください。",
+                level=Qgis.Warning, duration=3
+            )
+            return
+        
+        try:
+            # デフォルトフォルダを設定（ホームディレクトリのQGIS_Layoutsフォルダ）
+            default_folder = os.path.join(os.path.expanduser("~"), "QGIS_Layouts")
+            
+            # デフォルトフォルダが存在しない場合は作成
+            if not os.path.exists(default_folder):
+                os.makedirs(default_folder)
+                self.iface.messageBar().pushMessage(
+                    "情報", f"デフォルトフォルダを作成しました: {default_folder}",
+                    level=Qgis.Info, duration=3
+                )
+            
+            # レイアウト名を取得してデフォルトファイル名を作成
+            layout_name = self.current_layout.name()
+            default_filename = f"{layout_name}_layout_properties.json"
+            default_filepath = os.path.join(default_folder, default_filename)
+            
+            # ファイル保存ダイアログ
+            filename, _ = QFileDialog.getSaveFileName(
+                self,
+                "レイアウトプロパティファイルを保存",
+                default_filepath,
+                "JSON Files (*.json);;All Files (*)"
+            )
+            
+            if not filename:
+                return
+            
+            # レイアウト全体のプロパティを収集
+            layout_properties = self.collect_layout_properties()
+            
+            # JSONファイルに保存
+            with open(filename, 'w', encoding='utf-8') as f:
+                json.dump(layout_properties, f, ensure_ascii=False, indent=2)
+            
+            self.iface.messageBar().pushMessage(
+                "成功", f"レイアウトプロパティが保存されました: {os.path.basename(filename)}",
+                level=Qgis.Success, duration=3
+            )
+            
+        except Exception as e:
+            self.iface.messageBar().pushMessage(
+                "エラー", f"レイアウトプロパティの保存に失敗しました: {str(e)}",
+                level=Qgis.Critical, duration=5
+            )
+    
+    def load_layout_properties(self):
+        """ファイルからレイアウト全体のプロパティを読み込んで適用"""
+        if not self.current_layout:
+            self.iface.messageBar().pushMessage(
+                "警告", "レイアウトを選択してください。",
+                level=Qgis.Warning, duration=3
+            )
+            return
+        
+        try:
+            # デフォルトフォルダを設定（ホームディレクトリのQGIS_Layoutsフォルダ）
+            default_folder = os.path.join(os.path.expanduser("~"), "QGIS_Layouts")
+            
+            # デフォルトフォルダが存在しない場合は作成
+            if not os.path.exists(default_folder):
+                os.makedirs(default_folder)
+                self.iface.messageBar().pushMessage(
+                    "情報", f"デフォルトフォルダを作成しました: {default_folder}",
+                    level=Qgis.Info, duration=3
+                )
+            
+            # フォルダ内のJSONファイル一覧を取得
+            json_files = []
+            if os.path.exists(default_folder):
+                for file in os.listdir(default_folder):
+                    if file.lower().endswith('.json'):
+                        json_files.append(file)
+            
+            # ファイルが見つからない場合は通常のファイルダイアログを表示
+            if not json_files:
+                filename, _ = QFileDialog.getOpenFileName(
+                    self,
+                    f"レイアウトプロパティファイルを読み込み (デフォルトフォルダにファイルがありません)",
+                    default_folder,
+                    "JSON Files (*.json);;All Files (*)"
+                )
+                
+                if not filename:
+                    return
+            else:
+                # ファイル選択ダイアログを作成
+                dialog = LayoutFileSelectDialog(default_folder, json_files, self)
+                if dialog.exec_() != QDialog.Accepted:
+                    return
+                
+                selected_file = dialog.get_selected_file()
+                if not selected_file:
+                    return
+                
+                # フルパスかファイル名かを判定
+                if os.path.isabs(selected_file):
+                    # フルパスの場合はそのまま使用
+                    filename = selected_file
+                else:
+                    # ファイル名のみの場合はパスを結合
+                    filename = os.path.join(default_folder, selected_file)
+            
+            # JSONファイルから読み込み
+            with open(filename, 'r', encoding='utf-8') as f:
+                layout_properties = json.load(f)
+            
+            # レイアウトプロパティの検証
+            if not self.validate_layout_properties(layout_properties):
+                self.iface.messageBar().pushMessage(
+                    "警告", "レイアウトプロパティファイルの形式が無効です。",
+                    level=Qgis.Warning, duration=3
+                )
+                return
+            
+            # アイテム数の確認
+            saved_items_count = len(layout_properties.get('items', []))
+            current_items = self.get_valid_layout_items()
+            current_items_count = len(current_items)
+            
+            if saved_items_count != current_items_count:
+                reply = QMessageBox.question(
+                    self,
+                    "アイテム数不一致",
+                    f"保存されたアイテム数({saved_items_count})と\n"
+                    f"現在のレイアウトのアイテム数({current_items_count})が異なります。\n\n"
+                    f"可能な範囲で適用しますか？",
+                    QMessageBox.Yes | QMessageBox.No,
+                    QMessageBox.Yes
+                )
+                
+                if reply == QMessageBox.No:
+                    return
+            
+            # レイアウトプロパティを適用
+            applied_count = self.apply_layout_properties(layout_properties)
+            
+            # アイテム一覧を更新
+            self.load_layout_items()
+            self.load_layout_info()
+            
+            self.iface.messageBar().pushMessage(
+                "成功", f"レイアウトプロパティが読み込まれました: {os.path.basename(filename)}\n適用済みアイテム数: {applied_count}",
+                level=Qgis.Success, duration=5
+            )
+            
+        except FileNotFoundError:
+            self.iface.messageBar().pushMessage(
+                "エラー", "ファイルが見つかりません。",
+                level=Qgis.Critical, duration=5
+            )
+        except json.JSONDecodeError:
+            self.iface.messageBar().pushMessage(
+                "エラー", "JSONファイルの解析に失敗しました。",
+                level=Qgis.Critical, duration=5
+            )
+        except Exception as e:
+            self.iface.messageBar().pushMessage(
+                "エラー", f"レイアウトプロパティの読み込みに失敗しました: {str(e)}",
+                level=Qgis.Critical, duration=5
+            )
+    
+    def collect_layout_properties(self):
+        """レイアウト全体のプロパティを収集"""
+        from datetime import datetime
+        
+        layout_properties = {
+            'layout_name': self.current_layout.name(),
+            'save_timestamp': datetime.now().isoformat(),
+            'page_count': self.current_layout.pageCollection().pageCount(),
+            'items': []
+        }
+        
+        # ページ情報を追加
+        pages_info = []
+        for i in range(self.current_layout.pageCollection().pageCount()):
+            page = self.current_layout.pageCollection().page(i)
+            pages_info.append({
+                'page_number': i + 1,
+                'width': page.pageSize().width(),
+                'height': page.pageSize().height()
+            })
+        layout_properties['pages'] = pages_info
+        
+        # 有効なレイアウトアイテムを取得
+        valid_items = self.get_valid_layout_items()
+        
+        # 各アイテムのプロパティを収集
+        for item in valid_items:
+            try:
+                item_properties = self.collect_item_properties(item)
+                # レイアウト内での順序情報を追加
+                item_properties['layout_order'] = len(layout_properties['items'])
+                layout_properties['items'].append(item_properties)
+            except Exception as e:
+                print(f"アイテムプロパティ収集エラー: {str(e)}")
+                continue
+        
+        print(f"レイアウトプロパティ収集完了: {len(layout_properties['items'])}個のアイテム")
+        return layout_properties
+    
+    def get_valid_layout_items(self):
+        """有効なレイアウトアイテムのリストを取得"""
+        if not self.current_layout:
+            return []
+        
+        items = self.current_layout.items()
+        valid_items = []
+        
+        for item in items:
+            if self.is_valid_layout_item_relaxed(item):
+                valid_items.append(item)
+        
+        return valid_items
+    
+    def validate_layout_properties(self, layout_properties):
+        """レイアウトプロパティファイルの妥当性をチェック"""
+        try:
+            # 必須フィールドのチェック
+            required_fields = ['layout_name', 'items']
+            for field in required_fields:
+                if field not in layout_properties:
+                    return False
+            
+            # itemsが配列かチェック
+            if not isinstance(layout_properties['items'], list):
+                return False
+            
+            # 各アイテムの基本構造をチェック
+            for item_data in layout_properties['items']:
+                if not isinstance(item_data, dict):
+                    return False
+                if 'item_type' not in item_data:
+                    return False
+                if 'properties' not in item_data:
+                    return False
+            
+            return True
+        except:
+            return False
+    
+    def apply_layout_properties(self, layout_properties):
+        """レイアウト全体にプロパティを適用"""
+        if not self.current_layout:
+            return 0
+        
+        try:
+            # レイアウトの変更を開始
+            self.current_layout.undoStack().beginCommand(self.current_layout, "レイアウトプロパティ一括適用")
+            
+            applied_count = 0
+            current_items = self.get_valid_layout_items()
+            saved_items = layout_properties['items']
+            
+            # アイテムのマッチング方法を選択
+            matching_method = self.determine_matching_method(current_items, saved_items)
+            
+            for i, saved_item_data in enumerate(saved_items):
+                try:
+                    # 対応するアイテムを見つける
+                    target_item = self.find_matching_item(current_items, saved_item_data, i, matching_method)
+                    
+                    if target_item:
+                        # プロパティを適用
+                        self.apply_properties_to_item_silent(target_item, saved_item_data)
+                        applied_count += 1
+                        print(f"プロパティ適用成功: {target_item.__class__.__name__}")
+                    else:
+                        print(f"対応するアイテムが見つかりません: {saved_item_data.get('item_type', 'Unknown')}")
+                        
+                except Exception as e:
+                    print(f"アイテムプロパティ適用エラー: {str(e)}")
+                    continue
+            
+            # レイアウト全体を更新
+            self.current_layout.refresh()
+            if hasattr(self.current_layout, 'updateBounds'):
+                self.current_layout.updateBounds()
+            
+            # 変更を確定
+            self.current_layout.undoStack().endCommand()
+            
+            print(f"レイアウトプロパティ適用完了: {applied_count}/{len(saved_items)}個のアイテム")
+            return applied_count
+            
+        except Exception as e:
+            try:
+                self.current_layout.undoStack().cancelCommand()
+            except:
+                pass
+            raise e
+    
+    def determine_matching_method(self, current_items, saved_items):
+        """アイテムのマッチング方法を決定"""
+        # UUID によるマッチングを優先
+        current_uuids = set()
+        saved_uuids = set()
+        
+        for item in current_items:
+            if hasattr(item, 'uuid'):
+                current_uuids.add(item.uuid())
+        
+        for item_data in saved_items:
+            uuid = item_data.get('properties', {}).get('uuid')
+            if uuid:
+                saved_uuids.add(uuid)
+        
+        # UUIDの一致率を計算
+        uuid_match_rate = len(current_uuids & saved_uuids) / max(len(current_uuids), len(saved_uuids), 1)
+        
+        if uuid_match_rate > 0.5:
+            return 'uuid'
+        else:
+            return 'order'  # 順序による対応
+    
+    def find_matching_item(self, current_items, saved_item_data, index, matching_method):
+        """保存されたアイテムデータに対応する現在のアイテムを見つける"""
+        if matching_method == 'uuid':
+            # UUIDによるマッチング
+            saved_uuid = saved_item_data.get('properties', {}).get('uuid')
+            if saved_uuid:
+                for item in current_items:
+                    if hasattr(item, 'uuid') and item.uuid() == saved_uuid:
+                        return item
+        
+        # 順序によるマッチング（フォールバック）
+        if index < len(current_items):
+            return current_items[index]
+        
+        # タイプによるマッチング（最後の手段）
+        saved_item_type = saved_item_data.get('item_type')
+        if saved_item_type:
+            for item in current_items:
+                if item.__class__.__name__ == saved_item_type:
+                    return item
+        
+        return None
+    
+    def apply_properties_to_item_silent(self, item, item_data):
+        """アイテムにプロパティを適用（エラーを内部で処理）"""
+        try:
+            props = item_data['properties']
+            
+            # 基本プロパティの適用
+            if 'id' in props and hasattr(item, 'setId'):
+                new_id = props['id']
+                if new_id and item.id() != new_id:
+                    item.setId(new_id)
+            
+            if 'visible' in props and hasattr(item, 'setVisibility'):
+                new_visibility = props['visible']
+                if item.isVisible() != new_visibility:
+                    item.setVisibility(new_visibility)
+            
+            # 位置の適用
+            if 'position' in props and hasattr(item, 'attemptMove'):
+                pos_data = props['position']
+                new_pos = QgsLayoutPoint(pos_data['x'], pos_data['y'], QgsUnitTypes.LayoutMillimeters)
+                item.attemptMove(new_pos)
+            
+            # サイズの適用
+            if 'size' in props and hasattr(item, 'attemptResize'):
+                size_data = props['size']
+                new_size = QgsLayoutSize(size_data['width'], size_data['height'], QgsUnitTypes.LayoutMillimeters)
+                item.attemptResize(new_size)
+            
+            # 回転の適用
+            if 'rotation' in props and hasattr(item, 'setItemRotation'):
+                new_rotation = props['rotation']
+                if abs(item.itemRotation() - new_rotation) > 0.01:
+                    item.setItemRotation(new_rotation)
+            
+            # アイテム固有のプロパティを適用
+            item_type = item.__class__.__name__
+            if item_type == 'QgsLayoutItemLabel':
+                self.apply_label_properties(item, props)
+            elif item_type == 'QgsLayoutItemMap':
+                self.apply_map_properties(item, props)
+            elif item_type == 'QgsLayoutItemPicture':
+                self.apply_picture_properties(item, props)
+            
+            # アイテムの更新
+            if hasattr(item, 'refresh'):
+                item.refresh()
+            if hasattr(item, 'update'):
+                item.update()
+            if hasattr(item, 'invalidateCache'):
+                item.invalidateCache()
+            
+        except Exception as e:
+            print(f"アイテムプロパティ適用エラー（サイレント）: {str(e)}")
+            # エラーがあっても処理を続行
+    
+    def apply_label_properties(self, label_item, props):
+        """ラベルアイテムにプロパティを適用"""
+        updated = False
+        try:
+            if 'text' in props and hasattr(label_item, 'setText'):
+                current_text = label_item.text() if hasattr(label_item, 'text') else ""
+                new_text = props['text']
+                if current_text != new_text:
+                    label_item.setText(new_text)
+                    updated = True
+                    if hasattr(label_item, 'adjustSizeToText'):
+                        label_item.adjustSizeToText()
+            
+            if 'font' in props and hasattr(label_item, 'setFont'):
+                font_data = props['font']
+                current_font = label_item.font()
+                new_font = label_item.font()
+                
+                font_changed = False
+                if 'family' in font_data and current_font.family() != font_data['family']:
+                    new_font.setFamily(font_data['family'])
+                    font_changed = True
+                if 'size' in font_data and current_font.pointSize() != font_data['size']:
+                    new_font.setPointSize(font_data['size'])
+                    font_changed = True
+                if 'bold' in font_data and current_font.bold() != font_data['bold']:
+                    new_font.setBold(font_data['bold'])
+                    font_changed = True
+                if 'italic' in font_data and current_font.italic() != font_data['italic']:
+                    new_font.setItalic(font_data['italic'])
+                    font_changed = True
+                
+                if font_changed:
+                    label_item.setFont(new_font)
+                    updated = True
+                    if hasattr(label_item, 'adjustSizeToText'):
+                        label_item.adjustSizeToText()
+            
+        except Exception as e:
+            print(f"ラベルプロパティ適用エラー: {str(e)}")
+        
+        return updated
+    
+    def apply_map_properties(self, map_item, props):
+        """地図アイテムにプロパティを適用"""
+        updated = False
+        try:
+            if 'scale' in props and hasattr(map_item, 'setScale'):
+                current_scale = map_item.scale()
+                new_scale = props['scale']
+                if abs(current_scale - new_scale) > 0.01:
+                    map_item.setScale(new_scale)
+                    updated = True
+        except Exception as e:
+            print(f"地図プロパティ適用エラー: {str(e)}")
+        
+        return updated
+    
+    def apply_picture_properties(self, picture_item, props):
+        """画像アイテムにプロパティを適用"""
+        updated = False
+        try:
+            if 'picture_path' in props and hasattr(picture_item, 'setPicturePath'):
+                current_path = picture_item.picturePath()
+                new_path = props['picture_path']
+                if current_path != new_path:
+                    picture_item.setPicturePath(new_path)
+                    updated = True
+        except Exception as e:
+            print(f"画像プロパティ適用エラー: {str(e)}")
+        
+        return updated
+
+    def refresh_item_info(self):
+        """アイテム情報を更新"""
+        if self.current_layout:
+            self.load_layout_items()
+            self.load_layout_info()
+            self.iface.messageBar().pushMessage(
+                "情報", "アイテム情報を更新しました。",
+                level=Qgis.Info, duration=2
+            )
+    
+    def clear_item_info(self):
+        """アイテム情報をクリア"""
+        self.items_tree.clear()
+        self.info_text.clear()
+        self.clear_properties_form()
+    
+    def open_layout_manager(self):
+        """選択されたレイアウトでレイアウトマネージャを開く"""
+        if not self.current_layout:
+            self.iface.messageBar().pushMessage(
+                "警告", "レイアウトを選択してください。",
+                level=Qgis.Warning, duration=3
+            )
+            return
+        
+        # レイアウトマネージャ（デザイナー）を開く
+        self.iface.openLayoutDesigner(self.current_layout)
+        self.accept()
+    
     def load_layout_info(self):
         """レイアウト情報を読み込む"""
         if not self.current_layout:
@@ -1028,175 +1540,7 @@ class LayoutSelectorDialog(QDialog):
                 info_lines.append(f"  {i+1}. エラー: {str(e)}")
         
         self.info_text.setText("\n".join(info_lines))
-    
-    def refresh_item_info(self):
-        """アイテム情報を更新"""
-        if self.current_layout:
-            self.load_layout_items()
-            self.load_layout_info()
-            self.iface.messageBar().pushMessage(
-                "情報", "アイテム情報を更新しました。",
-                level=Qgis.Info, duration=2
-            )
-    
-    def clear_item_info(self):
-        """アイテム情報をクリア"""
-        self.items_tree.clear()
-        self.info_text.clear()
-        self.clear_properties_form()
-        
-    def open_layout_manager(self):
-        """選択されたレイアウトでレイアウトマネージャを開く"""
-        if not self.current_layout:
-            self.iface.messageBar().pushMessage(
-                "警告", "レイアウトを選択してください。",
-                level=Qgis.Warning, duration=3
-            )
-            return
-        
-        # レイアウトマネージャ（デザイナー）を開く
-        self.iface.openLayoutDesigner(self.current_layout)
-        self.accept()
-    
-    def save_item_properties(self):
-        """選択されたアイテムのプロパティをファイルに保存"""
-        current_item = self.items_tree.currentItem()
-        if not current_item:
-            self.iface.messageBar().pushMessage(
-                "警告", "保存するアイテムを選択してください。",
-                level=Qgis.Warning, duration=3
-            )
-            return
-        
-        layout_item = current_item.data(0, Qt.UserRole)
-        if not layout_item or not isinstance(layout_item, QgsLayoutItem):
-            self.iface.messageBar().pushMessage(
-                "警告", "有効なレイアウトアイテムが選択されていません。",
-                level=Qgis.Warning, duration=3
-            )
-            return
-        
-        try:
-            # アイテム名を取得してデフォルトファイル名を作成
-            item_name = self.get_item_display_name(layout_item)
-            default_filename = f"{item_name}_properties.json"
-            
-            # ファイル保存ダイアログ
-            filename, _ = QFileDialog.getSaveFileName(
-                self,
-                "プロパティファイルを保存",
-                default_filename,
-                "JSON Files (*.json);;All Files (*)"
-            )
-            
-            if not filename:
-                return
-            
-            # プロパティを収集
-            properties = self.collect_item_properties(layout_item)
-            
-            # JSONファイルに保存
-            with open(filename, 'w', encoding='utf-8') as f:
-                json.dump(properties, f, ensure_ascii=False, indent=2)
-            
-            self.iface.messageBar().pushMessage(
-                "成功", f"プロパティが保存されました: {filename}",
-                level=Qgis.Success, duration=3
-            )
-            
-        except Exception as e:
-            self.iface.messageBar().pushMessage(
-                "エラー", f"プロパティの保存に失敗しました: {str(e)}",
-                level=Qgis.Critical, duration=5
-            )
-    
-    def load_item_properties_from_file(self):
-        """ファイルからプロパティを読み込んで適用"""
-        current_item = self.items_tree.currentItem()
-        if not current_item:
-            self.iface.messageBar().pushMessage(
-                "警告", "プロパティを適用するアイテムを選択してください。",
-                level=Qgis.Warning, duration=3
-            )
-            return
-        
-        layout_item = current_item.data(0, Qt.UserRole)
-        if not layout_item or not isinstance(layout_item, QgsLayoutItem):
-            self.iface.messageBar().pushMessage(
-                "警告", "有効なレイアウトアイテムが選択されていません。",
-                level=Qgis.Warning, duration=3
-            )
-            return
-        
-        try:
-            # ファイル読み込みダイアログ
-            filename, _ = QFileDialog.getOpenFileName(
-                self,
-                "プロパティファイルを読み込み",
-                "",
-                "JSON Files (*.json);;All Files (*)"
-            )
-            
-            if not filename:
-                return
-            
-            # JSONファイルから読み込み
-            with open(filename, 'r', encoding='utf-8') as f:
-                properties = json.load(f)
-            
-            # プロパティの検証
-            if not self.validate_properties(properties):
-                self.iface.messageBar().pushMessage(
-                    "警告", "プロパティファイルの形式が無効です。",
-                    level=Qgis.Warning, duration=3
-                )
-                return
-            
-            # アイテムタイプの確認
-            current_item_type = layout_item.__class__.__name__
-            saved_item_type = properties.get('item_type', '')
-            
-            if current_item_type != saved_item_type:
-                reply = QMessageBox.question(
-                    self,
-                    "アイテムタイプ不一致",
-                    f"保存されたプロパティのアイテムタイプ({saved_item_type})と\n"
-                    f"選択中のアイテムタイプ({current_item_type})が異なります。\n\n"
-                    f"適用しますか？",
-                    QMessageBox.Yes | QMessageBox.No,
-                    QMessageBox.No
-                )
-                
-                if reply == QMessageBox.No:
-                    return
-            
-            # プロパティを適用
-            self.apply_properties_to_item(layout_item, properties)
-            
-            # プロパティ表示を更新
-            self.load_item_properties(layout_item)
-            
-            self.iface.messageBar().pushMessage(
-                "成功", f"プロパティが読み込まれました: {filename}",
-                level=Qgis.Success, duration=3
-            )
-            
-        except FileNotFoundError:
-            self.iface.messageBar().pushMessage(
-                "エラー", "ファイルが見つかりません。",
-                level=Qgis.Critical, duration=5
-            )
-        except json.JSONDecodeError:
-            self.iface.messageBar().pushMessage(
-                "エラー", "JSONファイルの解析に失敗しました。",
-                level=Qgis.Critical, duration=5
-            )
-        except Exception as e:
-            self.iface.messageBar().pushMessage(
-                "エラー", f"プロパティの読み込みに失敗しました: {str(e)}",
-                level=Qgis.Critical, duration=5
-            )
-    
+
     def collect_item_properties(self, item):
         """アイテムのプロパティを収集してディクショナリとして返す"""
         properties = {
@@ -1282,171 +1626,128 @@ class LayoutSelectorDialog(QDialog):
                 properties['properties']['picture_path'] = picture_item.picturePath()
         except Exception as e:
             print(f"画像プロパティ収集エラー: {str(e)}")
+
+class LayoutFileSelectDialog(QDialog):
+    """レイアウトファイル選択ダイアログ"""
     
-    def validate_properties(self, properties):
-        """プロパティファイルの妥当性をチェック"""
-        try:
-            # 必須フィールドのチェック
-            if 'item_type' not in properties:
-                return False
-            if 'properties' not in properties:
-                return False
-            if not isinstance(properties['properties'], dict):
-                return False
-            
-            return True
-        except:
-            return False
-    
-    def apply_properties_to_item(self, item, properties):
-        """アイテムにプロパティを適用"""
-        try:
-            # レイアウトの変更を開始
-            self.current_layout.undoStack().beginCommand(item, "プロパティファイル適用")
-            
-            props = properties['properties']
-            updated = False
-            
-            # 基本プロパティの適用
-            if 'id' in props and hasattr(item, 'setId'):
-                current_id = item.id()
-                new_id = props['id']
-                if current_id != new_id:
-                    item.setId(new_id)
-                    updated = True
-            
-            if 'visible' in props and hasattr(item, 'setVisibility'):
-                current_visibility = item.isVisible()
-                new_visibility = props['visible']
-                if current_visibility != new_visibility:
-                    item.setVisibility(new_visibility)
-                    updated = True
-            
-            # 位置の適用
-            if 'position' in props and hasattr(item, 'attemptMove'):
-                pos_data = props['position']
-                new_pos = QgsLayoutPoint(pos_data['x'], pos_data['y'], QgsUnitTypes.LayoutMillimeters)
-                item.attemptMove(new_pos)
-                updated = True
-            
-            # サイズの適用
-            if 'size' in props and hasattr(item, 'attemptResize'):
-                size_data = props['size']
-                new_size = QgsLayoutSize(size_data['width'], size_data['height'], QgsUnitTypes.LayoutMillimeters)
-                item.attemptResize(new_size)
-                updated = True
-            
-            # 回転の適用
-            if 'rotation' in props and hasattr(item, 'setItemRotation'):
-                current_rotation = item.itemRotation()
-                new_rotation = props['rotation']
-                if abs(current_rotation - new_rotation) > 0.01:
-                    item.setItemRotation(new_rotation)
-                    updated = True
-            
-            # アイテム固有のプロパティを適用
-            item_type = item.__class__.__name__
-            if item_type == 'QgsLayoutItemLabel':
-                updated = self.apply_label_properties(item, props) or updated
-            elif item_type == 'QgsLayoutItemMap':
-                updated = self.apply_map_properties(item, props) or updated
-            elif item_type == 'QgsLayoutItemPicture':
-                updated = self.apply_picture_properties(item, props) or updated
-            
-            if updated:
-                # アイテムの更新
-                if hasattr(item, 'refresh'):
-                    item.refresh()
-                if hasattr(item, 'update'):
-                    item.update()
-                if hasattr(item, 'invalidateCache'):
-                    item.invalidateCache()
-                
-                # レイアウト全体の更新
-                self.current_layout.refresh()
-                self.current_layout.undoStack().endCommand()
-                
-                # アイテム一覧を更新（選択を保持）
-                self.refresh_layout_items_with_selection(item)
-            else:
-                self.current_layout.undoStack().cancelCommand()
-            
-        except Exception as e:
+    def __init__(self, folder_path, json_files, parent=None):
+        super().__init__(parent)
+        self.folder_path = folder_path
+        self.json_files = json_files
+        self.selected_file = None
+        self.init_ui()
+        
+    def init_ui(self):
+        """UIを初期化"""
+        self.setWindowTitle("レイアウトプロパティファイルを選択")
+        self.setModal(True)
+        self.resize(500, 400)
+        
+        layout = QVBoxLayout()
+        
+        # フォルダパス表示
+        folder_label = QLabel(f"フォルダ: {self.folder_path}")
+        folder_label.setWordWrap(True)
+        layout.addWidget(folder_label)
+        
+        # ファイル一覧
+        files_label = QLabel("利用可能なレイアウトプロパティファイル:")
+        layout.addWidget(files_label)
+        
+        self.file_list = QListWidget()
+        
+        # ファイル情報を表示
+        for file in self.json_files:
             try:
-                self.current_layout.undoStack().cancelCommand()
-            except:
-                pass
-            raise e
-    
-    def apply_label_properties(self, label_item, props):
-        """ラベルアイテムにプロパティを適用"""
-        updated = False
-        try:
-            if 'text' in props and hasattr(label_item, 'setText'):
-                current_text = label_item.text() if hasattr(label_item, 'text') else ""
-                new_text = props['text']
-                if current_text != new_text:
-                    label_item.setText(new_text)
-                    updated = True
-                    if hasattr(label_item, 'adjustSizeToText'):
-                        label_item.adjustSizeToText()
-            
-            if 'font' in props and hasattr(label_item, 'setFont'):
-                font_data = props['font']
-                current_font = label_item.font()
-                new_font = label_item.font()
+                file_path = os.path.join(self.folder_path, file)
+                # ファイルの詳細情報を取得
+                file_size = os.path.getsize(file_path)
+                file_time = os.path.getmtime(file_path)
                 
-                font_changed = False
-                if 'family' in font_data and current_font.family() != font_data['family']:
-                    new_font.setFamily(font_data['family'])
-                    font_changed = True
-                if 'size' in font_data and current_font.pointSize() != font_data['size']:
-                    new_font.setPointSize(font_data['size'])
-                    font_changed = True
-                if 'bold' in font_data and current_font.bold() != font_data['bold']:
-                    new_font.setBold(font_data['bold'])
-                    font_changed = True
-                if 'italic' in font_data and current_font.italic() != font_data['italic']:
-                    new_font.setItalic(font_data['italic'])
-                    font_changed = True
+                from datetime import datetime
+                time_str = datetime.fromtimestamp(file_time).strftime("%Y-%m-%d %H:%M")
                 
-                if font_changed:
-                    label_item.setFont(new_font)
-                    updated = True
-                    if hasattr(label_item, 'adjustSizeToText'):
-                        label_item.adjustSizeToText()
-            
-        except Exception as e:
-            print(f"ラベルプロパティ適用エラー: {str(e)}")
+                # JSONファイルからレイアウト名を取得（可能な場合）
+                layout_name = ""
+                try:
+                    with open(file_path, 'r', encoding='utf-8') as f:
+                        data = json.load(f)
+                        if 'layout_name' in data:
+                            layout_name = f" (レイアウト: {data['layout_name']})"
+                except:
+                    pass
+                
+                # リストアイテムを作成
+                item_text = f"{file}{layout_name}\n  サイズ: {file_size:,} bytes, 更新: {time_str}"
+                item = QListWidgetItem(item_text)
+                item.setData(Qt.UserRole, file)
+                self.file_list.addItem(item)
+                
+            except Exception as e:
+                # エラーがあってもファイル名だけは表示
+                item = QListWidgetItem(f"{file} (情報取得エラー)")
+                item.setData(Qt.UserRole, file)
+                self.file_list.addItem(item)
         
-        return updated
+        # ダブルクリックで選択
+        self.file_list.itemDoubleClicked.connect(self.on_file_double_clicked)
+        
+        layout.addWidget(self.file_list)
+        
+        # ボタン
+        button_layout = QHBoxLayout()
+        
+        self.ok_button = QPushButton("選択")
+        self.ok_button.clicked.connect(self.accept)
+        self.ok_button.setEnabled(False)
+        button_layout.addWidget(self.ok_button)
+        
+        self.cancel_button = QPushButton("キャンセル")
+        self.cancel_button.clicked.connect(self.reject)
+        button_layout.addWidget(self.cancel_button)
+        
+        self.browse_button = QPushButton("他のフォルダを参照...")
+        self.browse_button.clicked.connect(self.browse_other_folder)
+        button_layout.addWidget(self.browse_button)
+        
+        layout.addLayout(button_layout)
+        
+        # ファイル選択時にOKボタンを有効化
+        self.file_list.currentItemChanged.connect(self.on_selection_changed)
+        
+        self.setLayout(layout)
+        
+        # 最初のファイルを選択
+        if self.file_list.count() > 0:
+            self.file_list.setCurrentRow(0)
     
-    def apply_map_properties(self, map_item, props):
-        """地図アイテムにプロパティを適用"""
-        updated = False
-        try:
-            if 'scale' in props and hasattr(map_item, 'setScale'):
-                current_scale = map_item.scale()
-                new_scale = props['scale']
-                if abs(current_scale - new_scale) > 0.01:
-                    map_item.setScale(new_scale)
-                    updated = True
-        except Exception as e:
-            print(f"地図プロパティ適用エラー: {str(e)}")
-        
-        return updated
+    def on_selection_changed(self, current, previous):
+        """選択が変更された時の処理"""
+        if current:
+            self.selected_file = current.data(Qt.UserRole)
+            self.ok_button.setEnabled(True)
+        else:
+            self.selected_file = None
+            self.ok_button.setEnabled(False)
     
-    def apply_picture_properties(self, picture_item, props):
-        """画像アイテムにプロパティを適用"""
-        updated = False
-        try:
-            if 'picture_path' in props and hasattr(picture_item, 'setPicturePath'):
-                current_path = picture_item.picturePath()
-                new_path = props['picture_path']
-                if current_path != new_path:
-                    picture_item.setPicturePath(new_path)
-                    updated = True
-        except Exception as e:
-            print(f"画像プロパティ適用エラー: {str(e)}")
+    def on_file_double_clicked(self, item):
+        """ファイルがダブルクリックされた時の処理"""
+        self.selected_file = item.data(Qt.UserRole)
+        self.accept()
+    
+    def browse_other_folder(self):
+        """他のフォルダを参照"""
+        filename, _ = QFileDialog.getOpenFileName(
+            self,
+            "レイアウトプロパティファイルを選択",
+            self.folder_path,
+            "JSON Files (*.json);;All Files (*)"
+        )
         
-        return updated
+        if filename:
+            self.selected_file = filename  # フルパスを保存
+            self.accept()
+    
+    def get_selected_file(self):
+        """選択されたファイルを取得"""
+        return self.selected_file
