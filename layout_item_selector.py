@@ -37,8 +37,14 @@ from qgis.gui import QgsMessageBar
 # Initialize Qt resources from file resources.py
 try:
     from .resources import *
-except ImportError:
-    pass
+    print("リソースファイルを正常に読み込みました")
+except ImportError as e:
+    print(f"リソースファイルの読み込みに失敗: {e}")
+    try:
+        import resources
+        print("相対パスでリソースファイルを読み込みました")
+    except ImportError:
+        print("リソースファイルが見つかりません")
 
 class LayoutItemSelector:
     """QGIS Plugin Implementation."""
@@ -164,7 +170,21 @@ class LayoutItemSelector:
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
+        # アイコンパスを設定（リソースパスと代替パス）
         icon_path = ':/plugins/layout_item_selector/icon.png'
+        
+        # フォールバック用のアイコンパス
+        import os
+        fallback_icon_path = os.path.join(os.path.dirname(__file__), 'icon.png')
+        
+        # アイコンが存在するかチェック
+        icon = QIcon(icon_path)
+        if icon.isNull():
+            # リソースからロードできない場合は直接ファイルパスを使用
+            icon = QIcon(fallback_icon_path)
+            if not icon.isNull():
+                icon_path = fallback_icon_path
+        
         self.add_action(
             icon_path,
             text=self.tr(u'レイアウト選択'),

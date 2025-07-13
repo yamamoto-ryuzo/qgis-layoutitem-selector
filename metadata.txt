@@ -2,7 +2,7 @@
 name=Layout Item Selector
 qgisMinimumVersion=3.0
 description=レイアウト印刷を選択してレイアウトマネージャを開き、アイテムの事前編集も可能なプラグイン
-version=1.2.7
+version=1.2.8
 author=yamamoto-ryuzo
 email=
 
@@ -10,6 +10,7 @@ about=このプラグインは、QGISのレイアウト印刷を選択してレ�
 
 # Uncomment the following line and add your changelog:
 changelog=
+    1.2.8: ツールバーアイコン表示問題の修正、新しいリソースファイル生成
     1.2.7: プロパティ適用後のアイテム選択状態保持機能を追加
     1.2.6: beginCommand引数エラーの修正、undoスタック処理の正常化
     1.2.5: プロパティ更新の根本的な修正、位置・サイズ・テキスト更新の改善
