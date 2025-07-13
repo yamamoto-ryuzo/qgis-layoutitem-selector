@@ -1,25 +1,29 @@
 [general]
 name=Layout Item Selector
 qgisMinimumVersion=3.0
-description=レイアウト印刷を選択してレイアウトマネージャを開くプラグイン
-version=1.0.0
+description=レイアウト印刷を選択してレイアウトマネージャを開き、アイテムの事前編集も可能なプラグイン
+version=1.2.7
 author=yamamoto-ryuzo
 email=
 
-about=このプラグインは、QGISのレイアウト印刷を選択してレイアウトマネージャを開く機能を提供します。
+about=このプラグインは、QGISのレイアウト印刷を選択してレイアウトマネージャを開く機能に加え、レイアウトアイテムの詳細情報表示と事前編集機能を提供します。レイアウトマネージャを開く前にアイテムのプロパティを確認・編集できるため、効率的なレイアウト作業が可能です。
 
-tracker=https://github.com/yamamoto-ryuzo/qgis-layoutitem-selector/issues
-repository=https://github.com/yamamoto-ryuzo/qgis-layoutitem-selector
-# End of mandatory metadata
-
-# Recommended items:
-
-hasProcessingProvider=no
 # Uncomment the following line and add your changelog:
-# changelog=
+changelog=
+    1.2.7: プロパティ適用後のアイテム選択状態保持機能を追加
+    1.2.6: beginCommand引数エラーの修正、undoスタック処理の正常化
+    1.2.5: プロパティ更新の根本的な修正、位置・サイズ・テキスト更新の改善
+    1.2.4: ラベルテキスト更新問題の修正、アイテム更新処理の強化
+    1.2.3: QgsMessageBarメッセージレベル定数エラーの修正、構文エラーの修正
+    1.2.2: アイテム取得問題の調査・修正、詳細デバッグ情報の追加
+    1.2.1: QgsLayoutItemタイプ定数エラーの修正、アイテム判定の改善
+    1.2.0: アイテム選択とプロパティを同一画面で表示、詳細情報の即時確認機能追加
+    1.1.1: QGraphicsRectItemエラーの修正、エラーハンドリングの強化
+    1.1.0: アイテム情報の事前表示・編集機能を追加
+    1.0.0: 初期リリース - レイアウト選択機能
 
 # Tags are comma separated with spaces allowed
-tags=layout, print, manager
+tags=layout, print, manager, item, properties
 
 homepage=https://github.com/yamamoto-ryuzo/qgis-layoutitem-selector
 category=Plugins
@@ -34,9 +38,6 @@ deprecated=False
 # (or upgraded) can be specified.
 # Check the documentation for more information.
 # plugin_dependencies=
-
-Category of the plugin: Raster, Vector, Database or Web
-# category=
 
 # If the plugin can run on QGIS Server.
 server=False
