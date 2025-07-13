@@ -8,7 +8,7 @@
                              -------------------
         begin                : 2025-07-13
         copyright            : (C) 2025 by yamamoto-ryuzo
-        email                : 
+        email                : ryu@yamakun.net
         git sha              : $Format:%H$
  ***************************************************************************/
 

@@ -4,7 +4,7 @@ qgisMinimumVersion=3.0
 description=レイアウト印刷を選択してレイアウトマネージャを開き、アイテムの事前編集も可能なプラグイン
 version=1.3.0
 author=yamamoto-ryuzo
-email=
+email=ryu@yamakun.net
 
 about=このプラグインは、QGISのレイアウト印刷を選択してレイアウトマネージャを開く機能に加え、レイアウトアイテムの詳細情報表示と事前編集機能を提供します。レイアウトマネージャを開く前にアイテムのプロパティを確認・編集できるため、効率的なレイアウト作業が可能です。
 
