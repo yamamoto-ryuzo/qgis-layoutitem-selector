@@ -1458,24 +1458,6 @@ class LayoutSelectorDialog(QDialog):
                                     updated = True
                                     print(f"Y座標更新: {pos.y():.2f} -> {new_y}")
                                     
-                    elif label_text in [self.tr("Width (mm)"), self.tr("Height (mm)")]:
-                        # サイズの更新
-                        if hasattr(layout_item, 'attemptResize'):
-                            size = layout_item.sizeWithUnits()
-                            if label_text == self.tr("Width (mm)"):
-                                new_width = widget.value()
-                                if abs(size.width() - new_width) > 0.01:
-                                    new_size = QgsLayoutSize(new_width, size.height(), QgsUnitTypes.LayoutMillimeters)
-                                    layout_item.attemptResize(new_size)
-                                    updated = True
-                                    print(f"幅更新: {size.width():.2f} -> {new_width}")
-                            elif label_text == self.tr("Height (mm)"):
-                                new_height = widget.value()
-                                if abs(size.height() - new_height) > 0.01:
-                                    new_size = QgsLayoutSize(size.width(), new_height, QgsUnitTypes.LayoutMillimeters)
-                                    layout_item.attemptResize(new_size)
-                                    updated = True
-                                    print(f"高さ更新: {size.height():.2f} -> {new_height}")
                                     
                     elif label_text == self.tr("Rotation Angle") and hasattr(layout_item, 'setItemRotation'):
                         old_rotation = layout_item.itemRotation()
