@@ -352,21 +352,15 @@ class LayoutSelectorDialog(QDialog):
         self.items_tree.setHeaderLabels([
             tr("Item Name"), 
             tr("Type"), 
-            tr("Visible"), 
-            tr("Position(X,Y)"), 
-            tr("Size(W×H)")
+            tr("Visible")
         ])
         self.items_tree.currentItemChanged.connect(self.on_item_selected)
         # ダブルクリックでプロパティを直接編集画面に移動
         self.items_tree.itemDoubleClicked.connect(self.focus_on_properties)
-        
         # カラム幅を調整
         self.items_tree.setColumnWidth(0, 150)  # アイテム名
         self.items_tree.setColumnWidth(1, 80)   # タイプ
         self.items_tree.setColumnWidth(2, 60)   # 表示
-        self.items_tree.setColumnWidth(3, 80)   # 位置
-        self.items_tree.setColumnWidth(4, 80)   # サイズ
-        
         items_layout.addWidget(self.items_tree)
         
         items_widget.setLayout(items_layout)
@@ -416,7 +410,6 @@ class LayoutSelectorDialog(QDialog):
         main_layout.addWidget(right_splitter)
         
         self.setLayout(main_layout)
-        
         # 最初のレイアウトを選択
         if self.layout_list.count() > 0:
             self.layout_list.setCurrentRow(0)
@@ -455,42 +448,27 @@ class LayoutSelectorDialog(QDialog):
         valid_items = 0
         
         for item in items:
-            # すべてのアイテムの情報をデバッグ表示
             try:
                 item_class = item.__class__.__name__
                 has_display_name = hasattr(item, 'displayName')
                 has_uuid = hasattr(item, 'uuid')
                 is_layout_item = isinstance(item, QgsLayoutItem)
-                
                 print(f"アイテム: {item_class}, QgsLayoutItem: {is_layout_item}, displayName: {has_display_name}, uuid: {has_uuid}")
-                
-                # 有効なレイアウトアイテムかチェック（より緩い条件で）
                 if self.is_valid_layout_item_relaxed(item):
                     valid_items += 1
                     tree_item = QTreeWidgetItem()
-                    
-                    # アイテム名を取得（複数の方法を試行）
                     display_name = self.get_item_display_name(item)
                     item_type = self.get_item_type_name(item)
                     visibility = self.get_item_visibility(item)
-                    
-                    # 位置とサイズ情報を追加
-                    pos_info, size_info = self.get_item_position_size(item)
-                    
                     tree_item.setText(0, display_name)
                     tree_item.setText(1, item_type)
                     tree_item.setText(2, visibility)
-                    tree_item.setText(3, pos_info)
-                    tree_item.setText(4, size_info)
                     tree_item.setData(0, Qt.UserRole, item)
-                    
                     # 非表示アイテムは薄いグレーで表示
                     if visibility == "非表示":
-                        for col in range(5):
+                        for col in range(3):
                             tree_item.setForeground(col, Qt.gray)
-                    
                     self.items_tree.addTopLevelItem(tree_item)
-                    
             except Exception as e:
                 print(f"アイテム処理エラー: {e}")
                 continue
