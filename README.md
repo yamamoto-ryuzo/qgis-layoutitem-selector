@@ -1,7 +1,8 @@
 # Layout Item Selector / レイアウトアイテム選択プラグイン
 **[EN] A QGIS plugin for using one layout as multiple drawings and registers.**  
 **[JP] 一つのレイアウトを複数の図面・台帳として利用するためのQGISプラグインです。**  
-<img width="994" height="724" alt="image" src="https://github.com/user-attachments/assets/737318cf-7e4b-4657-aac7-272c69f87144" />
+<img width="485" height="721" alt="image" src="https://github.com/user-attachments/assets/f6531335-1e17-42c9-921c-a090c18fc8ea" />
+
 ## Main Features / 主な機能
 
 **[EN]**
