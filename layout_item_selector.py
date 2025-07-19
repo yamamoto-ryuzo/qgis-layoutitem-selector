@@ -299,32 +299,77 @@ class LayoutItemSelector:
 
 class LayoutSelectorDialog(QDialog):
     def _remove_print_area_rubberband(self):
-        if hasattr(self, '_print_area_rubberband') and self._print_area_rubberband:
+        # rubberbandが存在する場合のみ削除
+        rb = getattr(self, '_print_area_rubberband', None)
+        if rb:
+            print(f"[DEBUG] rubberband削除開始: {rb}")
             try:
-                self._print_area_rubberband.reset(True)
+                # rubberbandをcanvasから明示的に削除
+                if hasattr(rb, 'hide'):
+                    rb.hide()
+                if hasattr(rb, 'canvas'):
+                    canvas = rb.canvas()
+                    if hasattr(canvas, 'scene'):
+                        try:
+                            canvas.scene().removeItem(rb)
+                            print("[DEBUG] scene.removeItem実行")
+                        except Exception as e:
+                            print(f"[DEBUG] scene.removeItem失敗: {e}")
+                rb.reset(True)
+                print("[DEBUG] rubberband.reset(True) 実行")
                 # 削除メッセージを表示
                 if hasattr(self, 'iface') and hasattr(self.iface, 'messageBar'):
                     self.iface.messageBar().pushMessage(
                         "情報", "印刷範囲を削除しました。", level=3, duration=3
                     )
-            except Exception:
-                pass
+            except Exception as e:
+                print(f"[DEBUG] rubberband削除例外: {e}")
             self._print_area_rubberband = None
+        else:
+            print("[DEBUG] rubberband削除: 削除対象なし")
 
     def closeEvent(self, event):
+        self._remove_print_area_rubberband()
+        try:
+            if hasattr(self.iface, 'mapCanvas'):
+                canvas = self.iface.mapCanvas()
+                canvas.refresh()
+                if hasattr(canvas, 'unsetMapTool'):
+                    canvas.unsetMapTool(None)
+                elif hasattr(canvas, 'setMapTool'):
+                    canvas.setMapTool(None)
+        except Exception:
+            pass
         super().closeEvent(event)
 
     def reject(self):
         self._remove_print_area_rubberband()
-        # キャンバスをリフレッシュしてrubberband消去を即時反映
+        # rubberband消去を即時反映し、map toolも解除
         try:
             if hasattr(self.iface, 'mapCanvas'):
-                self.iface.mapCanvas().refresh()
+                canvas = self.iface.mapCanvas()
+                canvas.refresh()
+                # RubberBandの残像を消すためにmap toolをNoneに
+                if hasattr(canvas, 'unsetMapTool'):
+                    canvas.unsetMapTool(None)
+                elif hasattr(canvas, 'setMapTool'):
+                    canvas.setMapTool(None)
         except Exception:
             pass
         super().reject()
 
     def accept(self):
+        self._remove_print_area_rubberband()
+        try:
+            if hasattr(self.iface, 'mapCanvas'):
+                canvas = self.iface.mapCanvas()
+                canvas.refresh()
+                if hasattr(canvas, 'unsetMapTool'):
+                    canvas.unsetMapTool(None)
+                elif hasattr(canvas, 'setMapTool'):
+                    canvas.setMapTool(None)
+        except Exception:
+            pass
         super().accept()
 
 
@@ -432,7 +477,7 @@ class LayoutSelectorDialog(QDialog):
         """UIを初期化"""
         self.setWindowTitle("Layout Selection & Item Management")
         self.setModal(False)  # モデルレスにして他の操作も可能にする
-        self.resize(1000, 700)
+        self.resize(500, 700)
         
         main_layout = QHBoxLayout()
         
@@ -496,6 +541,8 @@ class LayoutSelectorDialog(QDialog):
         self.scale_spin.setRange(1, 100000000)
         self.scale_spin.setValue(1000.0)
         self.scale_spin.setSingleStep(100.0)  # 実際のステップはstepByで制御
+        # スケール値が変更されたときに印刷範囲を再表示
+        self.scale_spin.valueChanged.connect(self.show_print_area_on_map)
         scale_layout.addWidget(self.scale_spin)
         left_layout.addLayout(scale_layout)
 
@@ -669,9 +716,17 @@ class LayoutSelectorDialog(QDialog):
                 rounded_scale = new_scale
             map_items[0].setScale(rounded_scale)
             self.scale_spin.setValue(rounded_scale)
+            # スケール自動計算時も必ず印刷範囲rubberbandを再描画
+            self.show_print_area_on_map()
 
     def show_print_area_on_map(self):
         """選択中レイアウトの印刷範囲（ページサイズ・スケール考慮）を地図キャンバスに表示"""
+        # スケール値をメッセージバーに出力
+        scale = self.scale_spin.value() if hasattr(self, 'scale_spin') else None
+        if scale is not None:
+            self.iface.messageBar().pushMessage(
+                "情報", f"現在のスケール: {scale}", level=Qgis.Info, duration=2
+            )
         # 既存の印刷範囲rubberbandがあれば必ず削除
         self._remove_print_area_rubberband()
 
@@ -765,7 +820,24 @@ class LayoutSelectorDialog(QDialog):
             QgsPointXY(xmin, ymax)   # 閉じる
         ]
         rb.setToGeometry(QgsGeometry.fromPolygonXY([points]), None)
+        # 既存rubberbandがあれば削除してから新規セット
+        if hasattr(self, '_print_area_rubberband') and self._print_area_rubberband:
+            try:
+                old_rb = self._print_area_rubberband
+                if hasattr(old_rb, 'hide'):
+                    old_rb.hide()
+                if hasattr(old_rb, 'canvas'):
+                    canvas2 = old_rb.canvas()
+                    if hasattr(canvas2, 'scene'):
+                        try:
+                            canvas2.scene().removeItem(old_rb)
+                        except Exception:
+                            pass
+                old_rb.reset(True)
+            except Exception:
+                pass
         self._print_area_rubberband = rb
+        print(f"[DEBUG] 新rubberband生成: {rb}")
         self.iface.messageBar().pushMessage(
             "情報", f"印刷範囲を地図キャンバスに表示しました（スケール: {scale}, サイズ: {page_width_mm:.1f}×{page_height_mm:.1f}mm）。", level=Qgis.Info, duration=3
         )
