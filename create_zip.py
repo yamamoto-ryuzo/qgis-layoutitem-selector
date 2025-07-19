@@ -25,6 +25,15 @@ def read_metadata():
         return None
     return metadata
 
+def increment_version(version_str):
+    """バージョン文字列（例: 1.3.0）を+0.0.1して返す"""
+    parts = version_str.strip().split('.')
+    if len(parts) == 3 and all(p.isdigit() for p in parts):
+        major, minor, patch = map(int, parts)
+        patch += 1
+        return f"{major}.{minor}.{patch}"
+    return version_str
+
 def get_plugin_name():
     """PEP 8準拠のプラグイン名を取得"""
     current_dir = os.path.basename(os.getcwd())
@@ -49,7 +58,19 @@ def create_plugin_zip():
     repo_name = get_repo_name()
     plugin_name = get_plugin_name()  # PEP 8準拠の名前
     version = metadata.get('version', '1.0.0')
-    
+    # バージョン自動インクリメント
+    new_version = increment_version(version)
+    # metadata.txtのversionを書き換え
+    with open('metadata.txt', 'r', encoding='utf-8') as f:
+        lines = f.readlines()
+    with open('metadata.txt', 'w', encoding='utf-8') as f:
+        for line in lines:
+            if line.strip().startswith('version='):
+                f.write(f'version={new_version}\n')
+            else:
+                f.write(line)
+    print(f"バージョンを {version} → {new_version} に自動更新しました")
+    version = new_version
     # 配布用ディレクトリ名（PEP 8準拠）
     dist_dir = plugin_name
     zip_filename = f"{repo_name}_v{version}.zip"

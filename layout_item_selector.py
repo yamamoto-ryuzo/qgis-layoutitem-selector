@@ -249,8 +249,10 @@ class LayoutItemSelector:
             )
             return
         
-        dialog = LayoutSelectorDialog(layouts, self.iface)
-        dialog.exec_()
+        self.dialog = LayoutSelectorDialog(layouts, self.iface)
+        self.dialog.show()
+        self.dialog.raise_()
+        self.dialog.activateWindow()
 
 
 class LayoutSelectorDialog(QDialog):
@@ -265,7 +267,7 @@ class LayoutSelectorDialog(QDialog):
         
     def init_ui(self):
         """UIを初期化"""
-        self.setWindowTitle(tr("Layout Selection & Item Management"))
+        self.setWindowTitle(self.tr("Layout Selection & Item Management"))
         self.setModal(False)  # モデルレスにして他の操作も可能にする
         self.resize(1000, 700)
         
@@ -275,7 +277,7 @@ class LayoutSelectorDialog(QDialog):
         left_panel = QWidget()
         left_layout = QVBoxLayout()
         
-        layout_label = QLabel(tr("Layout List:"))
+        layout_label = QLabel(self.tr("Layout List:"))
         left_layout.addWidget(layout_label)
         
         self.layout_list = QListWidget()
@@ -309,28 +311,28 @@ class LayoutSelectorDialog(QDialog):
         # ボタン
         button_layout = QVBoxLayout()
         
-        self.open_button = QPushButton(tr("Open Layout Manager"))
+        self.open_button = QPushButton(self.tr("Open Layout Manager"))
         self.open_button.clicked.connect(self.open_layout_manager)
         self.open_button.setEnabled(False)
         button_layout.addWidget(self.open_button)
         
-        self.refresh_button = QPushButton(tr("Refresh Item Info"))
+        self.refresh_button = QPushButton(self.tr("Refresh Item Info"))
         self.refresh_button.clicked.connect(self.refresh_item_info)
         self.refresh_button.setEnabled(False)
         button_layout.addWidget(self.refresh_button)
         
         # レイアウト全体の保存・読み込みボタン
-        self.save_layout_button = QPushButton(tr("Save Layout"))
+        self.save_layout_button = QPushButton(self.tr("Save Layout"))
         self.save_layout_button.clicked.connect(self.save_layout_properties)
         self.save_layout_button.setEnabled(False)
         button_layout.addWidget(self.save_layout_button)
         
-        self.load_layout_button = QPushButton(tr("Load Layout"))
+        self.load_layout_button = QPushButton(self.tr("Load Layout"))
         self.load_layout_button.clicked.connect(self.load_layout_properties)
         self.load_layout_button.setEnabled(False)
         button_layout.addWidget(self.load_layout_button)
         
-        self.cancel_button = QPushButton(tr("Cancel"))
+        self.cancel_button = QPushButton(self.tr("Cancel"))
         self.cancel_button.clicked.connect(self.reject)
         button_layout.addWidget(self.cancel_button)
         
@@ -345,14 +347,14 @@ class LayoutSelectorDialog(QDialog):
         items_widget = QWidget()
         items_layout = QVBoxLayout()
         
-        items_label = QLabel(tr("Layout Items:"))
+        items_label = QLabel(self.tr("Layout Items:"))
         items_layout.addWidget(items_label)
         
         self.items_tree = QTreeWidget()
         self.items_tree.setHeaderLabels([
-            tr("Item Name"), 
-            tr("Type"), 
-            tr("Visible")
+            self.tr("Item Name"), 
+            self.tr("Type"), 
+            self.tr("Visible")
         ])
         self.items_tree.currentItemChanged.connect(self.on_item_selected)
         # ダブルクリックでプロパティを直接編集画面に移動
@@ -373,7 +375,7 @@ class LayoutSelectorDialog(QDialog):
         # プロパティタブ
         properties_widget = QWidget()
         properties_layout = QVBoxLayout()
-        properties_label = QLabel(tr("Selected Item Properties:"))
+        properties_label = QLabel(self.tr("Selected Item Properties:"))
         properties_layout.addWidget(properties_label)
         scroll_area = QScrollArea()
         scroll_widget = QWidget()
@@ -383,24 +385,24 @@ class LayoutSelectorDialog(QDialog):
         scroll_area.setWidgetResizable(True)
         properties_layout.addWidget(scroll_area)
         properties_buttons_layout = QHBoxLayout()
-        update_properties_btn = QPushButton(tr("Apply Properties"))
+        update_properties_btn = QPushButton(self.tr("Apply Properties"))
         update_properties_btn.clicked.connect(self.update_item_properties)
         properties_buttons_layout.addWidget(update_properties_btn)
         properties_layout.addLayout(properties_buttons_layout)
         properties_widget.setLayout(properties_layout)
-        tab_widget.addTab(properties_widget, tr("Item Properties"))
+        tab_widget.addTab(properties_widget, self.tr("Item Properties"))
 
         # レイアウト情報タブ
         info_widget = QWidget()
         info_layout = QVBoxLayout()
-        info_label = QLabel(tr("Layout Information:"))
+        info_label = QLabel(self.tr("Layout Information:"))
         info_layout.addWidget(info_label)
         self.info_text = QTextEdit()
         self.info_text.setReadOnly(True)
         self.info_text.setMaximumHeight(200)
         info_layout.addWidget(self.info_text)
         info_widget.setLayout(info_layout)
-        tab_widget.addTab(info_widget, tr("Layout Info"))
+        tab_widget.addTab(info_widget, self.tr("Layout Info"))
 
         right_splitter.addWidget(tab_widget)
         right_splitter.setSizes([350, 350])
