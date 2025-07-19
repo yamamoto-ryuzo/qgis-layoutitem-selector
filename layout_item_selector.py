@@ -129,40 +129,77 @@ class PrintAreaMoveTool:
         dx = pos.x() - self.start_pos.x()
         dy = pos.y() - self.start_pos.y()
         new_center = QgsPointXY(self.orig_center.x() + dx, self.orig_center.y() + dy)
+        # 角度を維持してrubberbandを移動
         self._move_rubberband(new_center)
-        # QgsLayoutItemMapの範囲も更新
+
+        # QgsLayoutItemMapの範囲も、角度を維持して中心座標を移動
         w = self.width_map
         h = self.height_map
-        xmin = new_center.x() - w/2
-        xmax = new_center.x() + w/2
-        ymin = new_center.y() - h/2
-        ymax = new_center.y() + h/2
-        new_extent = QgsRectangle(xmin, ymin, xmax, ymax)
+        # 角度取得（親ダイアログのangle_spinから）
+        angle = 0.0
+        if hasattr(self.parent_dialog, 'angle_spin'):
+            angle = self.parent_dialog.angle_spin.value()
+        import math
+        theta = math.radians(angle)
+        cos_t = math.cos(theta)
+        sin_t = math.sin(theta)
+        # 中心基準の矩形4頂点を回転
+        local_points = [
+            (-w/2,  h/2),  # 左上
+            ( w/2,  h/2),  # 右上
+            ( w/2, -h/2),  # 右下
+            (-w/2, -h/2),  # 左下
+        ]
+        def rotate_point(x, y):
+            return (
+                new_center.x() + x * cos_t - y * sin_t,
+                new_center.y() + x * sin_t + y * cos_t
+            )
+        rotated_points = [QgsPointXY(*rotate_point(x, y)) for (x, y) in local_points]
+        # 新しい範囲を回転を考慮して計算
+        xs = [pt.x() for pt in rotated_points]
+        ys = [pt.y() for pt in rotated_points]
+        new_extent = QgsRectangle(min(xs), min(ys), max(xs), max(ys))
         if hasattr(self.map_item, 'setExtent'):
             self.map_item.setExtent(new_extent)
+            # 地図内容の回転も維持
+            if hasattr(self.map_item, 'setMapRotation'):
+                self.map_item.setMapRotation(angle)
             if hasattr(self.map_item, 'refresh'):
                 self.map_item.refresh()
         self.dragging = False
         self.iface.messageBar().pushMessage(
-            "情報", "印刷範囲を移動しました。", level=3, duration=2
+            "情報", "印刷範囲を移動しました（角度維持）", level=3, duration=2
         )
 
     def _move_rubberband(self, center):
         from qgis.core import QgsPointXY, QgsGeometry
+        import math
         w = self.width_map
         h = self.height_map
-        xmin = center.x() - w/2
-        xmax = center.x() + w/2
-        ymin = center.y() - h/2
-        ymax = center.y() + h/2
-        points = [
-            QgsPointXY(xmin, ymax),
-            QgsPointXY(xmax, ymax),
-            QgsPointXY(xmax, ymin),
-            QgsPointXY(xmin, ymin),
-            QgsPointXY(xmin, ymax)
+        # 角度（度→ラジアン）
+        angle = 0.0
+        if hasattr(self.parent_dialog, 'angle_spin'):
+            angle = self.parent_dialog.angle_spin.value()
+        theta = math.radians(angle)
+        cos_t = math.cos(theta)
+        sin_t = math.sin(theta)
+        # 中心基準の矩形4頂点
+        local_points = [
+            (-w/2,  h/2),  # 左上
+            ( w/2,  h/2),  # 右上
+            ( w/2, -h/2),  # 右下
+            (-w/2, -h/2),  # 左下
+            (-w/2,  h/2),  # 閉じる
         ]
-        self.rb.setToGeometry(QgsGeometry.fromPolygonXY([points]), None)
+        # 回転行列で回転し、中心座標を加算
+        def rotate_point(x, y):
+            return (
+                center.x() + x * cos_t - y * sin_t,
+                center.y() + x * sin_t + y * cos_t
+            )
+        rotated_points = [QgsPointXY(*rotate_point(x, y)) for (x, y) in local_points]
+        self.rb.setToGeometry(QgsGeometry.fromPolygonXY([rotated_points]), None)
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
@@ -171,6 +208,7 @@ class PrintAreaMoveTool:
  レイアウト印刷を選択してレイアウトマネージャを開くプラグイン
                               -------------------
         begin                : 2025-07-13
+        version              : 2.0.0
         git sha              : $Format:%H$
         copyright            : (C) 2025 by yamamoto-ryuzo
         email                : ryu@yamakun.net
@@ -526,21 +564,33 @@ class LayoutSelectorDialog(QDialog):
         )
 
     def _move_rubberband(self, center):
+        import math
         from qgis.core import QgsPointXY, QgsGeometry
         w = self.width_map
         h = self.height_map
-        xmin = center.x() - w/2
-        xmax = center.x() + w/2
-        ymin = center.y() - h/2
-        ymax = center.y() + h/2
-        points = [
-            QgsPointXY(xmin, ymax),
-            QgsPointXY(xmax, ymax),
-            QgsPointXY(xmax, ymin),
-            QgsPointXY(xmin, ymin),
-            QgsPointXY(xmin, ymax)
+        # 角度（度→ラジアン）
+        angle = 0.0
+        if hasattr(self.parent_dialog, 'angle_spin'):
+            angle = self.parent_dialog.angle_spin.value()
+        theta = math.radians(angle)
+        cos_t = math.cos(theta)
+        sin_t = math.sin(theta)
+        # 中心基準の矩形4頂点
+        local_points = [
+            (-w/2,  h/2),  # 左上
+            ( w/2,  h/2),  # 右上
+            ( w/2, -h/2),  # 右下
+            (-w/2, -h/2),  # 左下
+            (-w/2,  h/2),  # 閉じる
         ]
-        self.rb.setToGeometry(QgsGeometry.fromPolygonXY([points]), None)
+        # 回転行列で回転し、中心座標を加算
+        def rotate_point(x, y):
+            return (
+                center.x() + x * cos_t - y * sin_t,
+                center.y() + x * sin_t + y * cos_t
+            )
+        rotated_points = [QgsPointXY(*rotate_point(x, y)) for (x, y) in local_points]
+        self.rb.setToGeometry(QgsGeometry.fromPolygonXY([rotated_points]), None)
 
     """レイアウト選択ダイアログ"""
     
@@ -568,21 +618,42 @@ class LayoutSelectorDialog(QDialog):
         
         self.layout_list = QListWidget()
         for qgs_layout in self.layouts:
-            # レイアウトのページサイズ取得
+            # 最大の地図アイテム(QgsLayoutItemMap)のサイズを取得
             size_str = ""
             try:
-                page_collection = qgs_layout.pageCollection()
-                if page_collection.pageCount() > 0:
-                    page = page_collection.page(0)
-                    width = page.pageSize().width()
-                    height = page.pageSize().height()
-                    # 縦横判定
-                    if height >= width:
-                        size_str = f"（{height:.1f}×{width:.1f}mm）"
+                map_items = [item for item in qgs_layout.items() if item.__class__.__name__ == 'QgsLayoutItemMap']
+                if map_items:
+                    # 最大面積の地図アイテムを選ぶ
+                    def map_item_area(m):
+                        if hasattr(m, 'sizeWithUnits'):
+                            s = m.sizeWithUnits()
+                            return s.width() * s.height()
+                        return 0
+                    max_map_item = max(map_items, key=map_item_area)
+                    if hasattr(max_map_item, 'sizeWithUnits'):
+                        s = max_map_item.sizeWithUnits()
+                        width = s.width()
+                        height = s.height()
+                        # 縦横判定
+                        if height >= width:
+                            size_str = f"（{height:.1f}×{width:.1f}mm）"
+                        else:
+                            size_str = f"（{width:.1f}×{height:.1f}mm）"
                     else:
-                        size_str = f"（{width:.1f}×{height:.1f}mm）"
+                        size_str = ""
                 else:
-                    size_str = ""
+                    # 地図アイテムがなければページサイズ
+                    page_collection = qgs_layout.pageCollection()
+                    if page_collection.pageCount() > 0:
+                        page = page_collection.page(0)
+                        width = page.pageSize().width()
+                        height = page.pageSize().height()
+                        if height >= width:
+                            size_str = f"（{height:.1f}×{width:.1f}mm）"
+                        else:
+                            size_str = f"（{width:.1f}×{height:.1f}mm）"
+                    else:
+                        size_str = ""
             except Exception:
                 size_str = ""
             item = QListWidgetItem(f"{qgs_layout.name()} {size_str}")
@@ -623,6 +694,20 @@ class LayoutSelectorDialog(QDialog):
         self.scale_spin.valueChanged.connect(self.show_print_area_on_map)
         scale_layout.addWidget(self.scale_spin)
         left_layout.addLayout(scale_layout)
+
+        # --- 角度入力欄を追加 ---
+        angle_layout = QHBoxLayout()
+        angle_label = QLabel("Angle:")
+        angle_layout.addWidget(angle_label)
+        self.angle_spin = QDoubleSpinBox()
+        self.angle_spin.setDecimals(2)
+        self.angle_spin.setRange(-360.0, 360.0)
+        self.angle_spin.setValue(0.0)
+        self.angle_spin.setSingleStep(1.0)
+        angle_layout.addWidget(self.angle_spin)
+        left_layout.addLayout(angle_layout)
+        # 角度値が変更されたときに印刷範囲を再表示
+        self.angle_spin.valueChanged.connect(self.show_print_area_on_map)
 
         # ボタン
         button_layout = QVBoxLayout()
@@ -800,11 +885,12 @@ class LayoutSelectorDialog(QDialog):
     def show_print_area_on_map(self):
         from qgis.gui import QgsRubberBand
         """選択中レイアウトの印刷範囲（ページサイズ・スケール考慮）を地図キャンバスに表示"""
-        # スケール値をメッセージバーに出力
+        # スケール・角度値を取得
         scale = self.scale_spin.value() if hasattr(self, 'scale_spin') else None
+        angle = self.angle_spin.value() if hasattr(self, 'angle_spin') else 0.0
         if scale is not None:
             self.iface.messageBar().pushMessage(
-                "情報", f"現在のスケール: {scale}", level=Qgis.Info, duration=2
+                "情報", f"現在のスケール: {scale} 角度: {angle}", level=Qgis.Info, duration=2
             )
         # 既存の印刷範囲rubberbandがあれば必ず削除
         self._remove_print_area_rubberband()
@@ -852,10 +938,26 @@ class LayoutSelectorDialog(QDialog):
         page_width_m = page_width_mm / 1000.0
         page_height_m = page_height_mm / 1000.0
 
-        # スケールから地物座標での幅・高さを計算
-        # 1mm = (scale / 1000) m
-        width_map = page_width_mm * scale / 1000.0
-        height_map = page_height_mm * scale / 1000.0
+        # 最大の地図アイテム(QgsLayoutItemMap)のサイズから幅・高さを取得し、スケールで地物座標単位に変換
+        map_items = [item for item in self.current_layout.items() if item.__class__.__name__ == 'QgsLayoutItemMap']
+        if map_items:
+            def map_item_area(m):
+                if hasattr(m, 'sizeWithUnits'):
+                    s = m.sizeWithUnits()
+                    return s.width() * s.height()
+                return 0
+            max_map_item = max(map_items, key=map_item_area)
+            if hasattr(max_map_item, 'sizeWithUnits'):
+                s = max_map_item.sizeWithUnits()
+                # mm → m → 地物座標単位（スケール反映）
+                width_map = (s.width() / 1000.0) * scale
+                height_map = (s.height() / 1000.0) * scale
+            else:
+                width_map = (page_width_mm / 1000.0) * scale
+                height_map = (page_height_mm / 1000.0) * scale
+        else:
+            width_map = (page_width_mm / 1000.0) * scale
+            height_map = (page_height_mm / 1000.0) * scale
 
         # 画面（地図キャンバス）の中心座標を取得
         canvas = self.iface.mapCanvas()
@@ -864,37 +966,53 @@ class LayoutSelectorDialog(QDialog):
         cy = canvas_center.y()
 
         # 矩形の四隅を計算（画面中心基準）
-        xmin = cx - width_map / 2
-        xmax = cx + width_map / 2
-        ymin = cy - height_map / 2
-        ymax = cy + height_map / 2
+        import math
+        from qgis.core import QgsRectangle, QgsPointXY, QgsGeometry
+        cx = float(cx)
+        cy = float(cy)
+        w = width_map
+        h = height_map
+        # 角度（度→ラジアン）
+        theta = math.radians(angle)
+        cos_t = math.cos(theta)
+        sin_t = math.sin(theta)
+        # 中心基準の矩形4頂点
+        local_points = [
+            (-w/2,  h/2),  # 左上
+            ( w/2,  h/2),  # 右上
+            ( w/2, -h/2),  # 右下
+            (-w/2, -h/2),  # 左下
+            (-w/2,  h/2),  # 閉じる
+        ]
+        # 回転行列で回転し、中心座標を加算
+        def rotate_point(x, y):
+            return (
+                cx + x * cos_t - y * sin_t,
+                cy + x * sin_t + y * cos_t
+            )
+        rotated_points = [QgsPointXY(*rotate_point(x, y)) for (x, y) in local_points]
 
-        # QgsLayoutItemMap の範囲も更新（中心・サイズを反映）
-        from qgis.core import QgsRectangle, QgsPointXY
-        if hasattr(map_item, 'setExtent'):
-            new_extent = QgsRectangle(xmin, ymin, xmax, ymax)
-            map_item.setExtent(new_extent)
-            if hasattr(map_item, 'refresh'):
-                map_item.refresh()
+        # 地図アイテム(QgsLayoutItemMap)をすべて検索し、スケールと地図内容の回転（mapRotation）を適用
+        map_items = [item for item in self.current_layout.items() if item.__class__.__name__ == 'QgsLayoutItemMap']
+        for m in map_items:
+            # setScaleでスケールを反映
+            if hasattr(m, 'setScale'):
+                m.setScale(scale)
+            # setMapRotationで地図内容の回転角度を反映
+            if hasattr(m, 'setMapRotation'):
+                m.setMapRotation(angle)
+            if hasattr(m, 'refresh'):
+                m.refresh()
 
         # 印刷範囲の中心に地図キャンバスを移動
-        center_x = (xmin + xmax) / 2
-        center_y = (ymin + ymax) / 2
-        canvas.setCenter(QgsPointXY(center_x, center_y))
+        canvas.setCenter(QgsPointXY(cx, cy))
         canvas.refresh()
 
-        # QgsRubberBandで矩形を描画
+        # QgsRubberBandで回転した矩形を描画
         rb = QgsRubberBand(canvas, QgsWkbTypes.PolygonGeometry)
         rb.setColor(QColor(255, 0, 0, 100))  # 半透明赤
         rb.setWidth(2)
-        points = [
-            QgsPointXY(xmin, ymax),  # 左上
-            QgsPointXY(xmax, ymax),  # 右上
-            QgsPointXY(xmax, ymin),  # 右下
-            QgsPointXY(xmin, ymin),  # 左下
-            QgsPointXY(xmin, ymax)   # 閉じる
-        ]
-        rb.setToGeometry(QgsGeometry.fromPolygonXY([points]), None)
+        rb.setToGeometry(QgsGeometry.fromPolygonXY([rotated_points]), None)
         # 既存rubberbandがあれば削除してから新規セット
         if hasattr(self, '_print_area_rubberband') and self._print_area_rubberband:
             try:
