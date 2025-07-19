@@ -280,7 +280,23 @@ class LayoutSelectorDialog(QDialog):
         
         self.layout_list = QListWidget()
         for qgs_layout in self.layouts:
-            item = QListWidgetItem(qgs_layout.name())
+            # レイアウトのページサイズ取得
+            try:
+                page_collection = qgs_layout.pageCollection()
+                if page_collection.pageCount() > 0:
+                    page = page_collection.page(0)
+                    width = page.pageSize().width()
+                    height = page.pageSize().height()
+                    # 縦横判定
+                    if height >= width:
+                        size_str = f"（{height:.1f}×{width:.1f}mm）"
+                    else:
+                        size_str = f"（{width:.1f}×{height:.1f}mm）"
+                else:
+                    size_str = ""
+            except Exception:
+                size_str = ""
+            item = QListWidgetItem(f"{qgs_layout.name()} {size_str}")
             item.setData(Qt.UserRole, qgs_layout)
             self.layout_list.addItem(item)
         
