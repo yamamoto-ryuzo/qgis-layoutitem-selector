@@ -24,6 +24,35 @@
 """
 
 
+
+# QGIS標準の翻訳システム対応
+import os
+from qgis.PyQt.QtCore import QCoreApplication, QTranslator, QLocale
+from qgis.core import QgsApplication
+
+_translator = None
+
+def _load_translator():
+    global _translator
+    plugin_dir = os.path.dirname(__file__)
+    i18n_dir = os.path.join(plugin_dir, 'i18n')
+    from qgis.PyQt.QtCore import QSettings
+    # QGISの設定からユーザー言語を取得（なければOS言語）
+    locale_setting = QSettings().value("locale/userLocale", QLocale.system().name())
+    locale = str(locale_setting)[:2] if locale_setting else QLocale.system().name()[:2]
+    candidates = [locale, QLocale.system().name()[:2], 'en']
+    for lang in candidates:
+        qm_path = os.path.join(i18n_dir, f"layout_item_selector_{lang}.qm")
+        if os.path.exists(qm_path):
+            _translator = QTranslator()
+            if _translator.load(qm_path):
+                # 既存のトランスレータを削除してから追加（競合防止）
+                QCoreApplication.removeTranslator(_translator)
+                QCoreApplication.installTranslator(_translator)
+                break
+
+_load_translator()
+
 # noinspection PyPep8Naming
 def classFactory(iface):  # pylint: disable=invalid-name
     """Load LayoutItemSelector class from file LayoutItemSelector.
@@ -31,6 +60,5 @@ def classFactory(iface):  # pylint: disable=invalid-name
     :param iface: A QGIS interface instance.
     :type iface: QgsInterface
     """
-    #
     from .layout_item_selector import LayoutItemSelector
     return LayoutItemSelector(iface)
