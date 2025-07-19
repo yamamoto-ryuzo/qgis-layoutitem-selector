@@ -1,87 +1,87 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="ja_JP">
+<TS version="2.1" language="ko_KR">
 <context>
     <name>LayoutSelectorDialog</name>
     <message>
         <source>Layout Selection &amp; Item Management</source>
-        <translation>レイアウト選択・アイテム管理</translation>
+        <translation>레이아웃 선택 및 항목 관리</translation>
     </message>
     <message>
         <source>Layout List:</source>
-        <translation>レイアウト一覧:</translation>
+        <translation>레이아웃 목록:</translation>
     </message>
     <message>
         <source>Scale:</source>
-        <translation>スケール:</translation>
+        <translation>축척:</translation>
     </message>
     <message>
         <source>Angle:</source>
-        <translation>角度:</translation>
+        <translation>각도:</translation>
     </message>
     <message>
         <source>Show Print Area on Map</source>
-        <translation>印刷範囲を地図に表示</translation>
+        <translation>지도에 인쇄 영역 표시</translation>
     </message>
     <message>
         <source>Open Layout Manager</source>
-        <translation>レイアウトマネージャを開く</translation>
+        <translation>레이아웃 관리자 열기</translation>
     </message>
     <message>
         <source>Refresh Item Info</source>
-        <translation>アイテム情報を更新</translation>
+        <translation>항목 정보 새로고침</translation>
     </message>
     <message>
         <source>Save Layout</source>
-        <translation>レイアウトを保存</translation>
+        <translation>레이아웃 저장</translation>
     </message>
     <message>
         <source>Load Layout</source>
-        <translation>レイアウトを読み込み</translation>
+        <translation>레이아웃 불러오기</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation>キャンセル</translation>
+        <translation>취소</translation>
     </message>
     <message>
         <source>Layout Items:</source>
-        <translation>レイアウトアイテム:</translation>
-    </message>
-    <message>
-        <source>Selected Item Properties:</source>
-        <translation>選択アイテムのプロパティ:</translation>
-    </message>
-    <message>
-        <source>Apply Properties</source>
-        <translation>プロパティを適用</translation>
-    </message>
-    <message>
-        <source>Layout Information:</source>
-        <translation>レイアウト情報:</translation>
-    </message>
-    <message>
-        <source>Item Properties</source>
-        <translation>アイテムプロパティ</translation>
-    </message>
-    <message>
-        <source>Layout Info</source>
-        <translation>レイアウト情報</translation>
+        <translation>레이아웃 항목:</translation>
     </message>
     <message>
         <source>Item Name</source>
-        <translation>アイテム名</translation>
+        <translation>항목 이름</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation>タイプ</translation>
+        <translation>유형</translation>
     </message>
     <message>
         <source>Visible</source>
-        <translation>表示</translation>
+        <translation>표시</translation>
+    </message>
+    <message>
+        <source>Selected Item Properties:</source>
+        <translation>선택한 항목 속성:</translation>
+    </message>
+    <message>
+        <source>Apply Properties</source>
+        <translation>속성 적용</translation>
+    </message>
+    <message>
+        <source>Layout Information:</source>
+        <translation>레이아웃 정보:</translation>
+    </message>
+    <message>
+        <source>Item Properties</source>
+        <translation>항목 속성</translation>
+    </message>
+    <message>
+        <source>Layout Info</source>
+        <translation>레이아웃 정보</translation>
     </message>
     <message>
         <source>Hidden</source>
-        <translation>非表示</translation>
+        <translation>숨김</translation>
     </message>
     <message>
         <source>ID</source>
@@ -89,91 +89,91 @@
     </message>
     <message>
         <source>Display Name</source>
-        <translation>表示名</translation>
+        <translation>표시 이름</translation>
     </message>
     <message>
         <source>X Position (mm)</source>
-        <translation>X位置 (mm)</translation>
+        <translation>X 위치 (mm)</translation>
     </message>
     <message>
         <source>Y Position (mm)</source>
-        <translation>Y位置 (mm)</translation>
+        <translation>Y 위치 (mm)</translation>
     </message>
     <message>
         <source>Width (mm)</source>
-        <translation>幅 (mm)</translation>
+        <translation>너비 (mm)</translation>
     </message>
     <message>
         <source>Height (mm)</source>
-        <translation>高さ (mm)</translation>
+        <translation>높이 (mm)</translation>
     </message>
     <message>
         <source>Rotation Angle</source>
-        <translation>回転角度</translation>
+        <translation>회전 각도</translation>
     </message>
     <message>
         <source>Text</source>
-        <translation>テキスト</translation>
+        <translation>텍스트</translation>
     </message>
     <message>
         <source>Font Size</source>
-        <translation>フォントサイズ</translation>
+        <translation>글꼴 크기</translation>
     </message>
     <message>
         <source>Scale</source>
-        <translation>スケール</translation>
+        <translation>축척</translation>
     </message>
     <message>
         <source>Image Path</source>
-        <translation>画像パス</translation>
+        <translation>이미지 경로</translation>
     </message>
     <message>
         <source>Cannot load properties: </source>
-        <translation>プロパティを読み込めません: </translation>
+        <translation>속성을 불러올 수 없습니다: </translation>
     </message>
     <message>
         <source>Group</source>
-        <translation>グループ</translation>
+        <translation>그룹</translation>
     </message>
     <message>
         <source>Page</source>
-        <translation>ページ</translation>
+        <translation>페이지</translation>
     </message>
     <message>
         <source>Map</source>
-        <translation>地図</translation>
+        <translation>지도</translation>
     </message>
     <message>
         <source>Picture</source>
-        <translation>画像</translation>
+        <translation>그림</translation>
     </message>
     <message>
         <source>Label</source>
-        <translation>ラベル</translation>
+        <translation>레이블</translation>
     </message>
     <message>
         <source>Legend</source>
-        <translation>凡例</translation>
+        <translation>범례</translation>
     </message>
     <message>
         <source>Scale Bar</source>
-        <translation>スケールバー</translation>
+        <translation>축척 막대</translation>
     </message>
     <message>
         <source>Shape</source>
-        <translation>図形</translation>
+        <translation>도형</translation>
     </message>
     <message>
         <source>Polygon</source>
-        <translation>ポリゴン</translation>
+        <translation>폴리곤</translation>
     </message>
     <message>
         <source>Polyline</source>
-        <translation>ポリライン</translation>
+        <translation>폴리라인</translation>
     </message>
     <message>
         <source>Table</source>
-        <translation>テーブル</translation>
+        <translation>테이블</translation>
     </message>
     <message>
         <source>HTML</source>
@@ -181,32 +181,31 @@
     </message>
     <message>
         <source>Frame</source>
-        <translation>フレーム</translation>
+        <translation>프레임</translation>
     </message>
     <message>
         <source>Unknown</source>
-        <translation>不明</translation>
+        <translation>알 수 없음</translation>
     </message>
     <message>
         <source>No items found</source>
-        <translation>アイテムが見つかりません</translation>
+        <translation>항목을 찾을 수 없음</translation>
     </message>
     <message>
         <source>Success</source>
-        <translation>成功</translation>
+        <translation>성공</translation>
     </message>
     <message>
         <source>Warning</source>
-        <translation>警告</translation>
+        <translation>경고</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation>エラー</translation>
+        <translation>오류</translation>
     </message>
     <message>
         <source>Information</source>
-        <translation>情報</translation>
+        <translation>정보</translation>
     </message>
 </context>
-
 </TS>

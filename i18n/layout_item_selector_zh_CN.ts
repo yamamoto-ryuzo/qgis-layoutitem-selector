@@ -1,87 +1,87 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="ja_JP">
+<TS version="2.1" language="zh_CN">
 <context>
     <name>LayoutSelectorDialog</name>
     <message>
         <source>Layout Selection &amp; Item Management</source>
-        <translation>レイアウト選択・アイテム管理</translation>
+        <translation>布局选择与项目管理</translation>
     </message>
     <message>
         <source>Layout List:</source>
-        <translation>レイアウト一覧:</translation>
+        <translation>布局列表：</translation>
     </message>
     <message>
         <source>Scale:</source>
-        <translation>スケール:</translation>
+        <translation>比例尺：</translation>
     </message>
     <message>
         <source>Angle:</source>
-        <translation>角度:</translation>
+        <translation>角度：</translation>
     </message>
     <message>
         <source>Show Print Area on Map</source>
-        <translation>印刷範囲を地図に表示</translation>
+        <translation>在地图上显示打印区域</translation>
     </message>
     <message>
         <source>Open Layout Manager</source>
-        <translation>レイアウトマネージャを開く</translation>
+        <translation>打开布局管理器</translation>
     </message>
     <message>
         <source>Refresh Item Info</source>
-        <translation>アイテム情報を更新</translation>
+        <translation>刷新项目信息</translation>
     </message>
     <message>
         <source>Save Layout</source>
-        <translation>レイアウトを保存</translation>
+        <translation>保存布局</translation>
     </message>
     <message>
         <source>Load Layout</source>
-        <translation>レイアウトを読み込み</translation>
+        <translation>加载布局</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation>キャンセル</translation>
+        <translation>取消</translation>
     </message>
     <message>
         <source>Layout Items:</source>
-        <translation>レイアウトアイテム:</translation>
-    </message>
-    <message>
-        <source>Selected Item Properties:</source>
-        <translation>選択アイテムのプロパティ:</translation>
-    </message>
-    <message>
-        <source>Apply Properties</source>
-        <translation>プロパティを適用</translation>
-    </message>
-    <message>
-        <source>Layout Information:</source>
-        <translation>レイアウト情報:</translation>
-    </message>
-    <message>
-        <source>Item Properties</source>
-        <translation>アイテムプロパティ</translation>
-    </message>
-    <message>
-        <source>Layout Info</source>
-        <translation>レイアウト情報</translation>
+        <translation>布局项目：</translation>
     </message>
     <message>
         <source>Item Name</source>
-        <translation>アイテム名</translation>
+        <translation>项目名称</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation>タイプ</translation>
+        <translation>类型</translation>
     </message>
     <message>
         <source>Visible</source>
-        <translation>表示</translation>
+        <translation>可见</translation>
+    </message>
+    <message>
+        <source>Selected Item Properties:</source>
+        <translation>所选项目属性：</translation>
+    </message>
+    <message>
+        <source>Apply Properties</source>
+        <translation>应用属性</translation>
+    </message>
+    <message>
+        <source>Layout Information:</source>
+        <translation>布局信息：</translation>
+    </message>
+    <message>
+        <source>Item Properties</source>
+        <translation>项目属性</translation>
+    </message>
+    <message>
+        <source>Layout Info</source>
+        <translation>布局信息</translation>
     </message>
     <message>
         <source>Hidden</source>
-        <translation>非表示</translation>
+        <translation>隐藏</translation>
     </message>
     <message>
         <source>ID</source>
@@ -89,7 +89,7 @@
     </message>
     <message>
         <source>Display Name</source>
-        <translation>表示名</translation>
+        <translation>显示名称</translation>
     </message>
     <message>
         <source>X Position (mm)</source>
@@ -101,79 +101,79 @@
     </message>
     <message>
         <source>Width (mm)</source>
-        <translation>幅 (mm)</translation>
+        <translation>宽度 (mm)</translation>
     </message>
     <message>
         <source>Height (mm)</source>
-        <translation>高さ (mm)</translation>
+        <translation>高度 (mm)</translation>
     </message>
     <message>
         <source>Rotation Angle</source>
-        <translation>回転角度</translation>
+        <translation>旋转角度</translation>
     </message>
     <message>
         <source>Text</source>
-        <translation>テキスト</translation>
+        <translation>文本</translation>
     </message>
     <message>
         <source>Font Size</source>
-        <translation>フォントサイズ</translation>
+        <translation>字体大小</translation>
     </message>
     <message>
         <source>Scale</source>
-        <translation>スケール</translation>
+        <translation>比例尺</translation>
     </message>
     <message>
         <source>Image Path</source>
-        <translation>画像パス</translation>
+        <translation>图片路径</translation>
     </message>
     <message>
         <source>Cannot load properties: </source>
-        <translation>プロパティを読み込めません: </translation>
+        <translation>无法加载属性：</translation>
     </message>
     <message>
         <source>Group</source>
-        <translation>グループ</translation>
+        <translation>组</translation>
     </message>
     <message>
         <source>Page</source>
-        <translation>ページ</translation>
+        <translation>页面</translation>
     </message>
     <message>
         <source>Map</source>
-        <translation>地図</translation>
+        <translation>地图</translation>
     </message>
     <message>
         <source>Picture</source>
-        <translation>画像</translation>
+        <translation>图片</translation>
     </message>
     <message>
         <source>Label</source>
-        <translation>ラベル</translation>
+        <translation>标签</translation>
     </message>
     <message>
         <source>Legend</source>
-        <translation>凡例</translation>
+        <translation>图例</translation>
     </message>
     <message>
         <source>Scale Bar</source>
-        <translation>スケールバー</translation>
+        <translation>比例尺条</translation>
     </message>
     <message>
         <source>Shape</source>
-        <translation>図形</translation>
+        <translation>形状</translation>
     </message>
     <message>
         <source>Polygon</source>
-        <translation>ポリゴン</translation>
+        <translation>多边形</translation>
     </message>
     <message>
         <source>Polyline</source>
-        <translation>ポリライン</translation>
+        <translation>折线</translation>
     </message>
     <message>
         <source>Table</source>
-        <translation>テーブル</translation>
+        <translation>表格</translation>
     </message>
     <message>
         <source>HTML</source>
@@ -181,15 +181,15 @@
     </message>
     <message>
         <source>Frame</source>
-        <translation>フレーム</translation>
+        <translation>框架</translation>
     </message>
     <message>
         <source>Unknown</source>
-        <translation>不明</translation>
+        <translation>未知</translation>
     </message>
     <message>
         <source>No items found</source>
-        <translation>アイテムが見つかりません</translation>
+        <translation>未找到项目</translation>
     </message>
     <message>
         <source>Success</source>
@@ -201,12 +201,11 @@
     </message>
     <message>
         <source>Error</source>
-        <translation>エラー</translation>
+        <translation>错误</translation>
     </message>
     <message>
         <source>Information</source>
-        <translation>情報</translation>
+        <translation>信息</translation>
     </message>
 </context>
-
 </TS>

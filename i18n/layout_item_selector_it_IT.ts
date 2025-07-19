@@ -1,87 +1,87 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="ja_JP">
+<TS version="2.1" language="it_IT">
 <context>
     <name>LayoutSelectorDialog</name>
     <message>
         <source>Layout Selection &amp; Item Management</source>
-        <translation>レイアウト選択・アイテム管理</translation>
+        <translation>Selezione layout e gestione elementi</translation>
     </message>
     <message>
         <source>Layout List:</source>
-        <translation>レイアウト一覧:</translation>
+        <translation>Elenco layout:</translation>
     </message>
     <message>
         <source>Scale:</source>
-        <translation>スケール:</translation>
+        <translation>Scala:</translation>
     </message>
     <message>
         <source>Angle:</source>
-        <translation>角度:</translation>
+        <translation>Angolo:</translation>
     </message>
     <message>
         <source>Show Print Area on Map</source>
-        <translation>印刷範囲を地図に表示</translation>
+        <translation>Mostra area di stampa sulla mappa</translation>
     </message>
     <message>
         <source>Open Layout Manager</source>
-        <translation>レイアウトマネージャを開く</translation>
+        <translation>Apri gestore layout</translation>
     </message>
     <message>
         <source>Refresh Item Info</source>
-        <translation>アイテム情報を更新</translation>
+        <translation>Aggiorna informazioni elemento</translation>
     </message>
     <message>
         <source>Save Layout</source>
-        <translation>レイアウトを保存</translation>
+        <translation>Salva layout</translation>
     </message>
     <message>
         <source>Load Layout</source>
-        <translation>レイアウトを読み込み</translation>
+        <translation>Carica layout</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation>キャンセル</translation>
+        <translation>Annulla</translation>
     </message>
     <message>
         <source>Layout Items:</source>
-        <translation>レイアウトアイテム:</translation>
-    </message>
-    <message>
-        <source>Selected Item Properties:</source>
-        <translation>選択アイテムのプロパティ:</translation>
-    </message>
-    <message>
-        <source>Apply Properties</source>
-        <translation>プロパティを適用</translation>
-    </message>
-    <message>
-        <source>Layout Information:</source>
-        <translation>レイアウト情報:</translation>
-    </message>
-    <message>
-        <source>Item Properties</source>
-        <translation>アイテムプロパティ</translation>
-    </message>
-    <message>
-        <source>Layout Info</source>
-        <translation>レイアウト情報</translation>
+        <translation>Elementi layout:</translation>
     </message>
     <message>
         <source>Item Name</source>
-        <translation>アイテム名</translation>
+        <translation>Nome elemento</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation>タイプ</translation>
+        <translation>Tipo</translation>
     </message>
     <message>
         <source>Visible</source>
-        <translation>表示</translation>
+        <translation>Visibile</translation>
+    </message>
+    <message>
+        <source>Selected Item Properties:</source>
+        <translation>Proprietà elemento selezionato:</translation>
+    </message>
+    <message>
+        <source>Apply Properties</source>
+        <translation>Applica proprietà</translation>
+    </message>
+    <message>
+        <source>Layout Information:</source>
+        <translation>Informazioni layout:</translation>
+    </message>
+    <message>
+        <source>Item Properties</source>
+        <translation>Proprietà elemento</translation>
+    </message>
+    <message>
+        <source>Layout Info</source>
+        <translation>Info layout</translation>
     </message>
     <message>
         <source>Hidden</source>
-        <translation>非表示</translation>
+        <translation>Nascosto</translation>
     </message>
     <message>
         <source>ID</source>
@@ -89,91 +89,91 @@
     </message>
     <message>
         <source>Display Name</source>
-        <translation>表示名</translation>
+        <translation>Nome visualizzato</translation>
     </message>
     <message>
         <source>X Position (mm)</source>
-        <translation>X位置 (mm)</translation>
+        <translation>Posizione X (mm)</translation>
     </message>
     <message>
         <source>Y Position (mm)</source>
-        <translation>Y位置 (mm)</translation>
+        <translation>Posizione Y (mm)</translation>
     </message>
     <message>
         <source>Width (mm)</source>
-        <translation>幅 (mm)</translation>
+        <translation>Larghezza (mm)</translation>
     </message>
     <message>
         <source>Height (mm)</source>
-        <translation>高さ (mm)</translation>
+        <translation>Altezza (mm)</translation>
     </message>
     <message>
         <source>Rotation Angle</source>
-        <translation>回転角度</translation>
+        <translation>Angolo di rotazione</translation>
     </message>
     <message>
         <source>Text</source>
-        <translation>テキスト</translation>
+        <translation>Testo</translation>
     </message>
     <message>
         <source>Font Size</source>
-        <translation>フォントサイズ</translation>
+        <translation>Dimensione carattere</translation>
     </message>
     <message>
         <source>Scale</source>
-        <translation>スケール</translation>
+        <translation>Scala</translation>
     </message>
     <message>
         <source>Image Path</source>
-        <translation>画像パス</translation>
+        <translation>Percorso immagine</translation>
     </message>
     <message>
         <source>Cannot load properties: </source>
-        <translation>プロパティを読み込めません: </translation>
+        <translation>Impossibile caricare le proprietà: </translation>
     </message>
     <message>
         <source>Group</source>
-        <translation>グループ</translation>
+        <translation>Gruppo</translation>
     </message>
     <message>
         <source>Page</source>
-        <translation>ページ</translation>
+        <translation>Pagina</translation>
     </message>
     <message>
         <source>Map</source>
-        <translation>地図</translation>
+        <translation>Mappa</translation>
     </message>
     <message>
         <source>Picture</source>
-        <translation>画像</translation>
+        <translation>Immagine</translation>
     </message>
     <message>
         <source>Label</source>
-        <translation>ラベル</translation>
+        <translation>Etichetta</translation>
     </message>
     <message>
         <source>Legend</source>
-        <translation>凡例</translation>
+        <translation>Legenda</translation>
     </message>
     <message>
         <source>Scale Bar</source>
-        <translation>スケールバー</translation>
+        <translation>Barra scala</translation>
     </message>
     <message>
         <source>Shape</source>
-        <translation>図形</translation>
+        <translation>Forma</translation>
     </message>
     <message>
         <source>Polygon</source>
-        <translation>ポリゴン</translation>
+        <translation>Poligono</translation>
     </message>
     <message>
         <source>Polyline</source>
-        <translation>ポリライン</translation>
+        <translation>Polilinea</translation>
     </message>
     <message>
         <source>Table</source>
-        <translation>テーブル</translation>
+        <translation>Tabella</translation>
     </message>
     <message>
         <source>HTML</source>
@@ -181,32 +181,31 @@
     </message>
     <message>
         <source>Frame</source>
-        <translation>フレーム</translation>
+        <translation>Frame</translation>
     </message>
     <message>
         <source>Unknown</source>
-        <translation>不明</translation>
+        <translation>Sconosciuto</translation>
     </message>
     <message>
         <source>No items found</source>
-        <translation>アイテムが見つかりません</translation>
+        <translation>Nessun elemento trovato</translation>
     </message>
     <message>
         <source>Success</source>
-        <translation>成功</translation>
+        <translation>Successo</translation>
     </message>
     <message>
         <source>Warning</source>
-        <translation>警告</translation>
+        <translation>Avviso</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation>エラー</translation>
+        <translation>Errore</translation>
     </message>
     <message>
         <source>Information</source>
-        <translation>情報</translation>
+        <translation>Informazione</translation>
     </message>
 </context>
-
 </TS>

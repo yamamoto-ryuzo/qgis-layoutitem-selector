@@ -603,7 +603,7 @@ class LayoutSelectorDialog(QDialog):
         
     def init_ui(self):
         """UIを初期化"""
-        self.setWindowTitle("Layout Selection & Item Management")
+        self.setWindowTitle(self.tr("Layout Selection & Item Management"))
         self.setModal(False)  # モデルレスにして他の操作も可能にする
         self.resize(500, 700)
         
@@ -796,7 +796,6 @@ class LayoutSelectorDialog(QDialog):
         properties_buttons_layout.addWidget(update_properties_btn)
         properties_layout.addLayout(properties_buttons_layout)
         properties_widget.setLayout(properties_layout)
-        tab_widget.addTab(properties_widget, self.tr("Item Properties"))
 
         # レイアウト情報タブ
         info_widget = QWidget()
@@ -807,21 +806,31 @@ class LayoutSelectorDialog(QDialog):
         self.info_text.setReadOnly(True)
         self.info_text.setMaximumHeight(200)
         info_layout.addWidget(self.info_text)
-
         info_widget.setLayout(info_layout)
-        tab_widget.addTab(info_widget, self.tr("Layout Info"))
 
+        # タブ追加時は仮タイトルで追加し、直後にretranslate_tabsで翻訳タイトルに変更
+        self.tab_widget = tab_widget
+        tab_widget.addTab(properties_widget, self.tr("Item Properties"))
+        tab_widget.addTab(info_widget, self.tr("Layout Info"))
         right_splitter.addWidget(tab_widget)
         right_splitter.setSizes([350, 350])
-        
+
         # メインレイアウトに追加
         main_layout.addWidget(left_panel)
         main_layout.addWidget(right_splitter)
-        
+
         self.setLayout(main_layout)
+        # タブタイトルを初期化
+        self.retranslate_tabs()
         # 最初のレイアウトを選択
         if self.layout_list.count() > 0:
             self.layout_list.setCurrentRow(0)
+
+    def retranslate_tabs(self):
+        """Retranslate tab titles (call on language change)"""
+        if hasattr(self, 'tab_widget'):
+            self.tab_widget.setTabText(0, self.tr("Item Properties"))
+            self.tab_widget.setTabText(1, self.tr("Layout Info"))
     
     def on_layout_selected(self, current, previous):
         """レイアウトが選択された時の処理"""
@@ -888,25 +897,16 @@ class LayoutSelectorDialog(QDialog):
         # スケール・角度値を取得
         scale = self.scale_spin.value() if hasattr(self, 'scale_spin') else None
         angle = self.angle_spin.value() if hasattr(self, 'angle_spin') else 0.0
-        if scale is not None:
-            self.iface.messageBar().pushMessage(
-                "情報", f"現在のスケール: {scale} 角度: {angle}", level=Qgis.Info, duration=2
-            )
+        # 情報メッセージの表示は削除
         # 既存の印刷範囲rubberbandがあれば必ず削除
         self._remove_print_area_rubberband()
 
         if not self.current_layout:
-            self.iface.messageBar().pushMessage(
-                "警告", "レイアウトが選択されていません。", level=Qgis.Warning, duration=3
-            )
             return
 
         # 地図アイテム(QgsLayoutItemMap)を探す
         map_items = [item for item in self.current_layout.items() if item.__class__.__name__ == 'QgsLayoutItemMap']
         if not map_items:
-            self.iface.messageBar().pushMessage(
-                "警告", "このレイアウトに地図アイテムがありません。", level=Qgis.Warning, duration=3
-            )
             return
 
         map_item = map_items[0]  # 先頭の地図アイテムを使う
@@ -924,14 +924,8 @@ class LayoutSelectorDialog(QDialog):
                 page_width_mm = page.pageSize().width()
                 page_height_mm = page.pageSize().height()
             else:
-                self.iface.messageBar().pushMessage(
-                    "警告", "ページサイズが取得できません。", level=Qgis.Warning, duration=3
-                )
                 return
         except Exception as e:
-            self.iface.messageBar().pushMessage(
-                "警告", f"ページサイズ取得エラー: {e}", level=Qgis.Warning, duration=3
-            )
             return
 
         # mm → m
@@ -1031,9 +1025,7 @@ class LayoutSelectorDialog(QDialog):
                 pass
         self._print_area_rubberband = rb
         print(f"[DEBUG] 新rubberband生成: {rb}")
-        self.iface.messageBar().pushMessage(
-            "情報", f"印刷範囲を地図キャンバスに表示しました（スケール: {scale}, サイズ: {page_width_mm:.1f}×{page_height_mm:.1f}mm）。", level=Qgis.Info, duration=3
-        )
+        # 情報メッセージの表示は削除
 
         # 印刷範囲rubberbandをマウスで移動できるようにするツールを有効化（UIには影響しない）
         self._print_area_move_tool = PrintAreaMoveTool(canvas, rb, map_item, width_map, height_map, self.iface, self)
@@ -1238,6 +1230,8 @@ class LayoutSelectorDialog(QDialog):
             return "Unknown"
     
     def on_item_selected(self, current, previous):
+        # タブタイトルも毎回再翻訳（QGISの言語切替時に即時反映したい場合）
+        self.retranslate_tabs()
         """アイテムが選択された時の処理"""
         if current is None:
             self.clear_properties_form()
@@ -1249,9 +1243,9 @@ class LayoutSelectorDialog(QDialog):
             self.load_item_properties(item)
             # アイテム名をウィンドウタイトルに反映（オプション）
             item_name = current.text(0)
-            self.setWindowTitle(f"Layout Selection & Item Management - {item_name}")
+            self.setWindowTitle(self.tr("Layout Selection & Item Management") + f" - {item_name}")
         else:
-            self.setWindowTitle("Layout Selection & Item Management")
+            self.setWindowTitle(self.tr("Layout Selection & Item Management"))
     
     def load_item_properties(self, item):
         """アイテムのプロパティを読み込む"""
@@ -1378,6 +1372,15 @@ class LayoutSelectorDialog(QDialog):
     
     def clear_properties_form(self):
         """プロパティフォームをクリア"""
+        # QFormLayoutが削除済みの場合は何もしない
+        from PyQt5.QtWidgets import QFormLayout
+        if not hasattr(self, 'properties_form') or not isinstance(self.properties_form, QFormLayout):
+            return
+        try:
+            # wrapped C/C++ object of type QFormLayout has been deleted 対策
+            _ = self.properties_form.count()
+        except RuntimeError:
+            return
         while self.properties_form.count():
             child = self.properties_form.takeAt(0)
             if child.widget():
@@ -1547,10 +1550,7 @@ class LayoutSelectorDialog(QDialog):
                 # レイアウトの変更を終了
                 self.current_layout.undoStack().endCommand()
                 
-                self.iface.messageBar().pushMessage(
-                    "Success", "Properties have been updated.",
-                    level=Qgis.Success, duration=3
-                )
+        # 成功メッセージの表示は削除
                 
                 # アイテム一覧を更新（選択を保持）
                 self.refresh_layout_items_with_selection(layout_item)
@@ -1559,10 +1559,7 @@ class LayoutSelectorDialog(QDialog):
             else:
                 # 変更がない場合はundoコマンドをキャンセル
                 self.current_layout.undoStack().cancelCommand()
-                self.iface.messageBar().pushMessage(
-                    "Information", "No changes were made.",
-                    level=Qgis.Info, duration=2
-                )
+                # 情報メッセージの表示は削除
                 print("変更なし")
             
         except Exception as e:
@@ -1581,10 +1578,6 @@ class LayoutSelectorDialog(QDialog):
     def save_layout_properties(self):
         """レイアウト全体のアイテムプロパティをファイルに保存"""
         if not self.current_layout:
-            self.iface.messageBar().pushMessage(
-                "Warning", "Please select a layout.",
-                level=Qgis.Warning, duration=3
-            )
             return
         
         try:
@@ -1594,10 +1587,7 @@ class LayoutSelectorDialog(QDialog):
             # デフォルトフォルダが存在しない場合は作成
             if not os.path.exists(default_folder):
                 os.makedirs(default_folder)
-                self.iface.messageBar().pushMessage(
-                    "情報", f"デフォルトフォルダを作成しました: {default_folder}",
-                    level=Qgis.Info, duration=3
-                )
+                # 情報メッセージの表示は削除
             
             # レイアウト名を取得してデフォルトファイル名を作成
             layout_name = self.current_layout.name()
@@ -1622,10 +1612,7 @@ class LayoutSelectorDialog(QDialog):
             with open(filename, 'w', encoding='utf-8') as f:
                 json.dump(layout_properties, f, ensure_ascii=False, indent=2)
             
-            self.iface.messageBar().pushMessage(
-                "Success", "Layout properties saved: " + os.path.basename(filename),
-                level=Qgis.Success, duration=3
-            )
+            # 成功メッセージの表示は削除
             
         except Exception as e:
             self.iface.messageBar().pushMessage(
@@ -1636,10 +1623,6 @@ class LayoutSelectorDialog(QDialog):
     def load_layout_properties(self):
         """ファイルからレイアウト全体のプロパティを読み込んで適用"""
         if not self.current_layout:
-            self.iface.messageBar().pushMessage(
-                "Warning", "Please select a layout.",
-                level=Qgis.Warning, duration=3
-            )
             return
         
         try:
@@ -1649,10 +1632,7 @@ class LayoutSelectorDialog(QDialog):
             # デフォルトフォルダが存在しない場合は作成
             if not os.path.exists(default_folder):
                 os.makedirs(default_folder)
-                self.iface.messageBar().pushMessage(
-                    "情報", f"デフォルトフォルダを作成しました: {default_folder}",
-                    level=Qgis.Info, duration=3
-                )
+                # 情報メッセージの表示は削除
             
             # フォルダ内のJSONファイル一覧を取得
             json_files = []
@@ -1696,10 +1676,6 @@ class LayoutSelectorDialog(QDialog):
             
             # レイアウトプロパティの検証
             if not self.validate_layout_properties(layout_properties):
-                self.iface.messageBar().pushMessage(
-                    "警告", "レイアウトプロパティファイルの形式が無効です。",
-                    level=Qgis.Warning, duration=3
-                )
                 return
             
             # アイテム数の確認
@@ -1728,10 +1704,7 @@ class LayoutSelectorDialog(QDialog):
             self.load_layout_items()
             self.load_layout_info()
             
-            self.iface.messageBar().pushMessage(
-                "成功", f"レイアウトプロパティが読み込まれました: {os.path.basename(filename)}\n適用済みアイテム数: {applied_count}",
-                level=Qgis.Success, duration=5
-            )
+            # 成功メッセージの表示は削除
             
         except FileNotFoundError:
             self.iface.messageBar().pushMessage(
