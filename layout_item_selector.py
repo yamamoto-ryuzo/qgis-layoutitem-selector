@@ -1,4 +1,82 @@
 # --- 印刷範囲移動ツール（QgsMapToolサブクラス） ---
+from qgis.gui import QgsMapTool
+from qgis.core import QgsPointXY, QgsRectangle, QgsGeometry, QgsWkbTypes
+from qgis.PyQt.QtGui import QColor
+
+class PrintAreaMoveTool(QgsMapTool):
+    def __init__(self, canvas, rubberband, map_item, width_map, height_map, iface, parent_dialog):
+        super().__init__(canvas)
+        self.canvas = canvas
+        self.rb = rubberband
+        self.map_item = map_item
+        self.width_map = width_map
+        self.height_map = height_map
+        self.iface = iface
+        self.parent_dialog = parent_dialog
+        self.dragging = False
+        self.start_pos = None
+        self.orig_center = None
+
+    def canvasPressEvent(self, event):
+        pos = self.canvas.getCoordinateTransform().toMapCoordinates(event.pos().x(), event.pos().y())
+        geom = self.rb.asGeometry()
+        if geom and geom.contains(QgsPointXY(pos)):
+            self.dragging = True
+            self.start_pos = pos
+            self.orig_center = geom.centroid().asPoint()
+        else:
+            self.dragging = False
+
+    def canvasMoveEvent(self, event):
+        if not self.dragging:
+            return
+        pos = self.canvas.getCoordinateTransform().toMapCoordinates(event.pos().x(), event.pos().y())
+        dx = pos.x() - self.start_pos.x()
+        dy = pos.y() - self.start_pos.y()
+        new_center = QgsPointXY(self.orig_center.x() + dx, self.orig_center.y() + dy)
+        self._move_rubberband(new_center)
+
+    def canvasReleaseEvent(self, event):
+        if not self.dragging:
+            return
+        pos = self.canvas.getCoordinateTransform().toMapCoordinates(event.pos().x(), event.pos().y())
+        dx = pos.x() - self.start_pos.x()
+        dy = pos.y() - self.start_pos.y()
+        new_center = QgsPointXY(self.orig_center.x() + dx, self.orig_center.y() + dy)
+        self._move_rubberband(new_center)
+        # QgsLayoutItemMapの範囲も更新
+        w = self.width_map
+        h = self.height_map
+        xmin = new_center.x() - w/2
+        xmax = new_center.x() + w/2
+        ymin = new_center.y() - h/2
+        ymax = new_center.y() + h/2
+        new_extent = QgsRectangle(xmin, ymin, xmax, ymax)
+        if hasattr(self.map_item, 'setExtent'):
+            self.map_item.setExtent(new_extent)
+            if hasattr(self.map_item, 'refresh'):
+                self.map_item.refresh()
+        self.dragging = False
+        self.iface.messageBar().pushMessage(
+            "情報", "印刷範囲を移動しました。", level=3, duration=2
+        )
+
+    def _move_rubberband(self, center):
+        w = self.width_map
+        h = self.height_map
+        xmin = center.x() - w/2
+        xmax = center.x() + w/2
+        ymin = center.y() - h/2
+        ymax = center.y() + h/2
+        points = [
+            QgsPointXY(xmin, ymax),
+            QgsPointXY(xmax, ymax),
+            QgsPointXY(xmax, ymin),
+            QgsPointXY(xmin, ymin),
+            QgsPointXY(xmin, ymax)
+        ]
+        self.rb.setToGeometry(QgsGeometry.fromPolygonXY([points]), None)
+# --- 印刷範囲移動ツール（QgsMapToolサブクラス） ---
 class PrintAreaMoveTool:
     """印刷範囲（RubberBand）をマウスでドラッグして移動できるQgsMapToolサブクラス"""
     def __init__(self, canvas, rubberband, map_item, width_map, height_map, iface, parent_dialog):
@@ -720,6 +798,7 @@ class LayoutSelectorDialog(QDialog):
             self.show_print_area_on_map()
 
     def show_print_area_on_map(self):
+        from qgis.gui import QgsRubberBand
         """選択中レイアウトの印刷範囲（ページサイズ・スケール考慮）を地図キャンバスに表示"""
         # スケール値をメッセージバーに出力
         scale = self.scale_spin.value() if hasattr(self, 'scale_spin') else None
@@ -805,13 +884,9 @@ class LayoutSelectorDialog(QDialog):
         canvas.refresh()
 
         # QgsRubberBandで矩形を描画
-        from qgis.core import QgsWkbTypes
-        from qgis.gui import QgsRubberBand
-        from qgis.PyQt.QtGui import QColor
         rb = QgsRubberBand(canvas, QgsWkbTypes.PolygonGeometry)
         rb.setColor(QColor(255, 0, 0, 100))  # 半透明赤
         rb.setWidth(2)
-        from qgis.core import QgsPointXY, QgsGeometry
         points = [
             QgsPointXY(xmin, ymax),  # 左上
             QgsPointXY(xmax, ymax),  # 右上
@@ -841,6 +916,10 @@ class LayoutSelectorDialog(QDialog):
         self.iface.messageBar().pushMessage(
             "情報", f"印刷範囲を地図キャンバスに表示しました（スケール: {scale}, サイズ: {page_width_mm:.1f}×{page_height_mm:.1f}mm）。", level=Qgis.Info, duration=3
         )
+
+        # 印刷範囲rubberbandをマウスで移動できるようにするツールを有効化（UIには影響しない）
+        self._print_area_move_tool = PrintAreaMoveTool(canvas, rb, map_item, width_map, height_map, self.iface, self)
+        canvas.setMapTool(self._print_area_move_tool.tool)
     
     def load_layout_items(self):
         """レイアウトアイテムを読み込む"""
