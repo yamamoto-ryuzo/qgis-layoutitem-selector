@@ -266,7 +266,7 @@ class LayoutSelectorDialog(QDialog):
     def init_ui(self):
         """UIを初期化"""
         self.setWindowTitle(tr("Layout Selection & Item Management"))
-        self.setModal(True)
+        self.setModal(False)  # モデルレスにして他の操作も可能にする
         self.resize(1000, 700)
         
         main_layout = QHBoxLayout()
@@ -356,17 +356,15 @@ class LayoutSelectorDialog(QDialog):
         items_widget.setLayout(items_layout)
         right_splitter.addWidget(items_widget)
         
-        # 下部: プロパティとレイアウト情報を水平分割
-        bottom_splitter = QSplitter(Qt.Horizontal)
-        
-        # プロパティパネル
+
+        # --- タブでプロパティとレイアウト情報を集約 ---
+        tab_widget = QTabWidget()
+
+        # プロパティタブ
         properties_widget = QWidget()
         properties_layout = QVBoxLayout()
-        
         properties_label = QLabel(tr("Selected Item Properties:"))
         properties_layout.addWidget(properties_label)
-        
-        # スクロール可能エリア
         scroll_area = QScrollArea()
         scroll_widget = QWidget()
         self.properties_form = QFormLayout()
@@ -374,40 +372,27 @@ class LayoutSelectorDialog(QDialog):
         scroll_area.setWidget(scroll_widget)
         scroll_area.setWidgetResizable(True)
         properties_layout.addWidget(scroll_area)
-        
-        # プロパティ更新ボタン
         properties_buttons_layout = QHBoxLayout()
-        
         update_properties_btn = QPushButton(tr("Apply Properties"))
         update_properties_btn.clicked.connect(self.update_item_properties)
         properties_buttons_layout.addWidget(update_properties_btn)
-        
         properties_layout.addLayout(properties_buttons_layout)
-        
         properties_widget.setLayout(properties_layout)
-        bottom_splitter.addWidget(properties_widget)
-        
-        # レイアウト情報パネル
+        tab_widget.addTab(properties_widget, tr("Item Properties"))
+
+        # レイアウト情報タブ
         info_widget = QWidget()
         info_layout = QVBoxLayout()
-        
         info_label = QLabel(tr("Layout Information:"))
         info_layout.addWidget(info_label)
-        
         self.info_text = QTextEdit()
         self.info_text.setReadOnly(True)
         self.info_text.setMaximumHeight(200)
         info_layout.addWidget(self.info_text)
-        
         info_widget.setLayout(info_layout)
-        bottom_splitter.addWidget(info_widget)
-        
-        # スプリッターの比率を設定
-        bottom_splitter.setSizes([400, 300])
-        
-        right_splitter.addWidget(bottom_splitter)
-        
-        # 上下スプリッターの比率を設定（アイテムリスト：下部パネル = 1:1）
+        tab_widget.addTab(info_widget, tr("Layout Info"))
+
+        right_splitter.addWidget(tab_widget)
         right_splitter.setSizes([350, 350])
         
         # メインレイアウトに追加
