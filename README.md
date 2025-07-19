@@ -2,6 +2,8 @@
 # QGIS Layout Item Selector
 
 一つのQGISレイアウトを複数の図面・台帳テンプレートとして活用できる多機能プラグインです。
+<img width="485" height="721" alt="image" src="https://github.com/user-attachments/assets/ecfdc9fa-c85b-4c24-bdf5-e75767627d3d" />
+
 
 ## 主な機能 / Main Features
 
