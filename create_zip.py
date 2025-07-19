@@ -74,6 +74,17 @@ def create_plugin_zip():
     # 配布用ディレクトリ名（PEP 8準拠）
     dist_dir = plugin_name
     zip_filename = f"{repo_name}_v{version}.zip"
+
+    # --- 既存の同名パターンZIPを削除 ---
+    import glob
+    old_zip_pattern = f"{repo_name}_v*.zip"
+    old_zips = glob.glob(old_zip_pattern)
+    for old_zip in old_zips:
+        try:
+            os.remove(old_zip)
+            print(f"古いZIPを削除: {old_zip}")
+        except Exception as e:
+            print(f"警告: {old_zip} の削除に失敗: {e}")
     
     # 含めるファイルのリスト
     include_files = [

@@ -23,6 +23,9 @@
 
 import os
 import os.path
+import sys
+import subprocess
+import threading
 
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, Qt, QVariant
 from qgis.PyQt.QtGui import QIcon
@@ -283,6 +286,7 @@ class LayoutSelectorDialog(QDialog):
         self.layout_list = QListWidget()
         for qgs_layout in self.layouts:
             # レイアウトのページサイズ取得
+            size_str = ""
             try:
                 page_collection = qgs_layout.pageCollection()
                 if page_collection.pageCount() > 0:
@@ -301,41 +305,59 @@ class LayoutSelectorDialog(QDialog):
             item = QListWidgetItem(f"{qgs_layout.name()} {size_str}")
             item.setData(Qt.UserRole, qgs_layout)
             self.layout_list.addItem(item)
-        
+
         # レイアウト選択時にアイテム情報を更新
         self.layout_list.currentItemChanged.connect(self.on_layout_selected)
         self.layout_list.itemDoubleClicked.connect(self.open_layout_manager)
-        
+
         left_layout.addWidget(self.layout_list)
-        
+
+
+        # --- スケール入力欄を追加 ---
+        scale_layout = QHBoxLayout()
+        scale_label = QLabel(self.tr("Scale:"))
+        scale_layout.addWidget(scale_label)
+        self.scale_spin = QDoubleSpinBox()
+        self.scale_spin.setDecimals(2)
+        self.scale_spin.setRange(1, 100000000)
+        self.scale_spin.setValue(1000.0)
+        self.scale_spin.setSingleStep(100.0)
+        scale_layout.addWidget(self.scale_spin)
+        left_layout.addLayout(scale_layout)
+
         # ボタン
         button_layout = QVBoxLayout()
-        
+
+        self.show_print_area_button = QPushButton(self.tr("Show Print Area on Map"))
+        self.show_print_area_button.clicked.connect(self.show_print_area_on_map)
+        self.show_print_area_button.setEnabled(False)
+        button_layout.addWidget(self.show_print_area_button)
+
         self.open_button = QPushButton(self.tr("Open Layout Manager"))
         self.open_button.clicked.connect(self.open_layout_manager)
         self.open_button.setEnabled(False)
         button_layout.addWidget(self.open_button)
-        
+
         self.refresh_button = QPushButton(self.tr("Refresh Item Info"))
         self.refresh_button.clicked.connect(self.refresh_item_info)
         self.refresh_button.setEnabled(False)
         button_layout.addWidget(self.refresh_button)
-        
+
         # レイアウト全体の保存・読み込みボタン
         self.save_layout_button = QPushButton(self.tr("Save Layout"))
         self.save_layout_button.clicked.connect(self.save_layout_properties)
         self.save_layout_button.setEnabled(False)
         button_layout.addWidget(self.save_layout_button)
-        
+
         self.load_layout_button = QPushButton(self.tr("Load Layout"))
         self.load_layout_button.clicked.connect(self.load_layout_properties)
         self.load_layout_button.setEnabled(False)
         button_layout.addWidget(self.load_layout_button)
-        
+
         self.cancel_button = QPushButton(self.tr("Cancel"))
         self.cancel_button.clicked.connect(self.reject)
         button_layout.addWidget(self.cancel_button)
-        
+
         left_layout.addLayout(button_layout)
         left_panel.setLayout(left_layout)
         left_panel.setMaximumWidth(250)
@@ -422,6 +444,7 @@ class LayoutSelectorDialog(QDialog):
             self.current_layout = None
             self.open_button.setEnabled(False)
             self.refresh_button.setEnabled(False)
+            self.show_print_area_button.setEnabled(False)
             self.save_layout_button.setEnabled(False)
             self.load_layout_button.setEnabled(False)
             self.clear_item_info()
@@ -430,10 +453,71 @@ class LayoutSelectorDialog(QDialog):
         self.current_layout = current.data(Qt.UserRole)
         self.open_button.setEnabled(True)
         self.refresh_button.setEnabled(True)
+        self.show_print_area_button.setEnabled(True)
         self.save_layout_button.setEnabled(True)
         self.load_layout_button.setEnabled(True)
         self.load_layout_items()
         self.load_layout_info()
+
+        # 選択したレイアウトの地図アイテムがあればスケール欄に反映
+        map_items = [item for item in self.current_layout.items() if item.__class__.__name__ == 'QgsLayoutItemMap']
+        if map_items and hasattr(map_items[0], 'scale'):
+            self.scale_spin.setValue(map_items[0].scale())
+
+    def show_print_area_on_map(self):
+        """選択中レイアウトの印刷範囲（ページサイズ）を地図キャンバスに表示（スケール指定可）"""
+        if not self.current_layout:
+            self.iface.messageBar().pushMessage(
+                "警告", "レイアウトが選択されていません。", level=Qgis.Warning, duration=3
+            )
+            return
+
+        # 地図アイテム(QgsLayoutItemMap)を探す
+        map_items = [item for item in self.current_layout.items() if item.__class__.__name__ == 'QgsLayoutItemMap']
+        if not map_items:
+            self.iface.messageBar().pushMessage(
+                "警告", "このレイアウトに地図アイテムがありません。", level=Qgis.Warning, duration=3
+            )
+            return
+
+        map_item = map_items[0]  # 先頭の地図アイテムを使う
+
+        # スケール欄の値を取得して設定
+        scale = self.scale_spin.value()
+        if hasattr(map_item, 'setScale'):
+            map_item.setScale(scale)
+
+        extent = map_item.extent()  # QgsRectangle
+
+        # QgsRubberBandで矩形を描画
+        canvas = self.iface.mapCanvas()
+        from qgis.core import QgsWkbTypes
+        if hasattr(self, '_print_area_rubberband') and self._print_area_rubberband:
+            self._print_area_rubberband.reset(QgsWkbTypes.PolygonGeometry)
+            self._print_area_rubberband = None
+
+        from qgis.gui import QgsRubberBand
+        from qgis.PyQt.QtGui import QColor
+        rb = QgsRubberBand(canvas, QgsWkbTypes.PolygonGeometry)
+        rb.setColor(QColor(255, 0, 0, 100))  # 半透明赤
+        rb.setWidth(2)
+        from qgis.core import QgsPointXY, QgsGeometry
+        xmin = extent.xMinimum()
+        xmax = extent.xMaximum()
+        ymin = extent.yMinimum()
+        ymax = extent.yMaximum()
+        points = [
+            QgsPointXY(xmin, ymax),  # 左上
+            QgsPointXY(xmax, ymax),  # 右上
+            QgsPointXY(xmax, ymin),  # 右下
+            QgsPointXY(xmin, ymin),  # 左下
+            QgsPointXY(xmin, ymax)   # 閉じる
+        ]
+        rb.setToGeometry(QgsGeometry.fromPolygonXY([points]), None)
+        self._print_area_rubberband = rb
+        self.iface.messageBar().pushMessage(
+            "情報", f"印刷範囲を地図キャンバスに表示しました（スケール: {scale}）。", level=Qgis.Info, duration=3
+        )
     
     def load_layout_items(self):
         """レイアウトアイテムを読み込む"""
@@ -1765,3 +1849,20 @@ class LayoutFileSelectDialog(QDialog):
     def get_selected_file(self):
         """選択されたファイルを取得"""
         return self.selected_file
+
+# --- 開発用: ファイル修正時に自動でZIPパッケージを作成 ---
+def _auto_zip_on_save():
+    try:
+        # create_zip.pyが同じディレクトリにある場合のみ実行
+        script_path = os.path.join(os.path.dirname(__file__), 'create_zip.py')
+        if os.path.exists(script_path):
+            # サブプロセスでZIP作成（非同期）
+            def run_zip():
+                subprocess.run([sys.executable, script_path], cwd=os.path.dirname(__file__))
+            threading.Thread(target=run_zip, daemon=True).start()
+    except Exception as e:
+        print(f"[auto_zip_on_save] ZIP自動作成エラー: {e}")
+
+# ファイルが直接実行された場合は自動でZIP作成
+if __name__ == "__main__":
+    _auto_zip_on_save()
