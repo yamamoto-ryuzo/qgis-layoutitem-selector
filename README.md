@@ -115,11 +115,3 @@ GPL v2.0
 
 このプラグインのバージョンは `metadata.txt` の `version` フィールドで管理されています。
 新しい機能追加や修正時は `metadata.txt` の `version` を更新してください。
-
-## 開発者
-
-yamamoto-ryuzo
-
-## ライセンス
-
-GPL v2.0
