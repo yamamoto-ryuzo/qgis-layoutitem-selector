@@ -98,9 +98,9 @@ The UI automatically switches according to QGIS language settings.
 ## バージョン管理 / Versioning
 
 プラグインのバージョンは `metadata.txt` の `version` フィールドで管理されています。  
-The plugin version is managed in the `version` field of `metadata.txt`.
+The plugin version is managed in the `version` field of `metadata.txt`.  
 新機能追加や修正時は `metadata.txt` の `version` を更新してください。  
-Please update the `version` in `metadata.txt` when adding new features or making fixes.
+Please update the `version` in `metadata.txt` when adding new features or making fixes.   
 
 ## 開発者 / Author
 
