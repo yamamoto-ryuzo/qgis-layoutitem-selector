@@ -5,7 +5,7 @@ qgisMaximumVersion=3.99
 description=Layout Item Selector and Pre-edit Tool for efficient layout management and template creation
 description[en]=A comprehensive QGIS plugin for selecting layouts, pre-editing items, and creating reusable templates for efficient map production workflows
 description[ja]=レイアウト選択、アイテム事前編集、テンプレート作成により効率的な地図作成ワークフローを実現するQGISプラグイン
-version=2.0
+version=2.1.5
 author=Yamamoto Ryuzo
 email=ryu@yamakun.net
 
@@ -16,7 +16,10 @@ about[en]=This comprehensive QGIS plugin enhances layout management by providing
 about[ja]=このプラグインは、QGISのレイアウト管理を強化し、高度な選択・事前編集機能を提供します。主な機能：レイアウト選択・管理、アイテム事前編集、プロパティ保存・読み込みテンプレートシステム、統一デザインでの効率的な複数図面作成、完全な多言語対応。一貫性のあるプロフェッショナルな地図シリーズやドキュメントを作成する必要がある地図作成者やGIS専門家に最適です。
 
 # Uncomment the following line and add your changelog:
+
 changelog=
+    2.1.0: 印刷範囲の回転角度をレイアウト本体（QgsLayoutItemMap等）に反映する機能を追加
+    2.0.0: バージョン表記を2.0.0に更新、印刷範囲の回転・移動時の中心座標維持ロジックを改善、コード整理・安定性向上
     1.3.0: レイアウト全体のプロパティ保存・読み込み機能を追加、一括プロパティ管理、英語対応
     1.2.9: アイテムプロパティのファイル保存・読み込み機能を追加、JSON形式での設定保存
     1.2.8: ツールバーアイコン表示問題の修正、新しいリソースファイル生成
