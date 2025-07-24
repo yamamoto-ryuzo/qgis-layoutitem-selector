@@ -394,19 +394,60 @@ class LayoutItemSelector:
 
     def show_layout_selector(self):
         """レイアウト選択ダイアログを表示"""
+        import glob
+        import os
+        from qgis.core import QgsReadWriteContext, QgsPrintLayout
+        from qgis.PyQt.QtXml import QDomDocument
         project = QgsProject.instance()
         layout_manager = project.layoutManager()
         layouts = layout_manager.layouts()
-        
+        if not layouts:
+            # composerフォルダ内の全qptをインポート（QgsLayoutImporterが使えない場合はloadFromTemplateで代用）
+            composer_dir = os.path.join(self.plugin_dir, 'composer')
+            qpt_files = glob.glob(os.path.join(composer_dir, '*.qpt'))
+            imported = 0
+            for qpt_path in qpt_files:
+                layout_name = os.path.splitext(os.path.basename(qpt_path))[0]
+                layout = QgsPrintLayout(project)
+                layout.initializeDefaults()
+                try:
+                    with open(qpt_path, encoding='utf-8') as f:
+                        template_content = f.read()
+                    doc = QDomDocument()
+                    doc.setContent(template_content)
+                    context = QgsReadWriteContext()
+                    layout.loadFromTemplate(doc, context)
+                    if hasattr(layout, 'setName'):
+                        layout.setName(layout_name)
+                    else:
+                        layout.name = layout_name
+                    layout_manager.addLayout(layout)
+                    imported += 1
+                except Exception as e:
+                    self.iface.messageBar().pushMessage(
+                        "警告",
+                        f"{qpt_path} のインポート失敗: {e}",
+                        level=Qgis.Warning,
+                        duration=5
+                    )
+            # qpt登録後に必ず再取得
+            layouts = layout_manager.layouts()
+            if imported == 0:
+                self.iface.messageBar().pushMessage(
+                    "警告",
+                    "composerフォルダからレイアウトを追加できませんでした。",
+                    level=Qgis.Warning,
+                    duration=3
+                )
+                return
         if not layouts:
             self.iface.messageBar().pushMessage(
                 "警告",
-                "プロジェクトにレイアウトがありません。",
+                "composerフォルダからレイアウトを追加できませんでした。",
                 level=Qgis.Warning,
                 duration=3
             )
             return
-        
         self.dialog = LayoutSelectorDialog(layouts, self.iface)
         self.dialog.show()
         self.dialog.raise_()

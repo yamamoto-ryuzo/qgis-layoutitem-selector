@@ -57,8 +57,8 @@ def main():
         'README.md',
         'LICENSE'
     ]
-    # i18n, ui ディレクトリも含める
-    include_dirs = ['i18n', 'ui']
+    # i18n, ui, composer ディレクトリも含める
+    include_dirs = ['i18n', 'ui', 'composer']
 
     zipname = f'{repo_name}_v{new_version}.zip'
     with zipfile.ZipFile(zipname, 'w', zipfile.ZIP_DEFLATED) as zipf:
