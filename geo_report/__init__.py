@@ -55,10 +55,10 @@ _load_translator()
 
 # noinspection PyPep8Naming
 def classFactory(iface):  # pylint: disable=invalid-name
-    """Load LayoutItemSelector class from file LayoutItemSelector.
+    """Load LayoutItemSelector class from plugin.py.
 
     :param iface: A QGIS interface instance.
     :type iface: QgsInterface
     """
-    from .layout_item_selector import LayoutItemSelector
+    from .plugin import LayoutItemSelector
     return LayoutItemSelector(iface)
