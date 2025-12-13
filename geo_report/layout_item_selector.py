@@ -244,7 +244,7 @@ import os
 
 # Initialize Qt resources from file resources.py
 try:
-    from .resources import *
+    from ..resources import *
     print("リソースファイルを正常に読み込みました")
 except ImportError as e:
     print(f"リソースファイルの読み込みに失敗: {e}")
