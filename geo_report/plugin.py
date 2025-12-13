@@ -230,7 +230,8 @@ import sys
 import subprocess
 import threading
 
-from qgis.PyQt.QtCore import QSettings, Qt, QVariant
+from qgis.PyQt.QtCore import QSettings, QVariant
+from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import (QAction, QDialog, QVBoxLayout, QListWidget, QListWidgetItem, 
                                 QPushButton, QHBoxLayout, QSplitter, QTextEdit, QLabel, 
@@ -698,7 +699,7 @@ class LayoutSelectorDialog(QDialog):
             except Exception:
                 size_str = ""
             item = QListWidgetItem(f"{qgs_layout.name()} {size_str}")
-            item.setData(Qt.UserRole, qgs_layout)
+            item.setData(Qt.ItemDataRole.UserRole, qgs_layout)
             self.layout_list.addItem(item)
 
         # レイアウト選択時にアイテム情報を更新
@@ -788,7 +789,7 @@ class LayoutSelectorDialog(QDialog):
         left_panel.setMaximumWidth(250)
         
         # 右側パネル - 垂直分割
-        right_splitter = QSplitter(Qt.Vertical)
+        right_splitter = QSplitter(Qt.Orientation.Vertical)
         
         # 上部: アイテムリスト
         items_widget = QWidget()
@@ -885,7 +886,7 @@ class LayoutSelectorDialog(QDialog):
             self.clear_item_info()
             return
             
-        self.current_layout = current.data(Qt.UserRole)
+        self.current_layout = current.data(Qt.ItemDataRole.UserRole)
         self.open_button.setEnabled(True)
         self.refresh_button.setEnabled(True)
         self.show_print_area_button.setEnabled(True)
@@ -1102,11 +1103,11 @@ class LayoutSelectorDialog(QDialog):
                     tree_item.setText(0, display_name)
                     tree_item.setText(1, item_type)
                     tree_item.setText(2, visibility)
-                    tree_item.setData(0, Qt.UserRole, item)
+                    tree_item.setData(0, Qt.ItemDataRole.UserRole, item)
                     # 非表示アイテムは薄いグレーで表示
                     if visibility == "非表示":
                         for col in range(3):
-                            tree_item.setForeground(col, Qt.gray)
+                            tree_item.setForeground(col, Qt.GlobalColor.gray)
                     self.items_tree.addTopLevelItem(tree_item)
             except Exception as e:
                 print(f"アイテム処理エラー: {e}")
@@ -1139,7 +1140,7 @@ class LayoutSelectorDialog(QDialog):
         """指定されたUUIDのアイテムを選択状態に復元"""
         for i in range(self.items_tree.topLevelItemCount()):
             tree_item = self.items_tree.topLevelItem(i)
-            layout_item = tree_item.data(0, Qt.UserRole)
+            layout_item = tree_item.data(0, Qt.ItemDataRole.UserRole)
             
             if layout_item and hasattr(layout_item, 'uuid'):
                 if layout_item.uuid() == target_uuid:
@@ -1278,7 +1279,7 @@ class LayoutSelectorDialog(QDialog):
             self.clear_properties_form()
             return
             
-        item = current.data(0, Qt.UserRole)
+        item = current.data(0, Qt.ItemDataRole.UserRole)
         if item:
             # すぐにプロパティを表示
             self.load_item_properties(item)
@@ -1413,8 +1414,8 @@ class LayoutSelectorDialog(QDialog):
     
     def clear_properties_form(self):
         """プロパティフォームをクリア"""
-        # QFormLayoutが削除済みの場合は何もしない
-        from PyQt5.QtWidgets import QFormLayout
+        # QFormLayoutが削除済みの場合は何もしない（Qt6ではqgis.PyQtを使用）
+        from qgis.PyQt.QtWidgets import QFormLayout
         if not hasattr(self, 'properties_form') or not isinstance(self.properties_form, QFormLayout):
             return
         try:
@@ -1437,7 +1438,7 @@ class LayoutSelectorDialog(QDialog):
             )
             return
         
-        layout_item = current_item.data(0, Qt.UserRole)
+        layout_item = current_item.data(0, Qt.ItemDataRole.UserRole)
         if not layout_item or not isinstance(layout_item, QgsLayoutItem):
             self.iface.messageBar().pushMessage(
                 "Warning", "No valid layout item selected.",
@@ -2288,13 +2289,13 @@ class LayoutFileSelectDialog(QDialog):
                 # リストアイテムを作成
                 item_text = f"{file}{layout_name}\n  サイズ: {file_size:,} bytes, 更新: {time_str}"
                 item = QListWidgetItem(item_text)
-                item.setData(Qt.UserRole, file)
+                item.setData(Qt.ItemDataRole.UserRole, file)
                 self.file_list.addItem(item)
                 
             except Exception as e:
                 # エラーがあってもファイル名だけは表示
                 item = QListWidgetItem(f"{file} (情報取得エラー)")
-                item.setData(Qt.UserRole, file)
+                item.setData(Qt.ItemDataRole.UserRole, file)
                 self.file_list.addItem(item)
         
         # ダブルクリックで選択
@@ -2332,7 +2333,7 @@ class LayoutFileSelectDialog(QDialog):
     def on_selection_changed(self, current, previous):
         """選択が変更された時の処理"""
         if current:
-            self.selected_file = current.data(Qt.UserRole)
+            self.selected_file = current.data(Qt.ItemDataRole.UserRole)
             self.ok_button.setEnabled(True)
         else:
             self.selected_file = None
@@ -2340,7 +2341,7 @@ class LayoutFileSelectDialog(QDialog):
     
     def on_file_double_clicked(self, item):
         """ファイルがダブルクリックされた時の処理"""
-        self.selected_file = item.data(Qt.UserRole)
+        self.selected_file = item.data(Qt.ItemDataRole.UserRole)
         self.accept()
     
     def browse_other_folder(self):
