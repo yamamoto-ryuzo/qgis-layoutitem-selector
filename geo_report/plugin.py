@@ -274,7 +274,7 @@ class LayoutItemSelector:
         self.plugin_dir = os.path.dirname(__file__)
         # Declare instance attributes
         self.actions = []
-        self.menu = 'レイアウトアイテムセレクタ'
+        self.menu = 'geo_report'
         self.first_start = None
 
 

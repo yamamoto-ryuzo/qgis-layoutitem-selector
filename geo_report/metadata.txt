@@ -1,11 +1,11 @@
 [general]
-name=Layout Item Selector
+name=geo_report
 qgisMinimumVersion=3.10
 qgisMaximumVersion=3.99
 description=Layout Item Selector and Pre-edit Tool for efficient layout management and template creation
 description[en]=A comprehensive QGIS plugin for selecting layouts, pre-editing items, and creating reusable templates for efficient map production workflows
 description[ja]=レイアウト選択、アイテム事前編集、テンプレート作成により効率的な地図作成ワークフローを実現するQGISプラグイン
-version=2.1.34
+version=2.1.35
 author=Yamamoto Ryuzo
 email=ryu@yamakun.net
 
