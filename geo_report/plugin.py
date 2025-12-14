@@ -40,7 +40,8 @@ from qgis.PyQt.QtWidgets import (QAction, QDialog, QVBoxLayout, QListWidget, QLi
                                 QPushButton, QHBoxLayout, QSplitter, QTextEdit, QLabel, 
                                 QTreeWidget, QTreeWidgetItem, QGroupBox, QLineEdit, 
                                 QSpinBox, QDoubleSpinBox, QComboBox, QCheckBox, QFormLayout,
-                                QTabWidget, QWidget, QScrollArea, QFileDialog, QMessageBox)
+                                QTabWidget, QWidget, QScrollArea, QFileDialog, QMessageBox,
+                                QDockWidget)
 from qgis.core import (QgsProject, QgsLayoutManager, QgsLayoutItem, Qgis, QgsLayoutPoint, 
                        QgsLayoutSize, QgsUnitTypes, QgsPointXY, QgsRectangle, QgsGeometry, 
                        QgsWkbTypes, QgsMessageLog)
@@ -332,6 +333,10 @@ class GeoReport:
         self.actions = []
         self.menu = 'geo_report'
         self.first_start = None
+        
+        # パネルオブジェクト
+        self.dialog = None
+        self.dock_widget = None
 
         # 起動ログ
         try:
@@ -454,6 +459,12 @@ class GeoReport:
                 self.menu,
                 action)
             self.iface.removeToolBarIcon(action)
+        
+        # パネルを削除
+        if self.dock_widget:
+            self.iface.removeDockWidget(self.dock_widget)
+            self.dock_widget.deleteLater()
+            self.dock_widget = None
 
     def run(self):
         """Run method that performs all the real work"""
@@ -469,7 +480,7 @@ class GeoReport:
             )
 
     def show_layout_selector(self):
-        """レイアウト選択ダイアログを表示"""
+        """レイアウト選択パネルを表示（ドックウィジェット）"""
         log_message("show_layout_selector開始", Qgis.Info)
         import glob
         import os
@@ -538,17 +549,36 @@ class GeoReport:
             return
         log_message(f"LayoutSelectorDialog作成開始（レイアウト数: {len(layouts)}）", Qgis.Info)
         try:
-            self.dialog = LayoutSelectorDialog(layouts, self.iface)
-            log_message("LayoutSelectorDialog作成成功", Qgis.Info)
+            # パネルが既に存在する場合は表示するだけ
+            if self.dock_widget is None:
+                # レイアウト選択ダイアログを作成
+                self.dialog = LayoutSelectorDialog(layouts, self.iface)
+                log_message("LayoutSelectorDialog作成成功", Qgis.Info)
+                
+                # ドックウィジェットを作成
+                self.dock_widget = QDockWidget("report", self.iface.mainWindow())
+                self.dock_widget.setWidget(self.dialog)
+                self.dock_widget.setObjectName("GeoReportLayoutSelectorPanel")
+                
+                # パネルを左側に追加
+                self.iface.addDockWidget(Qt.LeftDockWidgetArea, self.dock_widget)
+                
+                log_message("ドックウィジェット作成成功", Qgis.Info)
+            else:
+                # 既存のパネルを表示/非表示を切り替え
+                if self.dock_widget.isVisible():
+                    self.dock_widget.hide()
+                else:
+                    self.dock_widget.show()
+                    self.dock_widget.raise_()
+                    self.dock_widget.activateWindow()
+                    
         except Exception as e:
             import traceback
             error_msg = f"LayoutSelectorDialog作成失敗: {str(e)}\n{traceback.format_exc()}"
             log_message(error_msg, Qgis.Critical)
             raise
-        self.dialog.show()
-        self.dialog.raise_()
-        self.dialog.activateWindow()
-        log_message("ダイアログ表示完了", Qgis.Info)
+        log_message("パネル表示完了", Qgis.Info)
 
 
 class LayoutSelectorDialog(QDialog):
@@ -594,6 +624,10 @@ class LayoutSelectorDialog(QDialog):
                     canvas.setMapTool(None)
         except Exception:
             pass
+        # パネルの場合は非表示にするだけで、削除しない
+        event.ignore()  # closeイベントを無視（パネル非表示）
+        if hasattr(self, 'parent') and isinstance(self.parent(), QDockWidget):
+            self.parent().hide()
         super().closeEvent(event)
 
     def reject(self):
@@ -610,7 +644,11 @@ class LayoutSelectorDialog(QDialog):
                     canvas.setMapTool(None)
         except Exception:
             pass
-        super().reject()
+        # パネルの場合は非表示にするだけで、削除しない
+        if hasattr(self, 'parent') and isinstance(self.parent(), QDockWidget):
+            self.parent().hide()
+        else:
+            super().reject()
 
     def accept(self):
         self._remove_print_area_rubberband()
@@ -624,7 +662,11 @@ class LayoutSelectorDialog(QDialog):
                     canvas.setMapTool(None)
         except Exception:
             pass
-        super().accept()
+        # パネルの場合は非表示にするだけで、削除しない
+        if hasattr(self, 'parent') and isinstance(self.parent(), QDockWidget):
+            self.parent().hide()
+        else:
+            super().accept()
 
 
 # --- 印刷範囲移動ツール（QgsMapToolサブクラス）をファイル先頭に定義 ---
