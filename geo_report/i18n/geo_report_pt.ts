@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TS version="2.1" language="de">
+<TS version="2.1" language="pt">
   <context>
     <name>geo_report</name>
     <message>
@@ -12,11 +12,11 @@
     </message>
     <message>
       <source>Angle:</source>
-    <translation>Winkel:</translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Apply Properties</source>
-    <translation>Eigenschaften anwenden</translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Available Layout Property Files:</source>
@@ -32,11 +32,11 @@
     </message>
     <message>
       <source>Cannot load properties: </source>
-    <translation>Eigenschaften können nicht geladen werden: </translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Create Report</source>
-    <translation>Bericht erstellen</translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Display Name</source>
@@ -44,7 +44,7 @@
     </message>
     <message>
       <source>Error</source>
-    <translation>Fehler</translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Error getting information</source>
@@ -68,7 +68,7 @@
     </message>
     <message>
       <source>Hide Print Area</source>
-    <translation>Druckbereich ausblenden</translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>ID</source>
@@ -84,35 +84,35 @@
     </message>
     <message>
       <source>Information</source>
-    <translation>Information</translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Item Name</source>
-    <translation>Elementname</translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Item Properties</source>
-    <translation>Elementeigenschaften</translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Item information has been updated.</source>
-    <translation>Elementinformationen wurden aktualisiert.</translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Layout Info</source>
-    <translation>Layout-Info</translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Layout Information:</source>
-    <translation>Layout-Informationen:</translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Layout Items:</source>
-    <translation>Layout-Elemente:</translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Layout List:</source>
-    <translation>Layout-Liste:</translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Layout Name: </source>
@@ -120,11 +120,11 @@
     </message>
     <message>
       <source>Layout Selection &amp; Item Management</source>
-    <translation>Layout-Auswahl und Elementverwaltung</translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Load Layout</source>
-    <translation>Layout laden</translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Modified</source>
@@ -140,7 +140,7 @@
     </message>
     <message>
       <source>Please select a layout.</source>
-    <translation>Bitte wählen Sie ein Layout aus.</translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Print area moved.</source>
@@ -148,7 +148,7 @@
     </message>
     <message>
       <source>Refresh Item Info</source>
-    <translation>Elementinformationen aktualisieren</translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Rotation Angle</source>
@@ -156,7 +156,7 @@
     </message>
     <message>
       <source>Save Layout</source>
-    <translation>Layout speichern</translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Scale</source>
@@ -164,7 +164,7 @@
     </message>
     <message>
       <source>Scale:</source>
-    <translation>Maßstab:</translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Select</source>
@@ -176,11 +176,11 @@
     </message>
     <message>
       <source>Selected Item Properties:</source>
-    <translation>Eigenschaften des ausgewählten Elements:</translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Show Print Area on Map</source>
-    <translation>Druckbereich auf Karte anzeigen</translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Size</source>
@@ -196,15 +196,15 @@
     </message>
     <message>
       <source>Type</source>
-    <translation>Typ</translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Visible</source>
-    <translation>Sichtbar</translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Warning</source>
-    <translation>Warnung</translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Width (mm)</source>

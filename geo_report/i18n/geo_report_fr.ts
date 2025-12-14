@@ -1,211 +1,222 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS>
-<TS version="2.1" language="fr_FR">
-<context>
-    <name>LayoutSelectorDialog</name>
+<TS version="2.1" language="fr">
+  <context>
+    <name>geo_report</name>
     <message>
-        <source>Layout Selection &amp; Item Management</source>
-        <translation>Sélection de mise en page et gestion des éléments</translation>
+      <source>  Page </source>
+      <translation type="unfinished"/>
     </message>
     <message>
-        <source>Layout List:</source>
-        <translation>Liste des mises en page :</translation>
+      <source>All Objects List:</source>
+      <translation type="unfinished"/>
     </message>
     <message>
-        <source>Scale:</source>
-        <translation>Échelle :</translation>
+      <source>Angle:</source>
+    <translation>Angle:</translation>
     </message>
     <message>
-        <source>Angle:</source>
-        <translation>Angle :</translation>
+      <source>Apply Properties</source>
+    <translation>Appliquer les propriétés</translation>
     </message>
     <message>
-        <source>Show Print Area on Map</source>
-        <translation>Afficher la zone d'impression sur la carte</translation>
+      <source>Available Layout Property Files:</source>
+      <translation type="unfinished"/>
     </message>
     <message>
-        <source>Open Layout Manager</source>
-        <translation>Ouvrir le gestionnaire de mises en page</translation>
+      <source>Browse Other Folder...</source>
+      <translation type="unfinished"/>
     </message>
     <message>
-        <source>Refresh Item Info</source>
-        <translation>Rafraîchir les informations de l'élément</translation>
+      <source>Cancel</source>
+      <translation type="unfinished"/>
     </message>
     <message>
-        <source>Save Layout</source>
-        <translation>Enregistrer la mise en page</translation>
+      <source>Cannot load properties: </source>
+    <translation>Impossible de charger les propriétés: </translation>
     </message>
     <message>
-        <source>Load Layout</source>
-        <translation>Charger la mise en page</translation>
+      <source>Create Report</source>
+    <translation>Créer un rapport</translation>
     </message>
     <message>
-        <source>Cancel</source>
-        <translation>Annuler</translation>
+      <source>Display Name</source>
+      <translation type="unfinished"/>
     </message>
     <message>
-        <source>Layout Items:</source>
-        <translation>Éléments de la mise en page :</translation>
+      <source>Error</source>
+    <translation>Erreur</translation>
     </message>
     <message>
-        <source>Item Name</source>
-        <translation>Nom de l'élément</translation>
+      <source>Error getting information</source>
+      <translation type="unfinished"/>
     </message>
     <message>
-        <source>Type</source>
-        <translation>Type</translation>
+      <source>Folder: </source>
+      <translation type="unfinished"/>
     </message>
     <message>
-        <source>Visible</source>
-        <translation>Visible</translation>
+      <source>Font Size</source>
+      <translation type="unfinished"/>
     </message>
     <message>
-        <source>Selected Item Properties:</source>
-        <translation>Propriétés de l'élément sélectionné :</translation>
+      <source>Height (mm)</source>
+      <translation type="unfinished"/>
     </message>
     <message>
-        <source>Apply Properties</source>
-        <translation>Appliquer les propriétés</translation>
+      <source>Hello</source>
+      <translation type="unfinished"/>
     </message>
     <message>
-        <source>Layout Information:</source>
-        <translation>Informations sur la mise en page :</translation>
+      <source>Hide Print Area</source>
+    <translation>Masquer la zone d'impression</translation>
     </message>
     <message>
-        <source>Item Properties</source>
-        <translation>Propriétés de l'élément</translation>
+      <source>ID</source>
+      <translation type="unfinished"/>
     </message>
     <message>
-        <source>Layout Info</source>
-        <translation>Infos sur la mise en page</translation>
+      <source>Image Path</source>
+      <translation type="unfinished"/>
     </message>
     <message>
-        <source>Hidden</source>
-        <translation>Caché</translation>
+      <source>Import failed</source>
+      <translation type="unfinished"/>
     </message>
     <message>
-        <source>ID</source>
-        <translation>ID</translation>
+      <source>Information</source>
+    <translation>Information</translation>
     </message>
     <message>
-        <source>Display Name</source>
-        <translation>Nom d'affichage</translation>
+      <source>Item Name</source>
+    <translation>Nom de l'élément</translation>
     </message>
     <message>
-        <source>X Position (mm)</source>
-        <translation>Position X (mm)</translation>
+      <source>Item Properties</source>
+    <translation>Propriétés de l'élément</translation>
     </message>
     <message>
-        <source>Y Position (mm)</source>
-        <translation>Position Y (mm)</translation>
+      <source>Item information has been updated.</source>
+    <translation>Les informations sur l'élément ont été mises à jour.</translation>
     </message>
     <message>
-        <source>Width (mm)</source>
-        <translation>Largeur (mm)</translation>
+      <source>Layout Info</source>
+    <translation>Info de mise en page</translation>
     </message>
     <message>
-        <source>Height (mm)</source>
-        <translation>Hauteur (mm)</translation>
+      <source>Layout Information:</source>
+    <translation>Informations sur la mise en page:</translation>
     </message>
     <message>
-        <source>Rotation Angle</source>
-        <translation>Angle de rotation</translation>
+      <source>Layout Items:</source>
+    <translation>Éléments de mise en page:</translation>
     </message>
     <message>
-        <source>Text</source>
-        <translation>Texte</translation>
+      <source>Layout List:</source>
+    <translation>Liste des mises en page:</translation>
     </message>
     <message>
-        <source>Font Size</source>
-        <translation>Taille de police</translation>
+      <source>Layout Name: </source>
+      <translation type="unfinished"/>
     </message>
     <message>
-        <source>Scale</source>
-        <translation>Échelle</translation>
+      <source>Layout Selection &amp; Item Management</source>
+    <translation>Sélection de mise en page et gestion des éléments</translation>
     </message>
     <message>
-        <source>Image Path</source>
-        <translation>Chemin de l'image</translation>
+      <source>Load Layout</source>
+    <translation>Charger la mise en page</translation>
     </message>
     <message>
-        <source>Cannot load properties: </source>
-        <translation>Impossible de charger les propriétés : </translation>
+      <source>Modified</source>
+      <translation type="unfinished"/>
     </message>
     <message>
-        <source>Group</source>
-        <translation>Groupe</translation>
+      <source>Page Count: </source>
+      <translation type="unfinished"/>
     </message>
     <message>
-        <source>Page</source>
-        <translation>Page</translation>
+      <source>Page Information:</source>
+      <translation type="unfinished"/>
     </message>
     <message>
-        <source>Map</source>
-        <translation>Carte</translation>
+      <source>Please select a layout.</source>
+    <translation>Veuillez sélectionner une mise en page.</translation>
     </message>
     <message>
-        <source>Picture</source>
-        <translation>Image</translation>
+      <source>Print area moved.</source>
+      <translation type="unfinished"/>
     </message>
     <message>
-        <source>Label</source>
-        <translation>Étiquette</translation>
+      <source>Refresh Item Info</source>
+    <translation>Actualiser les informations sur l'élément</translation>
     </message>
     <message>
-        <source>Legend</source>
-        <translation>Légende</translation>
+      <source>Rotation Angle</source>
+      <translation type="unfinished"/>
     </message>
     <message>
-        <source>Scale Bar</source>
-        <translation>Barre d'échelle</translation>
+      <source>Save Layout</source>
+    <translation>Enregistrer la mise en page</translation>
     </message>
     <message>
-        <source>Shape</source>
-        <translation>Forme</translation>
+      <source>Scale</source>
+      <translation type="unfinished"/>
     </message>
     <message>
-        <source>Polygon</source>
-        <translation>Polygone</translation>
+      <source>Scale:</source>
+    <translation>Échelle:</translation>
     </message>
     <message>
-        <source>Polyline</source>
-        <translation>Polyligne</translation>
+      <source>Select</source>
+      <translation type="unfinished"/>
     </message>
     <message>
-        <source>Table</source>
-        <translation>Tableau</translation>
+      <source>Select Layout Property File</source>
+      <translation type="unfinished"/>
     </message>
     <message>
-        <source>HTML</source>
-        <translation>HTML</translation>
+      <source>Selected Item Properties:</source>
+    <translation>Propriétés de l'élément sélectionné:</translation>
     </message>
     <message>
-        <source>Frame</source>
-        <translation>Cadre</translation>
+      <source>Show Print Area on Map</source>
+    <translation>Afficher la zone d'impression sur la carte</translation>
     </message>
     <message>
-        <source>Unknown</source>
-        <translation>Inconnu</translation>
+      <source>Size</source>
+      <translation type="unfinished"/>
     </message>
     <message>
-        <source>No items found</source>
-        <translation>Aucun élément trouvé</translation>
+      <source>Text</source>
+      <translation type="unfinished"/>
     </message>
     <message>
-        <source>Success</source>
-        <translation>Succès</translation>
+      <source>Total Objects: </source>
+      <translation type="unfinished"/>
     </message>
     <message>
-        <source>Warning</source>
-        <translation>Avertissement</translation>
+      <source>Type</source>
+    <translation>Type</translation>
     </message>
     <message>
-        <source>Error</source>
-        <translation>Erreur</translation>
+      <source>Visible</source>
+    <translation>Visible</translation>
     </message>
     <message>
-        <source>Information</source>
-        <translation>Information</translation>
+      <source>Warning</source>
+    <translation>Avertissement</translation>
     </message>
-</context>
+    <message>
+      <source>Width (mm)</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>X Position (mm)</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>Y Position (mm)</source>
+      <translation type="unfinished"/>
+    </message>
+  </context>
 </TS>

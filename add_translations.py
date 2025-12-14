@@ -1,456 +1,244 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-翻訳ファイルを生成・更新するスクリプト
+基本翻訳追加スクリプト
+
+主要な言語（日本語、フランス語、ドイツ語、スペイン語、中国語）に
+基本的な翻訳を追加します。
 """
 
-import os
-import xml.etree.ElementTree as ET
+import re
+from pathlib import Path
 
-# 各言語の翻訳辞書
+# プロジェクトルート
+PROJECT_ROOT = Path(__file__).parent
+PLUGIN_DIR = PROJECT_ROOT / "geo_report"
+I18N_DIR = PLUGIN_DIR / "i18n"
+
+# 基本翻訳辞書
 TRANSLATIONS = {
-    'ja': {
-        'All Objects List:': 'すべてのオブジェクトリスト:',
-        'Angle:': '角度:',
-        'Apply Properties': 'プロパティを適用',
-        'Cancel': 'キャンセル',
-        'Cannot load properties:': 'プロパティを読み込めません:',
-        'Display Name': '表示名',
-        'Error': 'エラー',
-        'Font Size': 'フォントサイズ',
-        'Hello': 'こんにちは',
-        'Image Path': '画像パス',
-        'Import failed': 'インポート失敗',
-        'Information': '情報',
-        'Item Name': 'アイテム名',
-        'Item Properties': 'アイテムプロパティ',
-        'Item information has been updated.': 'アイテム情報が更新されました。',
-        'Layout Info': 'レイアウト情報',
-        'Layout Information:': 'レイアウト情報:',
-        'Layout Items:': 'レイアウトアイテム:',
-        'Layout List:': 'レイアウトリスト:',
-        'Layout Name:': 'レイアウト名:',
+    'ja': {  # 日本語
         'Layout Selection & Item Management': 'レイアウト選択とアイテム管理',
-        'Load Layout': 'レイアウトを読み込み',
-        'Open Layout Manager': 'レイアウトマネージャーを開く',
-        'Page': 'ページ',
-        'Page Count:': 'ページ数:',
-        'Page Information:': 'ページ情報:',
-        'Please select a layout.': 'レイアウトを選択してください。',
-        'Print area moved.': 'プリント領域が移動しました。',
-        'Refresh Item Info': 'アイテム情報を更新',
-        'Rotation Angle': '回転角度',
-        'Save Layout': 'レイアウトを保存',
-        'Scale': '縮尺',
+        'Layout List:': 'レイアウト一覧:',
         'Scale:': '縮尺:',
-        'Selected Item Properties:': '選択したアイテムのプロパティ:',
-        'Show Print Area on Map': 'マップにプリント領域を表示',
-        'Text': 'テキスト',
-        'Total Objects:': 'オブジェクト総数:',
-        'Type': 'タイプ',
+        'Angle:': '角度:',
+        'Layout Items:': 'レイアウトアイテム:',
+        'Item Name': 'アイテム名',
+        'Type': '種類',
         'Visible': '表示',
+        'Show Print Area on Map': 'マップにプリント領域を表示',
+        'Hide Print Area': 'プリント領域を隠す',
+        'Refresh Item Info': 'アイテム情報を更新',
+        'Save Layout': 'レイアウトを保存',
+        'Load Layout': 'レイアウトを読み込み',
+        'Create Report': 'レポートを作成',
+        'Selected Item Properties:': '選択されたアイテムのプロパティ:',
+        'Layout Information:': 'レイアウト情報:',
+        'Item Properties': 'アイテムプロパティ',
+        'Layout Info': 'レイアウト情報',
+        'Apply Properties': 'プロパティを適用',
+        'Error': 'エラー',
+        'Cannot load properties: ': 'プロパティを読み込めません: ',
+        'Information': '情報',
+        'Item information has been updated.': 'アイテム情報が更新されました。',
         'Warning': '警告',
-        'X Position (mm)': 'X位置（mm）',
-        'Y Position (mm)': 'Y位置（mm）',
+        'Please select a layout.': 'レイアウトを選択してください。',
+        'Layout Name: ': 'レイアウト名: ',
+        'Page Count: ': 'ページ数: ',
+        'Total Objects: ': '合計オブジェクト数: ',
+        'Page Information:': 'ページ情報:',
+        '  Page ': '  ページ ',
+        'All Objects List:': 'すべてのオブジェクト一覧:',
+        'Select Layout Property File': 'レイアウトプロパティファイルを選択',
+        'Folder: ': 'フォルダ: ',
+        'Available Layout Property Files:': '利用可能なレイアウトプロパティファイル:',
+        'Select': '選択',
+        'Cancel': 'キャンセル',
+        'Browse Other Folder...': '他のフォルダを参照...',
+        'Size': 'サイズ',
+        'Modified': '更新日時',
+        'Error getting information': '情報取得エラー',
+        'ID': 'ID',
+        'Display Name': '表示名',
+        'X Position (mm)': 'X位置 (mm)',
+        'Y Position (mm)': 'Y位置 (mm)',
+        'Width (mm)': '幅 (mm)',
+        'Height (mm)': '高さ (mm)',
+        'Rotation Angle': '回転角度',
+        'Text': 'テキスト',
+        'Font Size': 'フォントサイズ',
+        'Scale': '縮尺',
+        'Image Path': '画像パス',
     },
-    'fr': {
-        'All Objects List:': 'Liste de tous les objets:',
-        'Angle:': 'Angle:',
-        'Apply Properties': 'Appliquer les propriétés',
-        'Cancel': 'Annuler',
-        'Cannot load properties:': 'Impossible de charger les propriétés:',
-        'Display Name': 'Nom d\'affichage',
-        'Error': 'Erreur',
-        'Font Size': 'Taille de police',
-        'Hello': 'Bonjour',
-        'Image Path': 'Chemin de l\'image',
-        'Import failed': 'Échec de l\'importation',
-        'Information': 'Information',
-        'Item Name': 'Nom de l\'élément',
-        'Item Properties': 'Propriétés de l\'élément',
-        'Item information has been updated.': 'Les informations sur l\'élément ont été mises à jour.',
-        'Layout Info': 'Infos de mise en page',
-        'Layout Information:': 'Informations de mise en page:',
-        'Layout Items:': 'Éléments de mise en page:',
-        'Layout List:': 'Liste des mises en page:',
-        'Layout Name:': 'Nom de la mise en page:',
+    'fr': {  # フランス語
         'Layout Selection & Item Management': 'Sélection de mise en page et gestion des éléments',
-        'Load Layout': 'Charger la mise en page',
-        'Open Layout Manager': 'Ouvrir le gestionnaire de mise en page',
-        'Page': 'Page',
-        'Page Count:': 'Nombre de pages:',
-        'Page Information:': 'Informations de page:',
-        'Please select a layout.': 'Veuillez sélectionner une mise en page.',
-        'Print area moved.': 'Zone d\'impression déplacée.',
-        'Refresh Item Info': 'Actualiser les infos de l\'élément',
-        'Rotation Angle': 'Angle de rotation',
-        'Save Layout': 'Enregistrer la mise en page',
-        'Scale': 'Échelle',
+        'Layout List:': 'Liste des mises en page:',
         'Scale:': 'Échelle:',
-        'Selected Item Properties:': 'Propriétés de l\'élément sélectionné:',
-        'Show Print Area on Map': 'Afficher la zone d\'impression sur la carte',
-        'Text': 'Texte',
-        'Total Objects:': 'Nombre total d\'objets:',
+        'Angle:': 'Angle:',
+        'Layout Items:': 'Éléments de mise en page:',
+        'Item Name': 'Nom de l\'élément',
         'Type': 'Type',
         'Visible': 'Visible',
-        'Warning': 'Avertissement',
-        'X Position (mm)': 'Position X (mm)',
-        'Y Position (mm)': 'Position Y (mm)',
-    },
-    'de': {
-        'All Objects List:': 'Liste aller Objekte:',
-        'Angle:': 'Winkel:',
-        'Apply Properties': 'Eigenschaften anwenden',
-        'Cancel': 'Abbrechen',
-        'Cannot load properties:': 'Eigenschaften konnten nicht geladen werden:',
-        'Display Name': 'Anzeigename',
-        'Error': 'Fehler',
-        'Font Size': 'Schriftgröße',
-        'Hello': 'Hallo',
-        'Image Path': 'Bildpfad',
-        'Import failed': 'Import fehlgeschlagen',
+        'Show Print Area on Map': 'Afficher la zone d\'impression sur la carte',
+        'Hide Print Area': 'Masquer la zone d\'impression',
+        'Refresh Item Info': 'Actualiser les informations sur l\'élément',
+        'Save Layout': 'Enregistrer la mise en page',
+        'Load Layout': 'Charger la mise en page',
+        'Create Report': 'Créer un rapport',
+        'Selected Item Properties:': 'Propriétés de l\'élément sélectionné:',
+        'Layout Information:': 'Informations sur la mise en page:',
+        'Item Properties': 'Propriétés de l\'élément',
+        'Layout Info': 'Info de mise en page',
+        'Apply Properties': 'Appliquer les propriétés',
+        'Error': 'Erreur',
+        'Cannot load properties: ': 'Impossible de charger les propriétés: ',
         'Information': 'Information',
-        'Item Name': 'Elementname',
-        'Item Properties': 'Elementeigenschaften',
-        'Item information has been updated.': 'Elementinformationen wurden aktualisiert.',
-        'Layout Info': 'Layout-Info',
-        'Layout Information:': 'Layout-Informationen:',
-        'Layout Items:': 'Layout-Elemente:',
-        'Layout List:': 'Layout-Liste:',
-        'Layout Name:': 'Layout-Name:',
+        'Item information has been updated.': 'Les informations sur l\'élément ont été mises à jour.',
+        'Warning': 'Avertissement',
+        'Please select a layout.': 'Veuillez sélectionner une mise en page.',
+    },
+    'de': {  # ドイツ語
         'Layout Selection & Item Management': 'Layout-Auswahl und Elementverwaltung',
-        'Load Layout': 'Layout laden',
-        'Open Layout Manager': 'Layout-Manager öffnen',
-        'Page': 'Seite',
-        'Page Count:': 'Seitenzahl:',
-        'Page Information:': 'Seiteninformationen:',
-        'Please select a layout.': 'Bitte wählen Sie ein Layout.',
-        'Print area moved.': 'Druckbereich verschoben.',
-        'Refresh Item Info': 'Elementinfo aktualisieren',
-        'Rotation Angle': 'Rotationswinkel',
-        'Save Layout': 'Layout speichern',
-        'Scale': 'Maßstab',
+        'Layout List:': 'Layout-Liste:',
         'Scale:': 'Maßstab:',
-        'Selected Item Properties:': 'Eigenschaften des ausgewählten Elements:',
-        'Show Print Area on Map': 'Druckbereich auf Karte anzeigen',
-        'Text': 'Text',
-        'Total Objects:': 'Gesamtzahl der Objekte:',
+        'Angle:': 'Winkel:',
+        'Layout Items:': 'Layout-Elemente:',
+        'Item Name': 'Elementname',
         'Type': 'Typ',
         'Visible': 'Sichtbar',
+        'Show Print Area on Map': 'Druckbereich auf Karte anzeigen',
+        'Hide Print Area': 'Druckbereich ausblenden',
+        'Refresh Item Info': 'Elementinformationen aktualisieren',
+        'Save Layout': 'Layout speichern',
+        'Load Layout': 'Layout laden',
+        'Create Report': 'Bericht erstellen',
+        'Selected Item Properties:': 'Eigenschaften des ausgewählten Elements:',
+        'Layout Information:': 'Layout-Informationen:',
+        'Item Properties': 'Elementeigenschaften',
+        'Layout Info': 'Layout-Info',
+        'Apply Properties': 'Eigenschaften anwenden',
+        'Error': 'Fehler',
+        'Cannot load properties: ': 'Eigenschaften können nicht geladen werden: ',
+        'Information': 'Information',
+        'Item information has been updated.': 'Elementinformationen wurden aktualisiert.',
         'Warning': 'Warnung',
-        'X Position (mm)': 'X-Position (mm)',
-        'Y Position (mm)': 'Y-Position (mm)',
+        'Please select a layout.': 'Bitte wählen Sie ein Layout aus.',
     },
-    'es': {
-        'All Objects List:': 'Lista de todos los objetos:',
-        'Angle:': 'Ángulo:',
-        'Apply Properties': 'Aplicar propiedades',
-        'Cancel': 'Cancelar',
-        'Cannot load properties:': 'No se pueden cargar las propiedades:',
-        'Display Name': 'Nombre para mostrar',
-        'Error': 'Error',
-        'Font Size': 'Tamaño de fuente',
-        'Hello': 'Hola',
-        'Image Path': 'Ruta de imagen',
-        'Import failed': 'Error en la importación',
-        'Information': 'Información',
-        'Item Name': 'Nombre del elemento',
-        'Item Properties': 'Propiedades del elemento',
-        'Item information has been updated.': 'La información del elemento se ha actualizado.',
-        'Layout Info': 'Información de diseño',
-        'Layout Information:': 'Información de diseño:',
-        'Layout Items:': 'Elementos de diseño:',
-        'Layout List:': 'Lista de diseños:',
-        'Layout Name:': 'Nombre del diseño:',
+    'es': {  # スペイン語
         'Layout Selection & Item Management': 'Selección de diseño y gestión de elementos',
-        'Load Layout': 'Cargar diseño',
-        'Open Layout Manager': 'Abrir administrador de diseño',
-        'Page': 'Página',
-        'Page Count:': 'Número de páginas:',
-        'Page Information:': 'Información de página:',
-        'Please select a layout.': 'Seleccione un diseño.',
-        'Print area moved.': 'Área de impresión movida.',
-        'Refresh Item Info': 'Actualizar información del elemento',
-        'Rotation Angle': 'Ángulo de rotación',
-        'Save Layout': 'Guardar diseño',
-        'Scale': 'Escala',
+        'Layout List:': 'Lista de diseños:',
         'Scale:': 'Escala:',
-        'Selected Item Properties:': 'Propiedades del elemento seleccionado:',
-        'Show Print Area on Map': 'Mostrar área de impresión en el mapa',
-        'Text': 'Texto',
-        'Total Objects:': 'Número total de objetos:',
+        'Angle:': 'Ángulo:',
+        'Layout Items:': 'Elementos del diseño:',
+        'Item Name': 'Nombre del elemento',
         'Type': 'Tipo',
         'Visible': 'Visible',
+        'Show Print Area on Map': 'Mostrar área de impresión en el mapa',
+        'Hide Print Area': 'Ocultar área de impresión',
+        'Refresh Item Info': 'Actualizar información del elemento',
+        'Save Layout': 'Guardar diseño',
+        'Load Layout': 'Cargar diseño',
+        'Create Report': 'Crear informe',
+        'Selected Item Properties:': 'Propiedades del elemento seleccionado:',
+        'Layout Information:': 'Información del diseño:',
+        'Item Properties': 'Propiedades del elemento',
+        'Layout Info': 'Info del diseño',
+        'Apply Properties': 'Aplicar propiedades',
+        'Error': 'Error',
+        'Cannot load properties: ': 'No se pueden cargar las propiedades: ',
+        'Information': 'Información',
+        'Item information has been updated.': 'Se ha actualizado la información del elemento.',
         'Warning': 'Advertencia',
-        'X Position (mm)': 'Posición X (mm)',
-        'Y Position (mm)': 'Posición Y (mm)',
+        'Please select a layout.': 'Por favor, seleccione un diseño.',
     },
-    'it': {
-        'All Objects List:': 'Elenco di tutti gli oggetti:',
-        'Angle:': 'Angolo:',
-        'Apply Properties': 'Applica proprietà',
-        'Cancel': 'Annulla',
-        'Cannot load properties:': 'Impossibile caricare le proprietà:',
-        'Display Name': 'Nome visualizzato',
-        'Error': 'Errore',
-        'Font Size': 'Dimensione carattere',
-        'Hello': 'Ciao',
-        'Image Path': 'Percorso immagine',
-        'Import failed': 'Importazione non riuscita',
-        'Information': 'Informazioni',
-        'Item Name': 'Nome elemento',
-        'Item Properties': 'Proprietà elemento',
-        'Item information has been updated.': 'Le informazioni dell\'elemento sono state aggiornate.',
-        'Layout Info': 'Info layout',
-        'Layout Information:': 'Informazioni layout:',
-        'Layout Items:': 'Elementi layout:',
-        'Layout List:': 'Elenco layout:',
-        'Layout Name:': 'Nome layout:',
-        'Layout Selection & Item Management': 'Selezione layout e gestione elementi',
-        'Load Layout': 'Carica layout',
-        'Open Layout Manager': 'Apri Gestione layout',
-        'Page': 'Pagina',
-        'Page Count:': 'Numero pagine:',
-        'Page Information:': 'Informazioni pagina:',
-        'Please select a layout.': 'Selezionare un layout.',
-        'Print area moved.': 'Area di stampa spostata.',
-        'Refresh Item Info': 'Aggiorna info elemento',
-        'Rotation Angle': 'Angolo di rotazione',
-        'Save Layout': 'Salva layout',
-        'Scale': 'Scala',
-        'Scale:': 'Scala:',
-        'Selected Item Properties:': 'Proprietà elemento selezionato:',
-        'Show Print Area on Map': 'Mostra area di stampa sulla mappa',
-        'Text': 'Testo',
-        'Total Objects:': 'Numero totale di oggetti:',
-        'Type': 'Tipo',
-        'Visible': 'Visibile',
-        'Warning': 'Avviso',
-        'X Position (mm)': 'Posizione X (mm)',
-        'Y Position (mm)': 'Posizione Y (mm)',
-    },
-    'pt': {
-        'All Objects List:': 'Lista de todos os objetos:',
-        'Angle:': 'Ângulo:',
-        'Apply Properties': 'Aplicar propriedades',
-        'Cancel': 'Cancelar',
-        'Cannot load properties:': 'Não é possível carregar as propriedades:',
-        'Display Name': 'Nome para exibição',
-        'Error': 'Erro',
-        'Font Size': 'Tamanho da fonte',
-        'Hello': 'Olá',
-        'Image Path': 'Caminho da imagem',
-        'Import failed': 'Falha na importação',
-        'Information': 'Informação',
-        'Item Name': 'Nome do item',
-        'Item Properties': 'Propriedades do item',
-        'Item information has been updated.': 'As informações do item foram atualizadas.',
-        'Layout Info': 'Informações de layout',
-        'Layout Information:': 'Informações de layout:',
-        'Layout Items:': 'Itens de layout:',
-        'Layout List:': 'Lista de layouts:',
-        'Layout Name:': 'Nome do layout:',
-        'Layout Selection & Item Management': 'Seleção de layout e gerenciamento de itens',
-        'Load Layout': 'Carregar layout',
-        'Open Layout Manager': 'Abrir gerenciador de layout',
-        'Page': 'Página',
-        'Page Count:': 'Contagem de páginas:',
-        'Page Information:': 'Informações da página:',
-        'Please select a layout.': 'Selecione um layout.',
-        'Print area moved.': 'Área de impressão movida.',
-        'Refresh Item Info': 'Atualizar informações do item',
-        'Rotation Angle': 'Ângulo de rotação',
-        'Save Layout': 'Salvar layout',
-        'Scale': 'Escala',
-        'Scale:': 'Escala:',
-        'Selected Item Properties:': 'Propriedades do item selecionado:',
-        'Show Print Area on Map': 'Mostrar área de impressão no mapa',
-        'Text': 'Texto',
-        'Total Objects:': 'Total de objetos:',
-        'Type': 'Tipo',
-        'Visible': 'Visível',
-        'Warning': 'Aviso',
-        'X Position (mm)': 'Posição X (mm)',
-        'Y Position (mm)': 'Posição Y (mm)',
-    },
-    'zh': {
-        'All Objects List:': '所有对象列表:',
-        'Angle:': '角度:',
-        'Apply Properties': '应用属性',
-        'Cancel': '取消',
-        'Cannot load properties:': '无法加载属性:',
-        'Display Name': '显示名称',
-        'Error': '错误',
-        'Font Size': '字体大小',
-        'Hello': '你好',
-        'Image Path': '图像路径',
-        'Import failed': '导入失败',
-        'Information': '信息',
-        'Item Name': '项目名称',
-        'Item Properties': '项目属性',
-        'Item information has been updated.': '项目信息已更新。',
-        'Layout Info': '布局信息',
-        'Layout Information:': '布局信息:',
-        'Layout Items:': '布局项目:',
-        'Layout List:': '布局列表:',
-        'Layout Name:': '布局名称:',
+    'zh': {  # 中国語
         'Layout Selection & Item Management': '布局选择和项目管理',
-        'Load Layout': '加载布局',
-        'Open Layout Manager': '打开布局管理器',
-        'Page': '页面',
-        'Page Count:': '页数:',
-        'Page Information:': '页面信息:',
-        'Please select a layout.': '请选择布局。',
-        'Print area moved.': '打印区域已移动。',
-        'Refresh Item Info': '刷新项目信息',
-        'Rotation Angle': '旋转角度',
-        'Save Layout': '保存布局',
-        'Scale': '缩放',
-        'Scale:': '缩放:',
-        'Selected Item Properties:': '所选项目的属性:',
-        'Show Print Area on Map': '在地图上显示打印区域',
-        'Text': '文本',
-        'Total Objects:': '对象总数:',
+        'Layout List:': '布局列表:',
+        'Scale:': '比例:',
+        'Angle:': '角度:',
+        'Layout Items:': '布局项目:',
+        'Item Name': '项目名称',
         'Type': '类型',
         'Visible': '可见',
+        'Show Print Area on Map': '在地图上显示打印区域',
+        'Hide Print Area': '隐藏打印区域',
+        'Refresh Item Info': '刷新项目信息',
+        'Save Layout': '保存布局',
+        'Load Layout': '加载布局',
+        'Create Report': '创建报告',
+        'Selected Item Properties:': '所选项目属性:',
+        'Layout Information:': '布局信息:',
+        'Item Properties': '项目属性',
+        'Layout Info': '布局信息',
+        'Apply Properties': '应用属性',
+        'Error': '错误',
+        'Cannot load properties: ': '无法加载属性: ',
+        'Information': '信息',
+        'Item information has been updated.': '项目信息已更新。',
         'Warning': '警告',
-        'X Position (mm)': 'X位置(mm)',
-        'Y Position (mm)': 'Y位置(mm)',
-    },
-    'ru': {
-        'All Objects List:': 'Список всех объектов:',
-        'Angle:': 'Угол:',
-        'Apply Properties': 'Применить свойства',
-        'Cancel': 'Отмена',
-        'Cannot load properties:': 'Невозможно загрузить свойства:',
-        'Display Name': 'Отображаемое имя',
-        'Error': 'Ошибка',
-        'Font Size': 'Размер шрифта',
-        'Hello': 'Привет',
-        'Image Path': 'Путь к изображению',
-        'Import failed': 'Ошибка импорта',
-        'Information': 'Информация',
-        'Item Name': 'Имя элемента',
-        'Item Properties': 'Свойства элемента',
-        'Item information has been updated.': 'Информация об элементе обновлена.',
-        'Layout Info': 'Информация о макете',
-        'Layout Information:': 'Информация о макете:',
-        'Layout Items:': 'Элементы макета:',
-        'Layout List:': 'Список макетов:',
-        'Layout Name:': 'Имя макета:',
-        'Layout Selection & Item Management': 'Выбор макета и управление элементами',
-        'Load Layout': 'Загрузить макет',
-        'Open Layout Manager': 'Открыть менеджер макетов',
-        'Page': 'Страница',
-        'Page Count:': 'Количество страниц:',
-        'Page Information:': 'Информация о странице:',
-        'Please select a layout.': 'Пожалуйста, выберите макет.',
-        'Print area moved.': 'Область печати перемещена.',
-        'Refresh Item Info': 'Обновить информацию об элементе',
-        'Rotation Angle': 'Угол поворота',
-        'Save Layout': 'Сохранить макет',
-        'Scale': 'Масштаб',
-        'Scale:': 'Масштаб:',
-        'Selected Item Properties:': 'Свойства выбранного элемента:',
-        'Show Print Area on Map': 'Показать область печати на карте',
-        'Text': 'Текст',
-        'Total Objects:': 'Всего объектов:',
-        'Type': 'Тип',
-        'Visible': 'Видимый',
-        'Warning': 'Предупреждение',
-        'X Position (mm)': 'Позиция X (мм)',
-        'Y Position (mm)': 'Позиция Y (мм)',
-    },
-    'hi': {
-        'All Objects List:': 'सभी ऑब्जेक्ट्स की सूची:',
-        'Angle:': 'कोण:',
-        'Apply Properties': 'गुण लागू करें',
-        'Cancel': 'रद्द करें',
-        'Cannot load properties:': 'गुणों को लोड नहीं कर सकते:',
-        'Display Name': 'प्रदर्शन नाम',
-        'Error': 'त्रुटि',
-        'Font Size': 'फ़ॉन्ट आकार',
-        'Hello': 'नमस्ते',
-        'Image Path': 'छवि पथ',
-        'Import failed': 'आयात विफल',
-        'Information': 'जानकारी',
-        'Item Name': 'आइटम का नाम',
-        'Item Properties': 'आइटम गुण',
-        'Item information has been updated.': 'आइटम की जानकारी अपडेट कर दी गई है।',
-        'Layout Info': 'लेआउट जानकारी',
-        'Layout Information:': 'लेआउट जानकारी:',
-        'Layout Items:': 'लेआउट आइटम्स:',
-        'Layout List:': 'लेआउट सूची:',
-        'Layout Name:': 'लेआउट का नाम:',
-        'Layout Selection & Item Management': 'लेआउट चयन और आइटम प्रबंधन',
-        'Load Layout': 'लेआउट लोड करें',
-        'Open Layout Manager': 'लेआउट प्रबंधक खोलें',
-        'Page': 'पृष्ठ',
-        'Page Count:': 'पृष्ठ संख्या:',
-        'Page Information:': 'पृष्ठ जानकारी:',
-        'Please select a layout.': 'कृपया एक लेआउट चुनें।',
-        'Print area moved.': 'प्रिंट क्षेत्र स्थानांतरित किया गया।',
-        'Refresh Item Info': 'आइटम जानकारी ताज़ा करें',
-        'Rotation Angle': 'घूर्णन कोण',
-        'Save Layout': 'लेआउट सहेजें',
-        'Scale': 'स्केल',
-        'Scale:': 'स्केल:',
-        'Selected Item Properties:': 'चयनित आइटम के गुण:',
-        'Show Print Area on Map': 'मानचित्र पर प्रिंट क्षेत्र दिखाएं',
-        'Text': 'पाठ',
-        'Total Objects:': 'कुल ऑब्जेक्ट्स:',
-        'Type': 'प्रकार',
-        'Visible': 'दृश्यमान',
-        'Warning': 'चेतावनी',
-        'X Position (mm)': 'X स्थिति (मिमी)',
-        'Y Position (mm)': 'Y स्थिति (मिमी)',
+        'Please select a layout.': '请选择一个布局。',
     },
 }
 
-def register_namespace_all(namespace):
-    """ElementTree名前空間登録"""
-    ET.register_namespace('', namespace)
 
-def update_ts_file(filepath, language_code):
-    """TSファイルに翻訳を追加"""
-    tree = ET.parse(filepath)
-    root = tree.getroot()
+def update_ts_file(lang_code, translations):
+    """
+    .ts ファイルに翻訳を追加
+    """
+    ts_file = I18N_DIR / f"geo_report_{lang_code}.ts"
     
-    translations = TRANSLATIONS.get(language_code, {})
+    if not ts_file.exists():
+        print(f"× ファイルが見つかりません: {ts_file}")
+        return False
     
-    if not translations:
-        print(f"警告: {language_code} の翻訳が見つかりません")
-        return
+    # ファイルを読み込み
+    with open(ts_file, 'r', encoding='utf-8') as f:
+        content = f.read()
     
-    context = root.find('.//context')
-    if context is None:
-        return
-    
-    for message in context.findall('message'):
-        source = message.find('source')
-        translation = message.find('translation')
+    # 各翻訳を適用
+    for source, target in translations.items():
+        # エスケープ処理
+        source_escaped = source.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+        target_escaped = target.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
         
-        if source is not None and translation is not None:
-            source_text = source.text
-            if source_text in translations:
-                translation.text = translations[source_text]
-                translation.set('type', '')  # unfinished 属性を削除
+        # パターン: <source>...</source>\n    <translation type="unfinished"/>
+        pattern1 = f'<source>{re.escape(source_escaped)}</source>\\s*<translation type="unfinished"/>'
+        replacement1 = f'<source>{source_escaped}</source>\n    <translation>{target_escaped}</translation>'
+        content = re.sub(pattern1, replacement1, content)
+        
+        # パターン: <source>...</source>\n    <translation type="unfinished"></translation>
+        pattern2 = f'<source>{re.escape(source_escaped)}</source>\\s*<translation type="unfinished"></translation>'
+        replacement2 = f'<source>{source_escaped}</source>\n    <translation>{target_escaped}</translation>'
+        content = re.sub(pattern2, replacement2, content)
     
-    tree.write(filepath, encoding='utf-8', xml_declaration=True)
-
-# 処理実行
-i18n_dir = r'C:\github\geo_report\i18n'
-os.chdir(i18n_dir)
-
-for lang_code in ['ja', 'fr', 'de', 'es', 'it', 'pt', 'zh', 'ru', 'hi']:
-    ts_file = f'geo_report_{lang_code}.ts'
-    ts_path = os.path.join(i18n_dir, ts_file)
+    # ファイルに書き戻し
+    with open(ts_file, 'w', encoding='utf-8') as f:
+        f.write(content)
     
-    if os.path.exists(ts_path):
-        print(f"更新中: {ts_file}")
-        update_ts_file(ts_path, lang_code)
-        print(f"✓ {ts_file} を更新しました")
-    else:
-        print(f"✗ {ts_file} が見つかりません")
+    return True
 
-print("\n翻訳の追加が完了しました。")
+
+def main():
+    """メイン処理"""
+    print("=" * 60)
+    print("基本翻訳追加スクリプト")
+    print("=" * 60)
+    
+    for lang_code, translations in TRANSLATIONS.items():
+        print(f"\n[{lang_code}] 翻訳を追加中...")
+        
+        if update_ts_file(lang_code, translations):
+            print(f"  ✓ {len(translations)} 件の翻訳を追加しました")
+        else:
+            print(f"  × 失敗しました")
+    
+    print("\n" + "=" * 60)
+    print("✓ 完了！")
+    print("=" * 60)
+    print("\n次のステップ:")
+    print("1. generate_translations.py を実行して .qm ファイルを再コンパイル")
+    print("2. または Qt Linguist で翻訳を確認・編集")
+    print()
+
+
+if __name__ == '__main__':
+    main()

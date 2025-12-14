@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TS version="2.1" language="de">
+<TS version="2.1" language="zh">
   <context>
     <name>geo_report</name>
     <message>
@@ -12,11 +12,11 @@
     </message>
     <message>
       <source>Angle:</source>
-    <translation>Winkel:</translation>
+    <translation>角度:</translation>
     </message>
     <message>
       <source>Apply Properties</source>
-    <translation>Eigenschaften anwenden</translation>
+    <translation>应用属性</translation>
     </message>
     <message>
       <source>Available Layout Property Files:</source>
@@ -32,11 +32,11 @@
     </message>
     <message>
       <source>Cannot load properties: </source>
-    <translation>Eigenschaften können nicht geladen werden: </translation>
+    <translation>无法加载属性: </translation>
     </message>
     <message>
       <source>Create Report</source>
-    <translation>Bericht erstellen</translation>
+    <translation>创建报告</translation>
     </message>
     <message>
       <source>Display Name</source>
@@ -44,7 +44,7 @@
     </message>
     <message>
       <source>Error</source>
-    <translation>Fehler</translation>
+    <translation>错误</translation>
     </message>
     <message>
       <source>Error getting information</source>
@@ -68,7 +68,7 @@
     </message>
     <message>
       <source>Hide Print Area</source>
-    <translation>Druckbereich ausblenden</translation>
+    <translation>隐藏打印区域</translation>
     </message>
     <message>
       <source>ID</source>
@@ -84,35 +84,35 @@
     </message>
     <message>
       <source>Information</source>
-    <translation>Information</translation>
+    <translation>信息</translation>
     </message>
     <message>
       <source>Item Name</source>
-    <translation>Elementname</translation>
+    <translation>项目名称</translation>
     </message>
     <message>
       <source>Item Properties</source>
-    <translation>Elementeigenschaften</translation>
+    <translation>项目属性</translation>
     </message>
     <message>
       <source>Item information has been updated.</source>
-    <translation>Elementinformationen wurden aktualisiert.</translation>
+    <translation>项目信息已更新。</translation>
     </message>
     <message>
       <source>Layout Info</source>
-    <translation>Layout-Info</translation>
+    <translation>布局信息</translation>
     </message>
     <message>
       <source>Layout Information:</source>
-    <translation>Layout-Informationen:</translation>
+    <translation>布局信息:</translation>
     </message>
     <message>
       <source>Layout Items:</source>
-    <translation>Layout-Elemente:</translation>
+    <translation>布局项目:</translation>
     </message>
     <message>
       <source>Layout List:</source>
-    <translation>Layout-Liste:</translation>
+    <translation>布局列表:</translation>
     </message>
     <message>
       <source>Layout Name: </source>
@@ -120,11 +120,11 @@
     </message>
     <message>
       <source>Layout Selection &amp; Item Management</source>
-    <translation>Layout-Auswahl und Elementverwaltung</translation>
+    <translation>布局选择和项目管理</translation>
     </message>
     <message>
       <source>Load Layout</source>
-    <translation>Layout laden</translation>
+    <translation>加载布局</translation>
     </message>
     <message>
       <source>Modified</source>
@@ -140,7 +140,7 @@
     </message>
     <message>
       <source>Please select a layout.</source>
-    <translation>Bitte wählen Sie ein Layout aus.</translation>
+    <translation>请选择一个布局。</translation>
     </message>
     <message>
       <source>Print area moved.</source>
@@ -148,7 +148,7 @@
     </message>
     <message>
       <source>Refresh Item Info</source>
-    <translation>Elementinformationen aktualisieren</translation>
+    <translation>刷新项目信息</translation>
     </message>
     <message>
       <source>Rotation Angle</source>
@@ -156,7 +156,7 @@
     </message>
     <message>
       <source>Save Layout</source>
-    <translation>Layout speichern</translation>
+    <translation>保存布局</translation>
     </message>
     <message>
       <source>Scale</source>
@@ -164,7 +164,7 @@
     </message>
     <message>
       <source>Scale:</source>
-    <translation>Maßstab:</translation>
+    <translation>比例:</translation>
     </message>
     <message>
       <source>Select</source>
@@ -176,11 +176,11 @@
     </message>
     <message>
       <source>Selected Item Properties:</source>
-    <translation>Eigenschaften des ausgewählten Elements:</translation>
+    <translation>所选项目属性:</translation>
     </message>
     <message>
       <source>Show Print Area on Map</source>
-    <translation>Druckbereich auf Karte anzeigen</translation>
+    <translation>在地图上显示打印区域</translation>
     </message>
     <message>
       <source>Size</source>
@@ -196,15 +196,15 @@
     </message>
     <message>
       <source>Type</source>
-    <translation>Typ</translation>
+    <translation>类型</translation>
     </message>
     <message>
       <source>Visible</source>
-    <translation>Sichtbar</translation>
+    <translation>可见</translation>
     </message>
     <message>
       <source>Warning</source>
-    <translation>Warnung</translation>
+    <translation>警告</translation>
     </message>
     <message>
       <source>Width (mm)</source>

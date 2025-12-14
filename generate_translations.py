@@ -1,137 +1,197 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-geo_report 翻訳ファイル生成スクリプト
+翻訳ファイル生成スクリプト（シンプル版）
 
-Qt Linguist の .ts（翻訳ソースファイル）を生成します。
-lrelease.exe で .qm ファイルにコンパイルする前のステップです。
-
-使用方法:
-    python generate_translations.py
-    
-生成されるファイル:
-    - geo_report/i18n/geo_report_en.ts (英語テンプレート)
-    - geo_report/i18n/geo_report_ja.ts (日本語)
-    - geo_report/i18n/geo_report_fr.ts (フランス語)
-    - geo_report/i18n/geo_report_de.ts (ドイツ語)
-    - geo_report/i18n/geo_report_es.ts (スペイン語)
-    - geo_report/i18n/geo_report_it.ts (イタリア語)
-    - geo_report/i18n/geo_report_pt.ts (ポルトガル語)
-    - geo_report/i18n/geo_report_zh.ts (中国語)
-    - geo_report/i18n/geo_report_ru.ts (ロシア語)
-    - geo_report/i18n/geo_report_hi.ts (ヒンディー語)
+Pythonコードから直接 .ts ファイルを生成します
 """
 
 import os
 import re
+from pathlib import Path
+from xml.etree import ElementTree as ET
 from xml.dom import minidom
+import subprocess
+
+# プロジェクトルート
+PROJECT_ROOT = Path(__file__).parent
+PLUGIN_DIR = PROJECT_ROOT / "geo_report"
+I18N_DIR = PLUGIN_DIR / "i18n"
+
+# 対応言語のリスト
+LANGUAGES = {
+    'en': 'English',
+    'fr': 'French',
+    'de': 'German',
+    'es': 'Spanish',
+    'it': 'Italian',
+    'pt': 'Portuguese',
+    'ja': 'Japanese',
+    'zh': 'Chinese',
+    'ru': 'Russian',
+    'hi': 'Hindi'
+}
+
+# lrelease の場所
+LRELEASE_PATH = r"C:\Qt\linguist_6.9.1\lrelease.exe"
 
 
-def extract_strings_from_python(plugin_dir):
+def extract_tr_strings(file_path):
     """
-    Python ファイルから UI 文字列を抽出
+    Python ファイルから tr() メソッドで囲まれた文字列を抽出
     """
     strings = set()
     
-    plugin_file = os.path.join(plugin_dir, 'geo_report', 'plugin.py')
-    if not os.path.exists(plugin_file):
-        plugin_file = os.path.join(plugin_dir, 'plugin.py')
+    with open(file_path, 'r', encoding='utf-8') as f:
+        content = f.read()
     
-    if os.path.exists(plugin_file):
-        with open(plugin_file, 'r', encoding='utf-8') as f:
-            content = f.read()
-        
-        # tr(...) パターン（寛容な正規表現）
-        pattern_tr = r'tr\s*\(\s*[\'\"](.*?)[\'\"]'
-        for match in re.finditer(pattern_tr, content):
-            text = match.group(1).strip()
-            if text:
-                strings.add(text)
+    # tr("...") または tr('...') のパターンを検索
+    patterns = [
+        r'\.tr\("([^"]+)"\)',  # .tr("text")
+        r"\.tr\('([^']+)'\)",  # .tr('text')
+        r'tr\("([^"]+)"\)',     # tr("text")
+        r"tr\('([^']+)'\)",     # tr('text')
+        r'self\.tr\("([^"]+)"\)',  # self.tr("text")
+        r"self\.tr\('([^']+)'\)",  # self.tr('text')
+    ]
     
-    return strings
+    for pattern in patterns:
+        matches = re.findall(pattern, content)
+        strings.update(matches)
+    
+    return sorted(strings)
 
 
-def create_ts_file(output_path, language_code, strings):
+def create_ts_file(lang_code, strings):
     """
     .ts ファイルを作成
-    
-    Args:
-        output_path: 出力ファイルパス
-        language_code: 言語コード（例: ja, fr, de）
-        strings: 翻訳対象文字列のセット
     """
-    # XML ドキュメント構造を構築
-    xml_doc = minidom.Document()
-    root = xml_doc.createElement('TS')
-    root.setAttribute('version', '2.1')
-    root.setAttribute('language', language_code)
-    xml_doc.appendChild(root)
+    # XML ルート要素
+    root = ET.Element('TS')
+    root.set('version', '2.1')
+    root.set('language', lang_code)
     
-    context = xml_doc.createElement('context')
-    root.appendChild(context)
+    # コンテキスト要素
+    context = ET.SubElement(root, 'context')
     
-    name = xml_doc.createElement('name')
-    name.appendChild(xml_doc.createTextNode('geo_report'))
-    context.appendChild(name)
+    name_elem = ET.SubElement(context, 'name')
+    name_elem.text = 'geo_report'
     
-    # 各文字列に対してメッセージエントリを作成
-    for text in sorted(strings):
-        message = xml_doc.createElement('message')
-        context.appendChild(message)
+    # 各文字列にメッセージ要素を追加
+    for string in strings:
+        message = ET.SubElement(context, 'message')
         
-        source = xml_doc.createElement('source')
-        source.appendChild(xml_doc.createTextNode(text))
-        message.appendChild(source)
+        source = ET.SubElement(message, 'source')
+        source.text = string
         
-        translation = xml_doc.createElement('translation')
-        # 英語の場合はソースと同じ、他言語は空
-        if language_code == 'en':
-            translation.appendChild(xml_doc.createTextNode(text))
+        translation = ET.SubElement(message, 'translation')
+        
+        # 英語の場合は同じテキストを設定（ソース言語）
+        if lang_code == 'en':
+            translation.text = string
+            translation.set('type', 'unfinished')
         else:
-            translation.setAttribute('type', 'unfinished')
-        message.appendChild(translation)
+            # 他の言語は未翻訳
+            translation.set('type', 'unfinished')
     
-    # ファイルに書き込み
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    with open(output_path, 'w', encoding='utf-8') as f:
-        f.write(xml_doc.toprettyxml(indent='  ', encoding=None))
+    # XML を整形
+    xml_str = ET.tostring(root, encoding='utf-8')
+    dom = minidom.parseString(xml_str)
+    pretty_xml = dom.toprettyxml(indent='  ', encoding='utf-8')
+    
+    # XML 宣言を調整
+    pretty_xml = pretty_xml.decode('utf-8')
+    pretty_xml = '<?xml version="1.0" encoding="utf-8"?>\n' + '\n'.join(pretty_xml.split('\n')[1:])
+    
+    return pretty_xml
+
+
+def compile_qm_file(ts_file, qm_file):
+    """
+    .ts ファイルから .qm ファイルをコンパイル
+    """
+    if not os.path.exists(LRELEASE_PATH):
+        print(f"× lrelease が見つかりません: {LRELEASE_PATH}")
+        return False
+    
+    try:
+        result = subprocess.run(
+            [LRELEASE_PATH, str(ts_file), '-qm', str(qm_file)],
+            capture_output=True,
+            text=True,
+            check=False
+        )
+        
+        if result.returncode == 0:
+            return True
+        else:
+            print(f"× エラー: {result.stderr}")
+            return False
+            
+    except Exception as e:
+        print(f"× 例外エラー: {e}")
+        return False
 
 
 def main():
     """メイン処理"""
-    plugin_dir = os.path.dirname(__file__)
-    i18n_dir = os.path.join(plugin_dir, 'i18n')
+    print("=" * 60)
+    print("geo_report 翻訳ファイル生成スクリプト")
+    print("=" * 60)
     
-    print("[geo_report] 翻訳ファイルを生成中...")
+    # i18n ディレクトリが存在しない場合は作成
+    I18N_DIR.mkdir(exist_ok=True)
     
-    # Python ファイルから文字列を抽出
-    strings = extract_strings_from_python(plugin_dir)
-    print(f"[geo_report] {len(strings)} 個の翻訳対象文字列を検出")
+    # Python ファイルから翻訳文字列を抽出
+    print("\n=== 翻訳文字列を抽出中 ===")
     
-    # サポート言語
-    languages = {
-        'en': 'English',
-        'ja': '日本語',
-        'fr': 'Français',
-        'de': 'Deutsch',
-        'es': 'Español',
-        'it': 'Italiano',
-        'pt': 'Português',
-        'zh': '中文',
-        'ru': 'Русский',
-        'hi': 'हिन्दी',
-    }
+    all_strings = set()
+    source_files = [
+        PLUGIN_DIR / "plugin.py",
+        PLUGIN_DIR / "__init__.py"
+    ]
+    
+    for source_file in source_files:
+        if source_file.exists():
+            strings = extract_tr_strings(source_file)
+            all_strings.update(strings)
+            print(f"✓ {source_file.name}: {len(strings)} 件の文字列")
+    
+    print(f"\n合計: {len(all_strings)} 件の翻訳文字列")
     
     # 各言語の .ts ファイルを生成
-    for lang_code, lang_name in languages.items():
-        output_file = os.path.join(i18n_dir, f'geo_report_{lang_code}.ts')
-        create_ts_file(output_file, lang_code, strings)
-        print(f"[geo_report] 生成完了: {output_file} ({lang_name})")
+    print("\n=== .ts ファイルを生成中 ===")
     
-    print("[geo_report] 翻訳ファイルの生成が完了しました")
-    print("[geo_report] 次のステップ:")
-    print("[geo_report]   1. linguist.exe で .ts ファイルを開いて翻訳を入力")
-    print(f"[geo_report]   2. lrelease.exe でコンパイル: lrelease.exe {i18n_dir}/*.ts")
+    for lang_code, lang_name in LANGUAGES.items():
+        ts_file = I18N_DIR / f"geo_report_{lang_code}.ts"
+        
+        print(f"\n[{lang_code}] {lang_name}")
+        print(f"  出力: {ts_file}")
+        
+        # .ts ファイルを作成
+        ts_content = create_ts_file(lang_code, sorted(all_strings))
+        
+        with open(ts_file, 'w', encoding='utf-8') as f:
+            f.write(ts_content)
+        
+        print(f"  ✓ .ts ファイルを作成しました")
+        
+        # .qm ファイルをコンパイル
+        qm_file = I18N_DIR / f"geo_report_{lang_code}.qm"
+        
+        if compile_qm_file(ts_file, qm_file):
+            print(f"  ✓ .qm ファイルをコンパイルしました")
+        else:
+            print(f"  × .qm ファイルのコンパイルに失敗しました")
+    
+    print("\n" + "=" * 60)
+    print("✓ 完了！")
+    print("=" * 60)
+    print("\n次のステップ:")
+    print("1. Qt Linguist で翻訳を編集:")
+    print(f"   {os.path.join(r'C:\Qt\linguist_6.9.1', 'linguist.exe')}")
+    print(f"2. 翻訳ファイルの場所: {I18N_DIR}")
+    print("3. 翻訳後、再度このスクリプトを実行して .qm ファイルを更新")
+    print()
 
 
 if __name__ == '__main__':

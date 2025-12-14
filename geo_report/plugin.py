@@ -466,6 +466,14 @@ class GeoReport:
             self.dock_widget.deleteLater()
             self.dock_widget = None
 
+    def _on_dock_visibility_changed(self, visible):
+        """ドックウィジェットの表示状態が変更されたときの処理"""
+        if not visible:
+            # パネルが非表示になったときに印刷枠を削除
+            log_message("パネルが非表示になりました。印刷枠を削除します。", Qgis.Info)
+            if hasattr(self, 'dialog') and self.dialog:
+                self.dialog._remove_print_area_rubberband()
+
     def run(self):
         """Run method that performs all the real work"""
         try:
@@ -559,6 +567,9 @@ class GeoReport:
                 self.dock_widget = QDockWidget("report", self.iface.mainWindow())
                 self.dock_widget.setWidget(self.dialog)
                 self.dock_widget.setObjectName("GeoReportLayoutSelectorPanel")
+                
+                # パネルが閉じられたときに印刷枠を削除
+                self.dock_widget.visibilityChanged.connect(self._on_dock_visibility_changed)
                 
                 # 左エリアの既存のドックウィジェットを探してタブ化
                 # QGISのレイヤーパネルなどの標準パネルを探す
@@ -1134,6 +1145,8 @@ class LayoutSelectorDialog(QDialog):
         # 既存のrubberbandがある場合は非表示にして終了（トグル）
         if hasattr(self, '_print_area_rubberband') and self._print_area_rubberband:
             self._remove_print_area_rubberband()
+            # ボタンテキストを「表示」に変更
+            self.show_print_area_button.setText(self.tr("Show Print Area on Map"))
             return
         
         # スケール・角度値を取得
@@ -1225,9 +1238,20 @@ class LayoutSelectorDialog(QDialog):
             )
         rotated_points = [QgsPointXY(*rotate_point(x, y)) for (x, y) in local_points]
 
-        # 地図アイテム(QgsLayoutItemMap)をすべて検索し、スケールと地図内容の回転（mapRotation）を適用
+        # 地図アイテム(QgsLayoutItemMap)をすべて検索し、スケール・回転・印刷範囲を画面中心に設定
         map_items = [item for item in self.current_layout.items() if item.__class__.__name__ == 'QgsLayoutItemMap']
+        
+        # 画面中心を基準にした印刷範囲を計算（回転なしの矩形）
+        xmin = cx - width_map / 2
+        xmax = cx + width_map / 2
+        ymin = cy - height_map / 2
+        ymax = cy + height_map / 2
+        new_extent = QgsRectangle(xmin, ymin, xmax, ymax)
+        
         for m in map_items:
+            # 印刷範囲を画面中心にリセット
+            if hasattr(m, 'setExtent'):
+                m.setExtent(new_extent)
             # setScaleでスケールを反映
             if hasattr(m, 'setScale'):
                 m.setScale(scale)
@@ -1269,6 +1293,9 @@ class LayoutSelectorDialog(QDialog):
         # 印刷範囲rubberbandをマウスで移動できるようにするツールを有効化（UIには影響しない）
         self._print_area_move_tool = PrintAreaMoveTool(canvas, rb, map_item, width_map, height_map, self.iface, self)
         canvas.setMapTool(self._print_area_move_tool)
+        
+        # ボタンテキストを「非表示」に変更
+        self.show_print_area_button.setText(self.tr("Hide Print Area"))
     
     def load_layout_items(self):
         """レイアウトアイテムを読み込む"""
@@ -1497,22 +1524,22 @@ class LayoutSelectorDialog(QDialog):
         try:
             # 基本プロパティ
             if hasattr(item, 'uuid'):
-                self.add_property_field("ID", item.uuid(), readonly=True)
+                self.add_property_field(self.tr("ID"), item.uuid(), readonly=True)
             if hasattr(item, 'displayName'):
-                self.add_property_field("Display Name", item.displayName() or "")
+                self.add_property_field(self.tr("Display Name"), item.displayName() or "")
             if hasattr(item, 'isVisible'):
-                self.add_property_field("Visible", item.isVisible(), field_type="checkbox")
+                self.add_property_field(self.tr("Visible"), item.isVisible(), field_type="checkbox")
             # 位置とサイズ
             if hasattr(item, 'positionWithUnits') and hasattr(item, 'sizeWithUnits'):
                 pos = item.positionWithUnits()
                 size = item.sizeWithUnits()
-                self.add_property_field("X Position (mm)", pos.x(), field_type="double")
-                self.add_property_field("Y Position (mm)", pos.y(), field_type="double")
-                self.add_property_field("Width (mm)", size.width(), field_type="double")
-                self.add_property_field("Height (mm)", size.height(), field_type="double")
+                self.add_property_field(self.tr("X Position (mm)"), pos.x(), field_type="double")
+                self.add_property_field(self.tr("Y Position (mm)"), pos.y(), field_type="double")
+                self.add_property_field(self.tr("Width (mm)"), size.width(), field_type="double")
+                self.add_property_field(self.tr("Height (mm)"), size.height(), field_type="double")
             # 回転
             if hasattr(item, 'itemRotation'):
-                self.add_property_field("Rotation Angle", item.itemRotation(), field_type="double")
+                self.add_property_field(self.tr("Rotation Angle"), item.itemRotation(), field_type="double")
             
             # アイテム固有のプロパティ
             if hasattr(item, '__class__'):
@@ -1532,18 +1559,18 @@ class LayoutSelectorDialog(QDialog):
         """ラベルアイテムのプロパティを追加"""
         try:
             if hasattr(label_item, 'text'):
-                self.add_property_field("Text", label_item.text())
+                self.add_property_field(self.tr("Text"), label_item.text())
             # フォントサイズなど他のプロパティも追加可能
             if hasattr(label_item, 'font'):
                 font = label_item.font()
-                self.add_property_field("Font Size", font.pointSize(), field_type="int")
+                self.add_property_field(self.tr("Font Size"), font.pointSize(), field_type="int")
         except AttributeError:
             pass
     
     def add_map_properties(self, map_item):
         """地図アイテムのプロパティを追加"""
         try:
-            self.add_property_field("Scale", map_item.scale(), field_type="double")
+            self.add_property_field(self.tr("Scale"), map_item.scale(), field_type="double")
             # 他の地図プロパティも追加可能
         except AttributeError:
             pass
@@ -1551,7 +1578,7 @@ class LayoutSelectorDialog(QDialog):
     def add_picture_properties(self, picture_item):
         """画像アイテムのプロパティを追加"""
         try:
-            self.add_property_field("Image Path", picture_item.picturePath())
+            self.add_property_field(self.tr("Image Path"), picture_item.picturePath())
             # 他の画像プロパティも追加可能
         except AttributeError:
             pass
@@ -2455,19 +2482,19 @@ class LayoutFileSelectDialog(QDialog):
         
     def init_ui(self):
         """UIを初期化"""
-        self.setWindowTitle("レイアウトプロパティファイルを選択")
+        self.setWindowTitle(self.tr("Select Layout Property File"))
         self.setModal(True)
         self.resize(500, 400)
         
         layout = QVBoxLayout()
         
         # フォルダパス表示
-        folder_label = QLabel(f"フォルダ: {self.folder_path}")
+        folder_label = QLabel(self.tr("Folder: ") + self.folder_path)
         folder_label.setWordWrap(True)
         layout.addWidget(folder_label)
         
         # ファイル一覧
-        files_label = QLabel("利用可能なレイアウトプロパティファイル:")
+        files_label = QLabel(self.tr("Available Layout Property Files:"))
         layout.addWidget(files_label)
         
         self.file_list = QListWidget()
@@ -2489,19 +2516,19 @@ class LayoutFileSelectDialog(QDialog):
                     with open(file_path, 'r', encoding='utf-8') as f:
                         data = json.load(f)
                         if 'layout_name' in data:
-                            layout_name = f" (レイアウト: {data['layout_name']})"
+                            layout_name = f" (Layout: {data['layout_name']})"
                 except:
                     pass
                 
                 # リストアイテムを作成
-                item_text = f"{file}{layout_name}\n  サイズ: {file_size:,} bytes, 更新: {time_str}"
+                item_text = f"{file}{layout_name}\n  {self.tr('Size')}: {file_size:,} bytes, {self.tr('Modified')}: {time_str}"
                 item = QListWidgetItem(item_text)
                 item.setData(USER_ROLE, file)
                 self.file_list.addItem(item)
                 
             except Exception as e:
                 # エラーがあってもファイル名だけは表示
-                item = QListWidgetItem(f"{file} (情報取得エラー)")
+                item = QListWidgetItem(f"{file} ({self.tr('Error getting information')})")
                 item.setData(USER_ROLE, file)
                 self.file_list.addItem(item)
         
@@ -2513,16 +2540,16 @@ class LayoutFileSelectDialog(QDialog):
         # ボタン
         button_layout = QHBoxLayout()
         
-        self.ok_button = QPushButton("選択")
+        self.ok_button = QPushButton(self.tr("Select"))
         self.ok_button.clicked.connect(self.accept)
         self.ok_button.setEnabled(False)
         button_layout.addWidget(self.ok_button)
         
-        self.cancel_button = QPushButton("キャンセル")
+        self.cancel_button = QPushButton(self.tr("Cancel"))
         self.cancel_button.clicked.connect(self.reject)
         button_layout.addWidget(self.cancel_button)
         
-        self.browse_button = QPushButton("他のフォルダを参照...")
+        self.browse_button = QPushButton(self.tr("Browse Other Folder..."))
         self.browse_button.clicked.connect(self.browse_other_folder)
         button_layout.addWidget(self.browse_button)
         

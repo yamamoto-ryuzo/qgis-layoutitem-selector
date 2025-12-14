@@ -62,16 +62,48 @@ This is a multifunctional QGIS plugin that allows you to use a single layout as 
 UIはQGISの言語設定に応じて自動で切り替わります。  
 The UI automatically switches according to QGIS language settings.
 
-- 日本語 (ja) / Japanese
-- 英語 (en) / English
-- 中国語（簡体字）(zh_CN) / Chinese (Simplified)
-- 韓国語 (ko_KR) / Korean
-- フランス語 (fr) / French
-- ドイツ語 (de) / German
-- スペイン語 (es_ES) / Spanish
-- ポルトガル語 (pt_PT) / Portuguese
-- イタリア語 (it_IT) / Italian
-- ロシア語 (ru_RU) / Russian
+対応言語 / Supported languages:
+- 🇯🇵 日本語 (ja) / Japanese
+- 🇺🇸 英語 (en) / English
+- 🇫🇷 フランス語 (fr) / French
+- 🇩🇪 ドイツ語 (de) / German
+- 🇪🇸 スペイン語 (es) / Spanish
+- 🇮🇹 イタリア語 (it) / Italian
+- 🇵🇹 ポルトガル語 (pt) / Portuguese
+- 🇨🇳 中国語 (zh) / Chinese
+- 🇷🇺 ロシア語 (ru) / Russian
+- 🇮🇳 ヒンディー語 (hi) / Hindi
+
+### 翻訳のカスタマイズ / Translation Customization
+
+翻訳を編集・追加する場合：  
+To edit or add translations:
+
+1. Qt Linguist で翻訳ファイル (.ts) を編集：  
+   Edit translation files (.ts) with Qt Linguist:
+   ```
+   C:\Qt\linguist_6.9.1\linguist.exe
+   ```
+
+2. 翻訳ファイルの場所：  
+   Translation files location:
+   ```
+   geo_report/i18n/geo_report_*.ts
+   ```
+
+3. 翻訳後、コンパイルスクリプトを実行：  
+   After translation, run the compile script:
+   ```bash
+   python compile_translations.py
+   ```
+
+4. 新しい翻訳文字列を追加した場合：  
+   If new translatable strings are added:
+   ```bash
+   python generate_translations.py
+   python add_translations.py
+   python compile_translations.py
+   ```
 
 ## インストール / Installation
 

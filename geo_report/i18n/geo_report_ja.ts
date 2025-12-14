@@ -1,212 +1,222 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS>
-<TS version="2.1" language="ja_JP">
-<context>
-    <name>LayoutSelectorDialog</name>
+<TS version="2.1" language="ja">
+  <context>
+    <name>geo_report</name>
     <message>
-        <source>Layout Selection &amp; Item Management</source>
-        <translation>レイアウト選択・アイテム管理</translation>
+      <source>  Page </source>
+    <translation>  ページ </translation>
     </message>
     <message>
-        <source>Layout List:</source>
-        <translation>レイアウト一覧:</translation>
+      <source>All Objects List:</source>
+    <translation>すべてのオブジェクト一覧:</translation>
     </message>
     <message>
-        <source>Scale:</source>
-        <translation>スケール:</translation>
+      <source>Angle:</source>
+    <translation>角度:</translation>
     </message>
     <message>
-        <source>Angle:</source>
-        <translation>角度:</translation>
+      <source>Apply Properties</source>
+    <translation>プロパティを適用</translation>
     </message>
     <message>
-        <source>Show Print Area on Map</source>
-        <translation>印刷範囲を地図に表示</translation>
+      <source>Available Layout Property Files:</source>
+    <translation>利用可能なレイアウトプロパティファイル:</translation>
     </message>
     <message>
-        <source>Open Layout Manager</source>
-        <translation>レイアウトマネージャを開く</translation>
+      <source>Browse Other Folder...</source>
+    <translation>他のフォルダを参照...</translation>
     </message>
     <message>
-        <source>Refresh Item Info</source>
-        <translation>アイテム情報を更新</translation>
+      <source>Cancel</source>
+    <translation>キャンセル</translation>
     </message>
     <message>
-        <source>Save Layout</source>
-        <translation>レイアウトを保存</translation>
+      <source>Cannot load properties: </source>
+    <translation>プロパティを読み込めません: </translation>
     </message>
     <message>
-        <source>Load Layout</source>
-        <translation>レイアウトを読み込み</translation>
+      <source>Create Report</source>
+    <translation>レポートを作成</translation>
     </message>
     <message>
-        <source>Cancel</source>
-        <translation>キャンセル</translation>
+      <source>Display Name</source>
+    <translation>表示名</translation>
     </message>
     <message>
-        <source>Layout Items:</source>
-        <translation>レイアウトアイテム:</translation>
+      <source>Error</source>
+    <translation>エラー</translation>
     </message>
     <message>
-        <source>Selected Item Properties:</source>
-        <translation>選択アイテムのプロパティ:</translation>
+      <source>Error getting information</source>
+    <translation>情報取得エラー</translation>
     </message>
     <message>
-        <source>Apply Properties</source>
-        <translation>プロパティを適用</translation>
+      <source>Folder: </source>
+    <translation>フォルダ: </translation>
     </message>
     <message>
-        <source>Layout Information:</source>
-        <translation>レイアウト情報:</translation>
+      <source>Font Size</source>
+    <translation>フォントサイズ</translation>
     </message>
     <message>
-        <source>Item Properties</source>
-        <translation>アイテムプロパティ</translation>
+      <source>Height (mm)</source>
+    <translation>高さ (mm)</translation>
     </message>
     <message>
-        <source>Layout Info</source>
-        <translation>レイアウト情報</translation>
+      <source>Hello</source>
+      <translation type="unfinished"/>
     </message>
     <message>
-        <source>Item Name</source>
-        <translation>アイテム名</translation>
+      <source>Hide Print Area</source>
+    <translation>プリント領域を隠す</translation>
     </message>
     <message>
-        <source>Type</source>
-        <translation>タイプ</translation>
+      <source>ID</source>
+    <translation>ID</translation>
     </message>
     <message>
-        <source>Visible</source>
-        <translation>表示</translation>
+      <source>Image Path</source>
+    <translation>画像パス</translation>
     </message>
     <message>
-        <source>Hidden</source>
-        <translation>非表示</translation>
+      <source>Import failed</source>
+      <translation type="unfinished"/>
     </message>
     <message>
-        <source>ID</source>
-        <translation>ID</translation>
+      <source>Information</source>
+    <translation>情報</translation>
     </message>
     <message>
-        <source>Display Name</source>
-        <translation>表示名</translation>
+      <source>Item Name</source>
+    <translation>アイテム名</translation>
     </message>
     <message>
-        <source>X Position (mm)</source>
-        <translation>X位置 (mm)</translation>
+      <source>Item Properties</source>
+    <translation>アイテムプロパティ</translation>
     </message>
     <message>
-        <source>Y Position (mm)</source>
-        <translation>Y位置 (mm)</translation>
+      <source>Item information has been updated.</source>
+    <translation>アイテム情報が更新されました。</translation>
     </message>
     <message>
-        <source>Width (mm)</source>
-        <translation>幅 (mm)</translation>
+      <source>Layout Info</source>
+    <translation>レイアウト情報</translation>
     </message>
     <message>
-        <source>Height (mm)</source>
-        <translation>高さ (mm)</translation>
+      <source>Layout Information:</source>
+    <translation>レイアウト情報:</translation>
     </message>
     <message>
-        <source>Rotation Angle</source>
-        <translation>回転角度</translation>
+      <source>Layout Items:</source>
+    <translation>レイアウトアイテム:</translation>
     </message>
     <message>
-        <source>Text</source>
-        <translation>テキスト</translation>
+      <source>Layout List:</source>
+    <translation>レイアウト一覧:</translation>
     </message>
     <message>
-        <source>Font Size</source>
-        <translation>フォントサイズ</translation>
+      <source>Layout Name: </source>
+    <translation>レイアウト名: </translation>
     </message>
     <message>
-        <source>Scale</source>
-        <translation>スケール</translation>
+      <source>Layout Selection &amp; Item Management</source>
+    <translation>レイアウト選択とアイテム管理</translation>
     </message>
     <message>
-        <source>Image Path</source>
-        <translation>画像パス</translation>
+      <source>Load Layout</source>
+    <translation>レイアウトを読み込み</translation>
     </message>
     <message>
-        <source>Cannot load properties: </source>
-        <translation>プロパティを読み込めません: </translation>
+      <source>Modified</source>
+    <translation>更新日時</translation>
     </message>
     <message>
-        <source>Group</source>
-        <translation>グループ</translation>
+      <source>Page Count: </source>
+    <translation>ページ数: </translation>
     </message>
     <message>
-        <source>Page</source>
-        <translation>ページ</translation>
+      <source>Page Information:</source>
+    <translation>ページ情報:</translation>
     </message>
     <message>
-        <source>Map</source>
-        <translation>地図</translation>
+      <source>Please select a layout.</source>
+    <translation>レイアウトを選択してください。</translation>
     </message>
     <message>
-        <source>Picture</source>
-        <translation>画像</translation>
+      <source>Print area moved.</source>
+      <translation type="unfinished"/>
     </message>
     <message>
-        <source>Label</source>
-        <translation>ラベル</translation>
+      <source>Refresh Item Info</source>
+    <translation>アイテム情報を更新</translation>
     </message>
     <message>
-        <source>Legend</source>
-        <translation>凡例</translation>
+      <source>Rotation Angle</source>
+    <translation>回転角度</translation>
     </message>
     <message>
-        <source>Scale Bar</source>
-        <translation>スケールバー</translation>
+      <source>Save Layout</source>
+    <translation>レイアウトを保存</translation>
     </message>
     <message>
-        <source>Shape</source>
-        <translation>図形</translation>
+      <source>Scale</source>
+    <translation>縮尺</translation>
     </message>
     <message>
-        <source>Polygon</source>
-        <translation>ポリゴン</translation>
+      <source>Scale:</source>
+    <translation>縮尺:</translation>
     </message>
     <message>
-        <source>Polyline</source>
-        <translation>ポリライン</translation>
+      <source>Select</source>
+    <translation>選択</translation>
     </message>
     <message>
-        <source>Table</source>
-        <translation>テーブル</translation>
+      <source>Select Layout Property File</source>
+    <translation>レイアウトプロパティファイルを選択</translation>
     </message>
     <message>
-        <source>HTML</source>
-        <translation>HTML</translation>
+      <source>Selected Item Properties:</source>
+    <translation>選択されたアイテムのプロパティ:</translation>
     </message>
     <message>
-        <source>Frame</source>
-        <translation>フレーム</translation>
+      <source>Show Print Area on Map</source>
+    <translation>マップにプリント領域を表示</translation>
     </message>
     <message>
-        <source>Unknown</source>
-        <translation>不明</translation>
+      <source>Size</source>
+    <translation>サイズ</translation>
     </message>
     <message>
-        <source>No items found</source>
-        <translation>アイテムが見つかりません</translation>
+      <source>Text</source>
+    <translation>テキスト</translation>
     </message>
     <message>
-        <source>Success</source>
-        <translation>成功</translation>
+      <source>Total Objects: </source>
+    <translation>合計オブジェクト数: </translation>
     </message>
     <message>
-        <source>Warning</source>
-        <translation>警告</translation>
+      <source>Type</source>
+    <translation>種類</translation>
     </message>
     <message>
-        <source>Error</source>
-        <translation>エラー</translation>
+      <source>Visible</source>
+    <translation>表示</translation>
     </message>
     <message>
-        <source>Information</source>
-        <translation>情報</translation>
+      <source>Warning</source>
+    <translation>警告</translation>
     </message>
-</context>
-
+    <message>
+      <source>Width (mm)</source>
+    <translation>幅 (mm)</translation>
+    </message>
+    <message>
+      <source>X Position (mm)</source>
+    <translation>X位置 (mm)</translation>
+    </message>
+    <message>
+      <source>Y Position (mm)</source>
+    <translation>Y位置 (mm)</translation>
+    </message>
+  </context>
 </TS>
