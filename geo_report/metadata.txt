@@ -5,7 +5,7 @@ qgisMaximumVersion=3.99
 description=Layout Item Selector and Pre-edit Tool for efficient layout management and template creation
 description[en]=A comprehensive QGIS plugin for selecting layouts, pre-editing items, and creating reusable templates for efficient map production workflows
 description[ja]=レイアウト選択、アイテム事前編集、テンプレート作成により効率的な地図作成ワークフローを実現するQGISプラグイン
-version=2.1.89
+version=2.2.1
 author=Yamamoto Ryuzo
 email=ryu@yamakun.net
 
@@ -18,6 +18,7 @@ about[ja]=このプラグインは、QGISのレイアウト管理を強化し、
 # Uncomment the following line and add your changelog:
 
 changelog=
+    2.2.0: パネル化（ドックウィジェット化）を実装、UI をパネル（ドック）で利用可能に
     2.1.29: QPTインポートの互換性修正（QgsPrintLayout, setName, addLayout対応）、composerフォルダZIP同梱
     2.1.0: 印刷範囲の回転角度をレイアウト本体（QgsLayoutItemMap等）に反映する機能を追加
     2.0.0: バージョン表記を2.0.0に更新、印刷範囲の回転・移動時の中心座標維持ロジックを改善、コード整理・安定性向上

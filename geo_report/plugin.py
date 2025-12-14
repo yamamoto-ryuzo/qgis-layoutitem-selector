@@ -6,7 +6,7 @@
  Comprehensive layout management plugin for efficient map production workflows
                               -------------------
         begin                : 2025-12-14
-        version              : 2.1.44
+        version              : 2.2.0
         git sha              : $Format:%H$
         copyright            : (C) 2025 by yamamoto-ryuzo
         email                : ryu@yamakun.net
@@ -145,7 +145,10 @@ class PrintAreaMoveTool(QgsMapTool):
         dx = pos.x() - self.start_pos.x()
         dy = pos.y() - self.start_pos.y()
         new_center = QgsPointXY(self.orig_center.x() + dx, self.orig_center.y() + dy)
-        self._move_rubberband(new_center)
+        try:
+            self._move_rubberband(new_center)
+        except Exception:
+            pass
         
         # QgsLayoutItemMap の範囲も更新
         w = self.width_map
@@ -295,7 +298,7 @@ class PrintAreaMoveTool(QgsMapTool):
  Comprehensive layout management plugin for efficient map production workflows
                               -------------------
         begin                : 2025-12-14
-        version              : 2.1.44
+        version              : 2.2.0
         git sha              : $Format:%H$
         copyright            : (C) 2025 by yamamoto-ryuzo
         email                : ryu@yamakun.net
@@ -487,10 +490,52 @@ class GeoReport:
     def _on_dock_visibility_changed(self, visible):
         """ドックウィジェットの表示状態が変更されたときの処理"""
         if not visible:
-            # パネルが非表示になったときに印刷枠を削除
+            # パネルが非表示になったときに印刷枠を削除し、ボタンをShowにする
             log_message("パネルが非表示になりました。印刷枠を削除します。", Qgis.Info)
             if hasattr(self, 'dialog') and self.dialog:
-                self.dialog._remove_print_area_rubberband()
+                try:
+                    self.dialog._remove_print_area_rubberband()
+                except Exception:
+                    pass
+                try:
+                    btn = getattr(self.dialog, 'show_print_area_button', None)
+                    if btn and hasattr(btn, 'setText'):
+                        btn.setText(self.dialog.tr("Show Print Area on Map"))
+                except Exception:
+                    pass
+                try:
+                    self.dialog._print_area_visible = False
+                except Exception:
+                    pass
+        else:
+            # パネルが表示されたときは必ずボタンをHideにして印刷枠を復元する
+            log_message("パネルが表示されました。印刷枠の復元を試みます。", Qgis.Info)
+            if hasattr(self, 'dialog') and self.dialog:
+                try:
+                    btn = getattr(self.dialog, 'show_print_area_button', None)
+                    if btn and hasattr(btn, 'setText'):
+                        btn.setText(self.dialog.tr("Hide Print Area"))
+                except Exception:
+                    pass
+                try:
+                    if not getattr(self.dialog, '_print_area_rubberband', None):
+                        # ボタン経由で表示
+                        btn = getattr(self.dialog, 'show_print_area_button', None)
+                        if btn and hasattr(btn, 'click'):
+                            try:
+                                btn.click()
+                            except Exception:
+                                try:
+                                    self.dialog.show_print_area_on_map()
+                                except Exception:
+                                    pass
+                        else:
+                            try:
+                                self.dialog.show_print_area_on_map()
+                            except Exception:
+                                pass
+                except Exception:
+                    pass
 
     def run(self):
         """Run method that performs all the real work"""
@@ -688,8 +733,11 @@ class LayoutSelectorDialog(QDialog):
                             print("[DEBUG] scene.removeItem実行")
                         except Exception as e:
                             print(f"[DEBUG] scene.removeItem失敗: {e}")
-                rb.reset(True)
-                print("[DEBUG] rubberband.reset(True) 実行")
+                try:
+                    rb.reset(True)
+                    print("[DEBUG] rubberband.reset(True) 実行")
+                except Exception as e:
+                    print(f"[DEBUG] rubberband reset failed: {e}")
                 # 削除メッセージを表示
                 if hasattr(self, 'iface') and hasattr(self.iface, 'messageBar'):
                     self.iface.messageBar().pushMessage(
@@ -1110,6 +1158,10 @@ class LayoutSelectorDialog(QDialog):
         self.tab_widget = tab_widget
         tab_widget.addTab(properties_widget, self.tr("Item Properties"))
         tab_widget.addTab(info_widget, self.tr("Layout Info"))
+        try:
+            tab_widget.currentChanged.connect(self.on_tab_changed)
+        except Exception:
+            pass
         
         properties_container_layout.addWidget(tab_widget)
         
@@ -1136,6 +1188,55 @@ class LayoutSelectorDialog(QDialog):
         if hasattr(self, 'tab_widget'):
             self.tab_widget.setTabText(0, self.tr("Item Properties"))
             self.tab_widget.setTabText(1, self.tr("Layout Info"))
+
+    def on_tab_changed(self, index):
+        """タブが切り替わったときの処理。
+        プロパティタブ(インデックス0)を離れる場合は印刷範囲を削除してボタンを「Show」に。
+        戻る場合はボタンを「Hide」にして印刷範囲を再表示します。
+        """
+        try:
+            # leaving properties tab
+            if index != 0:
+                if getattr(self, '_print_area_rubberband', None):
+                    try:
+                        self._remove_print_area_rubberband()
+                    except Exception:
+                        pass
+                try:
+                    if hasattr(self, 'show_print_area_button'):
+                        self.show_print_area_button.setText(self.tr("Show Print Area on Map"))
+                except Exception:
+                    pass
+                try:
+                    self._print_area_visible = False
+                except Exception:
+                    pass
+            else:
+                # returning to properties tab: set button to Hide and restore
+                try:
+                    if hasattr(self, 'show_print_area_button'):
+                        self.show_print_area_button.setText(self.tr("Hide Print Area"))
+                except Exception:
+                    pass
+                if not getattr(self, '_print_area_rubberband', None):
+                    try:
+                        # use button click to ensure same side-effects
+                        btn = getattr(self, 'show_print_area_button', None)
+                        if btn and hasattr(btn, 'click'):
+                            btn.click()
+                        else:
+                            self.show_print_area_on_map()
+                    except Exception:
+                        try:
+                            self.show_print_area_on_map()
+                        except Exception:
+                            pass
+                try:
+                    self._print_area_visible = True
+                except Exception:
+                    pass
+        except Exception:
+            pass
     
     def on_layout_selected(self, current, previous):
         """レイアウトが選択された時の処理"""
