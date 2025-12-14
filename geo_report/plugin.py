@@ -628,6 +628,19 @@ class LayoutSelectorDialog(QDialog):
             except Exception as e:
                 print(f"[DEBUG] rubberband削除例外: {e}")
             self._print_area_rubberband = None
+            
+            # 印刷範囲移動ツールも解除
+            if hasattr(self, '_print_area_move_tool'):
+                try:
+                    if hasattr(self.iface, 'mapCanvas'):
+                        canvas = self.iface.mapCanvas()
+                        if hasattr(canvas, 'unsetMapTool'):
+                            canvas.unsetMapTool(self._print_area_move_tool)
+                        elif hasattr(canvas, 'setMapTool'):
+                            canvas.setMapTool(None)
+                except Exception as e:
+                    print(f"[DEBUG] map tool解除例外: {e}")
+                self._print_area_move_tool = None
         else:
             print("[DEBUG] rubberband削除: 削除対象なし")
 
@@ -716,6 +729,9 @@ class LayoutSelectorDialog(QDialog):
         self.canvas.setMapTool(self.tool)
 
     def canvasPressEvent(self, event):
+        # rubberbandが存在しない場合は何もしない
+        if not self.rb or not hasattr(self.rb, 'asGeometry'):
+            return
         from qgis.core import QgsPointXY
         pos = self.canvas.getCoordinateTransform().toMapCoordinates(event.pos().x(), event.pos().y())
         geom = self.rb.asGeometry()
@@ -727,7 +743,8 @@ class LayoutSelectorDialog(QDialog):
             self.dragging = False
 
     def canvasMoveEvent(self, event):
-        if not self.dragging:
+        # rubberbandが存在しない、またはドラッグ中でない場合は何もしない
+        if not self.dragging or not self.rb or not hasattr(self.rb, 'asGeometry'):
             return
         from qgis.core import QgsPointXY
         pos = self.canvas.getCoordinateTransform().toMapCoordinates(event.pos().x(), event.pos().y())
@@ -809,7 +826,7 @@ class LayoutSelectorDialog(QDialog):
         """UIを初期化"""
         self.setWindowTitle(self.tr("Layout Selection & Item Management"))
         self.setModal(False)  # モデルレスにして他の操作も可能にする
-        self.resize(500, 700)
+        # パネル化のためresize()は不要（パネルサイズはQGISが管理）
         
         # メインレイアウト（垂直）
         main_layout = QVBoxLayout()
@@ -956,11 +973,6 @@ class LayoutSelectorDialog(QDialog):
         self.show_print_area_button.setEnabled(False)
         button_layout.addWidget(self.show_print_area_button)
 
-        self.open_button = QPushButton(self.tr("Open Layout Manager"))
-        self.open_button.clicked.connect(self.open_layout_manager)
-        self.open_button.setEnabled(False)
-        button_layout.addWidget(self.open_button)
-
         self.refresh_button = QPushButton(self.tr("Refresh Item Info"))
         self.refresh_button.clicked.connect(self.refresh_item_info)
         self.refresh_button.setEnabled(False)
@@ -978,6 +990,13 @@ class LayoutSelectorDialog(QDialog):
         button_layout.addWidget(self.load_layout_button)
         
         button_layout.addStretch()
+        
+        # レポート作成ボタン（最下部、高さ2倍）
+        self.open_button = QPushButton(self.tr("Create Report"))
+        self.open_button.clicked.connect(self.open_layout_manager)
+        self.open_button.setEnabled(False)
+        self.open_button.setMinimumHeight(60)  # 高さを2倍に
+        button_layout.addWidget(self.open_button)
         buttons_widget.setLayout(button_layout)
         right_splitter.addWidget(buttons_widget)
         right_splitter.setSizes([150, 150])
@@ -1104,7 +1123,9 @@ class LayoutSelectorDialog(QDialog):
                 rounded_scale = new_scale
             map_items[0].setScale(rounded_scale)
             self.scale_spin.setValue(rounded_scale)
-            # スケール自動計算時も必ず印刷範囲rubberbandを再描画
+            # レイアウト選択時は必ず印刷範囲を表示（既存のrubberbandは削除してから表示）
+            if hasattr(self, '_print_area_rubberband') and self._print_area_rubberband:
+                self._remove_print_area_rubberband()
             self.show_print_area_on_map()
 
     def show_print_area_on_map(self):
@@ -2276,7 +2297,7 @@ class LayoutSelectorDialog(QDialog):
         
         # レイアウトマネージャ（デザイナー）を開く
         self.iface.openLayoutDesigner(self.current_layout)
-        self.accept()
+        # パネル化したので、self.accept()を呼ばない（パネルを閉じない）
     
     def load_layout_info(self):
         """レイアウト情報を読み込む"""
