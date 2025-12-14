@@ -12,11 +12,11 @@
     </message>
     <message>
       <source>Angle:</source>
-    <translation>Winkel:</translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Apply Properties</source>
-    <translation>Eigenschaften anwenden</translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Available Layout Property Files:</source>
@@ -32,11 +32,15 @@
     </message>
     <message>
       <source>Cannot load properties: </source>
-    <translation>Eigenschaften können nicht geladen werden: </translation>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>Could not add layouts from composer folder.</source>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Create Report</source>
-    <translation>Bericht erstellen</translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Display Name</source>
@@ -44,10 +48,34 @@
     </message>
     <message>
       <source>Error</source>
-    <translation>Fehler</translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Error getting information</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>Error: {}</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>Failed to load layout properties: {}</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>Failed to parse JSON file.</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>Failed to save layout properties: {}</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>Failed to update properties: {}</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>File not found.</source>
       <translation type="unfinished"/>
     </message>
     <message>
@@ -68,7 +96,7 @@
     </message>
     <message>
       <source>Hide Print Area</source>
-    <translation>Druckbereich ausblenden</translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>ID</source>
@@ -84,50 +112,78 @@
     </message>
     <message>
       <source>Information</source>
-    <translation>Information</translation>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>Item Count Mismatch</source>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Item Name</source>
-    <translation>Elementname</translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Item Properties</source>
-    <translation>Elementeigenschaften</translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Item information has been updated.</source>
-    <translation>Elementinformationen wurden aktualisiert.</translation>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>JSON Files (*.json);;All Files (*)</source>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Layout Info</source>
-    <translation>Layout-Info</translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Layout Information:</source>
-    <translation>Layout-Informationen:</translation>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>Layout Item Selector - geo_report</source>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Layout Items:</source>
-    <translation>Layout-Elemente:</translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Layout List:</source>
-    <translation>Layout-Liste:</translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Layout Name: </source>
       <translation type="unfinished"/>
     </message>
     <message>
+      <source>Layout Selection</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
       <source>Layout Selection &amp; Item Management</source>
-    <translation>Layout-Auswahl und Elementverwaltung</translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Load Layout</source>
-    <translation>Layout laden</translation>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>Load Layout Properties File (No files in default folder)</source>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Modified</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>No valid layout item selected.</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>Open Layout Manager</source>
       <translation type="unfinished"/>
     </message>
     <message>
@@ -140,15 +196,23 @@
     </message>
     <message>
       <source>Please select a layout.</source>
-    <translation>Bitte wählen Sie ein Layout aus.</translation>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>Please select an item.</source>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Print area moved.</source>
       <translation type="unfinished"/>
     </message>
     <message>
+      <source>Print area removed.</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
       <source>Refresh Item Info</source>
-    <translation>Elementinformationen aktualisieren</translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Rotation Angle</source>
@@ -156,7 +220,15 @@
     </message>
     <message>
       <source>Save Layout</source>
-    <translation>Layout speichern</translation>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>Save Layout Properties File</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>Saved item count ({}) and current layout item count ({}) are different.\n\nDo you want to apply within possible range?</source>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Scale</source>
@@ -164,7 +236,7 @@
     </message>
     <message>
       <source>Scale:</source>
-    <translation>Maßstab:</translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Select</source>
@@ -176,11 +248,11 @@
     </message>
     <message>
       <source>Selected Item Properties:</source>
-    <translation>Eigenschaften des ausgewählten Elements:</translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Show Print Area on Map</source>
-    <translation>Druckbereich auf Karte anzeigen</translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Size</source>
@@ -196,15 +268,19 @@
     </message>
     <message>
       <source>Type</source>
-    <translation>Typ</translation>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>Update Item Properties</source>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Visible</source>
-    <translation>Sichtbar</translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Warning</source>
-    <translation>Warnung</translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Width (mm)</source>
@@ -216,6 +292,10 @@
     </message>
     <message>
       <source>Y Position (mm)</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>bytes</source>
       <translation type="unfinished"/>
     </message>
   </context>

@@ -35,6 +35,10 @@
       <translation type="unfinished">Cannot load properties: </translation>
     </message>
     <message>
+      <source>Could not add layouts from composer folder.</source>
+      <translation type="unfinished">Could not add layouts from composer folder.</translation>
+    </message>
+    <message>
       <source>Create Report</source>
       <translation type="unfinished">Create Report</translation>
     </message>
@@ -49,6 +53,30 @@
     <message>
       <source>Error getting information</source>
       <translation type="unfinished">Error getting information</translation>
+    </message>
+    <message>
+      <source>Error: {}</source>
+      <translation type="unfinished">Error: {}</translation>
+    </message>
+    <message>
+      <source>Failed to load layout properties: {}</source>
+      <translation type="unfinished">Failed to load layout properties: {}</translation>
+    </message>
+    <message>
+      <source>Failed to parse JSON file.</source>
+      <translation type="unfinished">Failed to parse JSON file.</translation>
+    </message>
+    <message>
+      <source>Failed to save layout properties: {}</source>
+      <translation type="unfinished">Failed to save layout properties: {}</translation>
+    </message>
+    <message>
+      <source>Failed to update properties: {}</source>
+      <translation type="unfinished">Failed to update properties: {}</translation>
+    </message>
+    <message>
+      <source>File not found.</source>
+      <translation type="unfinished">File not found.</translation>
     </message>
     <message>
       <source>Folder: </source>
@@ -87,6 +115,10 @@
       <translation type="unfinished">Information</translation>
     </message>
     <message>
+      <source>Item Count Mismatch</source>
+      <translation type="unfinished">Item Count Mismatch</translation>
+    </message>
+    <message>
       <source>Item Name</source>
       <translation type="unfinished">Item Name</translation>
     </message>
@@ -99,12 +131,20 @@
       <translation type="unfinished">Item information has been updated.</translation>
     </message>
     <message>
+      <source>JSON Files (*.json);;All Files (*)</source>
+      <translation type="unfinished">JSON Files (*.json);;All Files (*)</translation>
+    </message>
+    <message>
       <source>Layout Info</source>
       <translation type="unfinished">Layout Info</translation>
     </message>
     <message>
       <source>Layout Information:</source>
       <translation type="unfinished">Layout Information:</translation>
+    </message>
+    <message>
+      <source>Layout Item Selector - geo_report</source>
+      <translation type="unfinished">Layout Item Selector - geo_report</translation>
     </message>
     <message>
       <source>Layout Items:</source>
@@ -119,6 +159,10 @@
       <translation type="unfinished">Layout Name: </translation>
     </message>
     <message>
+      <source>Layout Selection</source>
+      <translation type="unfinished">Layout Selection</translation>
+    </message>
+    <message>
       <source>Layout Selection &amp; Item Management</source>
       <translation type="unfinished">Layout Selection &amp; Item Management</translation>
     </message>
@@ -127,8 +171,20 @@
       <translation type="unfinished">Load Layout</translation>
     </message>
     <message>
+      <source>Load Layout Properties File (No files in default folder)</source>
+      <translation type="unfinished">Load Layout Properties File (No files in default folder)</translation>
+    </message>
+    <message>
       <source>Modified</source>
       <translation type="unfinished">Modified</translation>
+    </message>
+    <message>
+      <source>No valid layout item selected.</source>
+      <translation type="unfinished">No valid layout item selected.</translation>
+    </message>
+    <message>
+      <source>Open Layout Manager</source>
+      <translation type="unfinished">Open Layout Manager</translation>
     </message>
     <message>
       <source>Page Count: </source>
@@ -143,8 +199,16 @@
       <translation type="unfinished">Please select a layout.</translation>
     </message>
     <message>
+      <source>Please select an item.</source>
+      <translation type="unfinished">Please select an item.</translation>
+    </message>
+    <message>
       <source>Print area moved.</source>
       <translation type="unfinished">Print area moved.</translation>
+    </message>
+    <message>
+      <source>Print area removed.</source>
+      <translation type="unfinished">Print area removed.</translation>
     </message>
     <message>
       <source>Refresh Item Info</source>
@@ -157,6 +221,14 @@
     <message>
       <source>Save Layout</source>
       <translation type="unfinished">Save Layout</translation>
+    </message>
+    <message>
+      <source>Save Layout Properties File</source>
+      <translation type="unfinished">Save Layout Properties File</translation>
+    </message>
+    <message>
+      <source>Saved item count ({}) and current layout item count ({}) are different.\n\nDo you want to apply within possible range?</source>
+      <translation type="unfinished">Saved item count ({}) and current layout item count ({}) are different.\n\nDo you want to apply within possible range?</translation>
     </message>
     <message>
       <source>Scale</source>
@@ -199,6 +271,10 @@
       <translation type="unfinished">Type</translation>
     </message>
     <message>
+      <source>Update Item Properties</source>
+      <translation type="unfinished">Update Item Properties</translation>
+    </message>
+    <message>
       <source>Visible</source>
       <translation type="unfinished">Visible</translation>
     </message>
@@ -217,6 +293,10 @@
     <message>
       <source>Y Position (mm)</source>
       <translation type="unfinished">Y Position (mm)</translation>
+    </message>
+    <message>
+      <source>bytes</source>
+      <translation type="unfinished">bytes</translation>
     </message>
   </context>
 </TS>

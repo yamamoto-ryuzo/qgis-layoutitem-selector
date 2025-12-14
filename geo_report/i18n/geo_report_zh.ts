@@ -12,11 +12,11 @@
     </message>
     <message>
       <source>Angle:</source>
-    <translation>角度:</translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Apply Properties</source>
-    <translation>应用属性</translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Available Layout Property Files:</source>
@@ -32,11 +32,15 @@
     </message>
     <message>
       <source>Cannot load properties: </source>
-    <translation>无法加载属性: </translation>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>Could not add layouts from composer folder.</source>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Create Report</source>
-    <translation>创建报告</translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Display Name</source>
@@ -44,10 +48,34 @@
     </message>
     <message>
       <source>Error</source>
-    <translation>错误</translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Error getting information</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>Error: {}</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>Failed to load layout properties: {}</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>Failed to parse JSON file.</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>Failed to save layout properties: {}</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>Failed to update properties: {}</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>File not found.</source>
       <translation type="unfinished"/>
     </message>
     <message>
@@ -68,7 +96,7 @@
     </message>
     <message>
       <source>Hide Print Area</source>
-    <translation>隐藏打印区域</translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>ID</source>
@@ -84,50 +112,78 @@
     </message>
     <message>
       <source>Information</source>
-    <translation>信息</translation>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>Item Count Mismatch</source>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Item Name</source>
-    <translation>项目名称</translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Item Properties</source>
-    <translation>项目属性</translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Item information has been updated.</source>
-    <translation>项目信息已更新。</translation>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>JSON Files (*.json);;All Files (*)</source>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Layout Info</source>
-    <translation>布局信息</translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Layout Information:</source>
-    <translation>布局信息:</translation>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>Layout Item Selector - geo_report</source>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Layout Items:</source>
-    <translation>布局项目:</translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Layout List:</source>
-    <translation>布局列表:</translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Layout Name: </source>
       <translation type="unfinished"/>
     </message>
     <message>
+      <source>Layout Selection</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
       <source>Layout Selection &amp; Item Management</source>
-    <translation>布局选择和项目管理</translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Load Layout</source>
-    <translation>加载布局</translation>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>Load Layout Properties File (No files in default folder)</source>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Modified</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>No valid layout item selected.</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>Open Layout Manager</source>
       <translation type="unfinished"/>
     </message>
     <message>
@@ -140,15 +196,23 @@
     </message>
     <message>
       <source>Please select a layout.</source>
-    <translation>请选择一个布局。</translation>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>Please select an item.</source>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Print area moved.</source>
       <translation type="unfinished"/>
     </message>
     <message>
+      <source>Print area removed.</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
       <source>Refresh Item Info</source>
-    <translation>刷新项目信息</translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Rotation Angle</source>
@@ -156,7 +220,15 @@
     </message>
     <message>
       <source>Save Layout</source>
-    <translation>保存布局</translation>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>Save Layout Properties File</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>Saved item count ({}) and current layout item count ({}) are different.\n\nDo you want to apply within possible range?</source>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Scale</source>
@@ -164,7 +236,7 @@
     </message>
     <message>
       <source>Scale:</source>
-    <translation>比例:</translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Select</source>
@@ -176,11 +248,11 @@
     </message>
     <message>
       <source>Selected Item Properties:</source>
-    <translation>所选项目属性:</translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Show Print Area on Map</source>
-    <translation>在地图上显示打印区域</translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Size</source>
@@ -196,15 +268,19 @@
     </message>
     <message>
       <source>Type</source>
-    <translation>类型</translation>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>Update Item Properties</source>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Visible</source>
-    <translation>可见</translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Warning</source>
-    <translation>警告</translation>
+      <translation type="unfinished"/>
     </message>
     <message>
       <source>Width (mm)</source>
@@ -216,6 +292,10 @@
     </message>
     <message>
       <source>Y Position (mm)</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>bytes</source>
       <translation type="unfinished"/>
     </message>
   </context>

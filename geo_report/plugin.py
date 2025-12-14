@@ -162,7 +162,7 @@ class PrintAreaMoveTool(QgsMapTool):
                 self.map_item.refresh()
         self.dragging = False
         self.iface.messageBar().pushMessage(
-            "Information", tr("Print area moved."), level=Qgis.Info, duration=2
+            tr("Information"), tr("Print area moved."), level=Qgis.Info, duration=2
         )
 
     def _move_rubberband(self, center):
@@ -440,7 +440,7 @@ class GeoReport:
         
         self.add_action(
             icon_path,
-            text='レイアウト選択',
+            text=tr('Layout Selection'),
             callback=self.run,
             parent=self.iface.mainWindow())
 
@@ -484,7 +484,7 @@ class GeoReport:
             log_message(error_msg, Qgis.Critical)
             self.iface.messageBar().pushCritical(
                 "geo_report",
-                f"エラー: {str(e)}"
+                tr("Error: {}").format(str(e))
             )
 
     def show_layout_selector(self):
@@ -541,16 +541,16 @@ class GeoReport:
             layouts = layout_manager.layouts()
             if imported == 0:
                 self.iface.messageBar().pushMessage(
-                    "警告",
-                    "composerフォルダからレイアウトを追加できませんでした。",
+                    tr("Warning"),
+                    tr("Could not add layouts from composer folder."),
                     level=Qgis.Warning,
                     duration=3
                 )
                 return
         if not layouts:
             self.iface.messageBar().pushMessage(
-                "警告",
-                "composerフォルダからレイアウトを追加できませんでした。",
+                tr("Warning"),
+                tr("Could not add layouts from composer folder."),
                 level=Qgis.Warning,
                 duration=3
             )
@@ -634,7 +634,7 @@ class LayoutSelectorDialog(QDialog):
                 # 削除メッセージを表示
                 if hasattr(self, 'iface') and hasattr(self.iface, 'messageBar'):
                     self.iface.messageBar().pushMessage(
-                        "情報", "印刷範囲を削除しました。", level=3, duration=3
+                        tr("Information"), tr("Print area removed."), level=Qgis.Info, duration=3
                     )
             except Exception as e:
                 print(f"[DEBUG] rubberband削除例外: {e}")
@@ -1657,7 +1657,7 @@ class LayoutSelectorDialog(QDialog):
         current_item = self.items_tree.currentItem()
         if not current_item:
             self.iface.messageBar().pushMessage(
-                "Warning", "Please select an item.",
+                tr("Warning"), tr("Please select an item."),
                 level=Qgis.Warning, duration=3
             )
             return
@@ -1665,7 +1665,7 @@ class LayoutSelectorDialog(QDialog):
         layout_item = current_item.data(0, USER_ROLE)
         if not layout_item or not isinstance(layout_item, QgsLayoutItem):
             self.iface.messageBar().pushMessage(
-                "Warning", "No valid layout item selected.",
+                tr("Warning"), tr("No valid layout item selected."),
                 level=Qgis.Warning, duration=3
             )
             return
@@ -1674,7 +1674,7 @@ class LayoutSelectorDialog(QDialog):
             print(f"プロパティ更新開始: {layout_item.__class__.__name__}")
             
             # レイアウトの変更を開始（undo/redoサポート）
-            self.current_layout.undoStack().beginCommand(layout_item, "アイテムプロパティ更新")
+            self.current_layout.undoStack().beginCommand(layout_item, tr("Update Item Properties"))
             
             # 更新フラグ
             updated = False
@@ -1837,7 +1837,7 @@ class LayoutSelectorDialog(QDialog):
             
             print(f"プロパティ更新エラー: {str(e)}")
             self.iface.messageBar().pushMessage(
-                "Error", "Failed to update properties: " + str(e),
+                tr("Error"), tr("Failed to update properties: {}").format(str(e)),
                 level=Qgis.Critical, duration=5
             )
     
@@ -1863,9 +1863,9 @@ class LayoutSelectorDialog(QDialog):
             # ファイル保存ダイアログ
             filename, _ = QFileDialog.getSaveFileName(
                 self,
-                "Save Layout Properties File",
+                tr("Save Layout Properties File"),
                 default_filepath,
-                "JSON Files (*.json);;All Files (*)"
+                tr("JSON Files (*.json);;All Files (*)")
             )
             
             if not filename:
@@ -1882,7 +1882,7 @@ class LayoutSelectorDialog(QDialog):
             
         except Exception as e:
             self.iface.messageBar().pushMessage(
-                "Error", "Failed to save layout properties: " + str(e),
+                tr("Error"), tr("Failed to save layout properties: {}").format(str(e)),
                 level=Qgis.Critical, duration=5
             )
     
@@ -1911,9 +1911,9 @@ class LayoutSelectorDialog(QDialog):
             if not json_files:
                 filename, _ = QFileDialog.getOpenFileName(
                     self,
-                    f"レイアウトプロパティファイルを読み込み (デフォルトフォルダにファイルがありません)",
+                    tr("Load Layout Properties File (No files in default folder)"),
                     default_folder,
-                    "JSON Files (*.json);;All Files (*)"
+                    tr("JSON Files (*.json);;All Files (*)")
                 )
                 
                 if not filename:
@@ -1957,10 +1957,8 @@ class LayoutSelectorDialog(QDialog):
             if saved_items_count != current_items_count:
                 reply = QMessageBox.question(
                     self,
-                    "アイテム数不一致",
-                    f"保存されたアイテム数({saved_items_count})と\n"
-                    f"現在のレイアウトのアイテム数({current_items_count})が異なります。\n\n"
-                    f"可能な範囲で適用しますか？",
+                    tr("Item Count Mismatch"),
+                    tr("Saved item count ({}) and current layout item count ({}) are different.\n\nDo you want to apply within possible range?").format(saved_items_count, current_items_count),
                     QMessageBox.Yes | QMessageBox.No,
                     QMessageBox.Yes
                 )
@@ -1979,17 +1977,17 @@ class LayoutSelectorDialog(QDialog):
             
         except FileNotFoundError:
             self.iface.messageBar().pushMessage(
-                "エラー", "ファイルが見つかりません。",
+                tr("Error"), tr("File not found."),
                 level=Qgis.Critical, duration=5
             )
         except json.JSONDecodeError:
             self.iface.messageBar().pushMessage(
-                "エラー", "JSONファイルの解析に失敗しました。",
+                tr("Error"), tr("Failed to parse JSON file."),
                 level=Qgis.Critical, duration=5
             )
         except Exception as e:
             self.iface.messageBar().pushMessage(
-                "エラー", f"レイアウトプロパティの読み込みに失敗しました: {str(e)}",
+                tr("Error"), tr("Failed to load layout properties: {}").format(str(e)),
                 level=Qgis.Critical, duration=5
             )
     
@@ -2521,7 +2519,7 @@ class LayoutFileSelectDialog(QDialog):
                     pass
                 
                 # リストアイテムを作成
-                item_text = f"{file}{layout_name}\n  {self.tr('Size')}: {file_size:,} bytes, {self.tr('Modified')}: {time_str}"
+                item_text = f"{file}{layout_name}\n  {self.tr('Size')}: {file_size:,} {self.tr('bytes')}, {self.tr('Modified')}: {time_str}"
                 item = QListWidgetItem(item_text)
                 item.setData(USER_ROLE, file)
                 self.file_list.addItem(item)
@@ -2582,9 +2580,9 @@ class LayoutFileSelectDialog(QDialog):
         """他のフォルダを参照"""
         filename, _ = QFileDialog.getOpenFileName(
             self,
-            "レイアウトプロパティファイルを選択",
+            self.tr("Select Layout Property File"),
             self.folder_path,
-            "JSON Files (*.json);;All Files (*)"
+            self.tr("JSON Files (*.json);;All Files (*)")
         )
         
         if filename:

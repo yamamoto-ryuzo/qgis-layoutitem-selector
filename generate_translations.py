@@ -61,6 +61,25 @@ def extract_tr_strings(file_path):
     return sorted(strings)
 
 
+# --- UIファイルから<string>要素のテキストを抽出 ---
+def extract_ui_strings(ui_file_path):
+    """
+    Qt Designerの.uiファイルから<string>要素のテキストを抽出
+    """
+    strings = set()
+    if not os.path.exists(ui_file_path):
+        return []
+    try:
+        tree = ET.parse(ui_file_path)
+        root = tree.getroot()
+        for elem in root.iter():
+            if elem.tag == 'string' and elem.text and elem.text.strip():
+                strings.add(elem.text.strip())
+    except Exception as e:
+        print(f"[extract_ui_strings] Error: {e}")
+    return sorted(strings)
+
+
 def create_ts_file(lang_code, strings):
     """
     .ts ファイルを作成
@@ -144,18 +163,28 @@ def main():
     # Python ファイルから翻訳文字列を抽出
     print("\n=== 翻訳文字列を抽出中 ===")
     
+
     all_strings = set()
     source_files = [
         PLUGIN_DIR / "plugin.py",
         PLUGIN_DIR / "__init__.py"
     ]
-    
+    ui_files = [PLUGIN_DIR / "ui" / "main_dialog.ui"]
+
+    # Pythonファイルから抽出
     for source_file in source_files:
         if source_file.exists():
             strings = extract_tr_strings(source_file)
             all_strings.update(strings)
             print(f"✓ {source_file.name}: {len(strings)} 件の文字列")
-    
+
+    # UIファイルから抽出
+    for ui_file in ui_files:
+        if ui_file.exists():
+            ui_strings = extract_ui_strings(ui_file)
+            all_strings.update(ui_strings)
+            print(f"✓ {ui_file.name}: {len(ui_strings)} 件のUI文字列")
+
     print(f"\n合計: {len(all_strings)} 件の翻訳文字列")
     
     # 各言語の .ts ファイルを生成
