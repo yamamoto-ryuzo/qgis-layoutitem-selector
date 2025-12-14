@@ -582,7 +582,8 @@ class GeoReport:
                 log_message("LayoutSelectorDialog作成成功", Qgis.Info)
                 
                 # ドックウィジェットを作成（UI 表示名は英語、翻訳対象）
-                self.dock_widget = QDockWidget(tr("Layout Selector"), self.iface.mainWindow())
+                # タブ名が長かったため短縮して表示する
+                self.dock_widget = QDockWidget(tr("report"), self.iface.mainWindow())
                 self.dock_widget.setWidget(self.dialog)
                 self.dock_widget.setObjectName("GeoReportLayoutSelectorPanel")
                 
