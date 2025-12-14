@@ -1,10 +1,101 @@
-# --- 印刷範囲移動ツール（QgsMapToolサブクラス） ---
-from qgis.gui import QgsMapTool
-from qgis.core import QgsPointXY, QgsRectangle, QgsGeometry, QgsWkbTypes
-from qgis.PyQt.QtGui import QColor
+# -*- coding: utf-8 -*-
+"""
+/***************************************************************************
+ geo_report - Layout Item Selector
+                                 A QGIS plugin
+ Comprehensive layout management plugin for efficient map production workflows
+                              -------------------
+        begin                : 2025-12-14
+        version              : 2.1.44
+        git sha              : $Format:%H$
+        copyright            : (C) 2025 by yamamoto-ryuzo
+        email                : ryu@yamakun.net
+ ***************************************************************************/
 
+/***************************************************************************
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
+"""
+
+"""
+Python コメント（操作説明）は日本語で記述
+UI に表示されるテキストは英語で tr() メソッドでラップ
+"""
+
+import os
+import os.path
+import sys
+import subprocess
+import threading
+
+from qgis.PyQt.QtCore import QSettings, QVariant, QCoreApplication
+from qgis.PyQt.QtCore import Qt
+from qgis.PyQt.QtGui import QIcon, QColor
+from qgis.PyQt.QtWidgets import (QAction, QDialog, QVBoxLayout, QListWidget, QListWidgetItem, 
+                                QPushButton, QHBoxLayout, QSplitter, QTextEdit, QLabel, 
+                                QTreeWidget, QTreeWidgetItem, QGroupBox, QLineEdit, 
+                                QSpinBox, QDoubleSpinBox, QComboBox, QCheckBox, QFormLayout,
+                                QTabWidget, QWidget, QScrollArea, QFileDialog, QMessageBox)
+from qgis.core import (QgsProject, QgsLayoutManager, QgsLayoutItem, Qgis, QgsLayoutPoint, 
+                       QgsLayoutSize, QgsUnitTypes, QgsPointXY, QgsRectangle, QgsGeometry, 
+                       QgsWkbTypes, QgsMessageLog)
+from qgis.gui import QgsMessageBar, QgsMapTool, QgsRubberBand
+import json
+
+# Initialize Qt resources from file resources.py
+try:
+    from . import resources
+except ImportError as e:
+    pass
+
+# ログ出力関数
+def log_message(message, level=Qgis.Info):
+    """QGIS のログメッセージタブに出力"""
+    QgsMessageLog.logMessage(message, 'geo_report', level)
+
+
+# --- 多言語翻訳ヘルパー関数 ---
+def tr(message, context='geo_report'):
+    """
+    翻訳関数（Qt Linguist で自動抽出可能）
+    
+    使用例:
+        text = tr("Hello")  # 翻訳対象のテキスト
+        
+    Args:
+        message: 翻訳対象の文字列（ソース言語は英語）
+        context: 翻訳コンテキスト（デフォルト: 'geo_report'）
+        
+    Returns:
+        翻訳済みテキスト（または元の文字列）
+    """
+    return QCoreApplication.translate('geo_report', message)
+
+
+# --- 印刷範囲移動ツール（QgsMapToolサブクラス） ---
 class PrintAreaMoveTool(QgsMapTool):
+    """
+    印刷範囲（RubberBand）をマウスでドラッグして移動できるツール
+    """
+    
     def __init__(self, canvas, rubberband, map_item, width_map, height_map, iface, parent_dialog):
+        """
+        初期化
+        
+        Args:
+            canvas: QGIS マップキャンバス
+            rubberband: 印刷範囲を表示するゴムバンド
+            map_item: QgsLayoutItemMap インスタンス
+            width_map: 地図アイテムの幅（座標単位）
+            height_map: 地図アイテムの高さ（座標単位）
+            iface: QGIS インターフェース
+            parent_dialog: 親ダイアログ
+        """
         super().__init__(canvas)
         self.canvas = canvas
         self.rb = rubberband
@@ -18,6 +109,7 @@ class PrintAreaMoveTool(QgsMapTool):
         self.orig_center = None
 
     def canvasPressEvent(self, event):
+        """マウス押下時の処理"""
         pos = self.canvas.getCoordinateTransform().toMapCoordinates(event.pos().x(), event.pos().y())
         geom = self.rb.asGeometry()
         if geom and geom.contains(QgsPointXY(pos)):
@@ -28,6 +120,7 @@ class PrintAreaMoveTool(QgsMapTool):
             self.dragging = False
 
     def canvasMoveEvent(self, event):
+        """マウス移動時の処理"""
         if not self.dragging:
             return
         pos = self.canvas.getCoordinateTransform().toMapCoordinates(event.pos().x(), event.pos().y())
@@ -37,6 +130,7 @@ class PrintAreaMoveTool(QgsMapTool):
         self._move_rubberband(new_center)
 
     def canvasReleaseEvent(self, event):
+        """マウス放開時の処理"""
         if not self.dragging:
             return
         pos = self.canvas.getCoordinateTransform().toMapCoordinates(event.pos().x(), event.pos().y())
@@ -44,7 +138,8 @@ class PrintAreaMoveTool(QgsMapTool):
         dy = pos.y() - self.start_pos.y()
         new_center = QgsPointXY(self.orig_center.x() + dx, self.orig_center.y() + dy)
         self._move_rubberband(new_center)
-        # QgsLayoutItemMapの範囲も更新
+        
+        # QgsLayoutItemMap の範囲も更新
         w = self.width_map
         h = self.height_map
         xmin = new_center.x() - w/2
@@ -58,10 +153,16 @@ class PrintAreaMoveTool(QgsMapTool):
                 self.map_item.refresh()
         self.dragging = False
         self.iface.messageBar().pushMessage(
-            "情報", "印刷範囲を移動しました。", level=3, duration=2
+            "Information", tr("Print area moved."), level=Qgis.Info, duration=2
         )
 
     def _move_rubberband(self, center):
+        """
+        ゴムバンドを移動
+        
+        Args:
+            center: 新しい中心座標
+        """
         w = self.width_map
         h = self.height_map
         xmin = center.x() - w/2
@@ -76,28 +177,6 @@ class PrintAreaMoveTool(QgsMapTool):
             QgsPointXY(xmin, ymax)
         ]
         self.rb.setToGeometry(QgsGeometry.fromPolygonXY([points]), None)
-# --- 印刷範囲移動ツール（QgsMapToolサブクラス） ---
-class PrintAreaMoveTool:
-    """印刷範囲（RubberBand）をマウスでドラッグして移動できるQgsMapToolサブクラス"""
-    def __init__(self, canvas, rubberband, map_item, width_map, height_map, iface, parent_dialog):
-        from qgis.gui import QgsMapTool
-        self.tool = QgsMapTool(canvas)
-        self.canvas = canvas
-        self.rb = rubberband
-        self.map_item = map_item
-        self.width_map = width_map
-        self.height_map = height_map
-        self.iface = iface
-        self.parent_dialog = parent_dialog
-        self.dragging = False
-        self.start_pos = None
-        self.orig_center = None
-        # マウスイベントをバインド
-        self.tool.canvasPressEvent = self.canvasPressEvent
-        self.tool.canvasMoveEvent = self.canvasMoveEvent
-        self.tool.canvasReleaseEvent = self.canvasReleaseEvent
-
-    def activate(self):
         self.canvas.setMapTool(self.tool)
 
     def canvasPressEvent(self, event):
@@ -203,12 +282,12 @@ class PrintAreaMoveTool:
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
- LayoutItemSelector
+ geo_report - Layout Item Selector
                                  A QGIS plugin
- レイアウト印刷を選択してレイアウトマネージャを開くプラグイン
+ Comprehensive layout management plugin for efficient map production workflows
                               -------------------
-        begin                : 2025-07-13
-        version              : 2.0.0
+        begin                : 2025-12-14
+        version              : 2.1.44
         git sha              : $Format:%H$
         copyright            : (C) 2025 by yamamoto-ryuzo
         email                : ryu@yamakun.net
@@ -224,41 +303,9 @@ class PrintAreaMoveTool:
  ***************************************************************************/
 """
 
-import os
-import os.path
-import sys
-import subprocess
-import threading
+# 以下は上の統一された imports セクションで既に読み込まれているため削除
 
-from qgis.PyQt.QtCore import QSettings, QVariant
-from qgis.PyQt.QtCore import Qt
-from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt.QtWidgets import (QAction, QDialog, QVBoxLayout, QListWidget, QListWidgetItem, 
-                                QPushButton, QHBoxLayout, QSplitter, QTextEdit, QLabel, 
-                                QTreeWidget, QTreeWidgetItem, QGroupBox, QLineEdit, 
-                                QSpinBox, QDoubleSpinBox, QComboBox, QCheckBox, QFormLayout,
-                                QTabWidget, QWidget, QScrollArea, QFileDialog, QMessageBox)
-from qgis.core import QgsProject, QgsLayoutManager, QgsLayoutItem, Qgis, QgsLayoutPoint, QgsLayoutSize, QgsUnitTypes
-from qgis.gui import QgsMessageBar
-import json
-import os
-
-# Initialize Qt resources from file resources.py
-try:
-    from ..resources import *
-    print("リソースファイルを正常に読み込みました")
-except ImportError as e:
-    print(f"リソースファイルの読み込みに失敗: {e}")
-    try:
-        import resources
-        print("相対パスでリソースファイルを読み込みました")
-    except ImportError:
-        print("リソースファイルが見つかりません")
-
-
-
-
-class LayoutItemSelector:
+class GeoReport:
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
@@ -277,6 +324,12 @@ class LayoutItemSelector:
         self.actions = []
         self.menu = 'geo_report'
         self.first_start = None
+
+        # 起動ログ
+        try:
+            log_message('GeoReport プラグインを初期化しました')
+        except Exception:
+            pass
 
 
 
@@ -378,6 +431,11 @@ class LayoutItemSelector:
             callback=self.run,
             parent=self.iface.mainWindow())
 
+        try:
+            log_message('GeoReport プラグイン GUI を登録しました')
+        except Exception:
+            pass
+
         # will be set False in run()
         self.first_start = True
 
@@ -426,8 +484,8 @@ class LayoutItemSelector:
                     imported += 1
                 except Exception as e:
                     self.iface.messageBar().pushMessage(
-                        "警告",
-                        f"{qpt_path} のインポート失敗: {e}",
+                        tr("Warning"),
+                        tr("Import failed") + f": {qpt_path}",
                         level=Qgis.Warning,
                         duration=5
                     )
@@ -602,7 +660,7 @@ class LayoutSelectorDialog(QDialog):
                 self.map_item.refresh()
         self.dragging = False
         self.iface.messageBar().pushMessage(
-            "情報", "印刷範囲を移動しました。", level=3, duration=2
+            tr("Information"), tr("Print area moved."), level=Qgis.Info, duration=2
         )
 
     def _move_rubberband(self, center):
@@ -642,6 +700,11 @@ class LayoutSelectorDialog(QDialog):
         self.iface = iface
         self.current_layout = None
         self.init_ui()
+    
+    def tr(self, message):
+        """翻訳用ヘルパーメソッド"""
+        from qgis.PyQt.QtCore import QCoreApplication
+        return QCoreApplication.translate('geo_report', message)
         
     def init_ui(self):
         """UIを初期化"""
@@ -1071,7 +1134,7 @@ class LayoutSelectorDialog(QDialog):
 
         # 印刷範囲rubberbandをマウスで移動できるようにするツールを有効化（UIには影響しない）
         self._print_area_move_tool = PrintAreaMoveTool(canvas, rb, map_item, width_map, height_map, self.iface, self)
-        canvas.setMapTool(self._print_area_move_tool.tool)
+        canvas.setMapTool(self._print_area_move_tool)
     
     def load_layout_items(self):
         """レイアウトアイテムを読み込む"""
@@ -2245,6 +2308,11 @@ class LayoutFileSelectDialog(QDialog):
         self.json_files = json_files
         self.selected_file = None
         self.init_ui()
+    
+    def tr(self, message):
+        """翻訳用ヘルパーメソッド"""
+        from qgis.PyQt.QtCore import QCoreApplication
+        return QCoreApplication.translate('GeoReport', message)
         
     def init_ui(self):
         """UIを初期化"""

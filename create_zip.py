@@ -94,7 +94,6 @@ def should_exclude(file_path: Path, plugin_dir: Path) -> bool:
         '.git',
         '.gitignore',
         '.gitattributes',
-        '*.qm',  # コンパイル済み翻訳ファイルは除外
     }
     
     # ファイル名またはパスの一部がパターンにマッチするか確認
@@ -117,6 +116,16 @@ def create_distribution_zip(plugin_dir: Path, new_version: str) -> Path:
     
     print(f"\n配布用ZIPを作成中: {zip_filename}")
     
+    # i18n の .qm をプラグイン内に同期（ルート i18n → geo_report/i18n）
+    root_i18n = PROJECT_ROOT / "i18n"
+    plugin_i18n = plugin_dir / "i18n"
+    if root_i18n.exists():
+        plugin_i18n.mkdir(parents=True, exist_ok=True)
+        for f in root_i18n.glob("*.qm"):
+            target = plugin_i18n / f.name
+            shutil.copy2(f, target)
+        # .ts も必要なら同梱（任意）：ここでは .qm のみ優先
+
     with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zf:
         for root, dirs, files in os.walk(plugin_dir):
             root_path = Path(root)

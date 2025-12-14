@@ -6,7 +6,7 @@ required_qt_version=6
 description=Layout Item Selector and Pre-edit Tool for efficient layout management and template creation
 description[en]=A comprehensive QGIS plugin for selecting layouts, pre-editing items, and creating reusable templates for efficient map production workflows
 description[ja]=レイアウト選択、アイテム事前編集、テンプレート作成により効率的な地図作成ワークフローを実現するQGISプラグイン
-version=2.1.39
+version=2.1.56
 author=Yamamoto Ryuzo
 email=ryu@yamakun.net
 
@@ -40,9 +40,9 @@ changelog=
 # Tags are comma separated with spaces allowed
 tags=layout,print,manager,item,properties,template,cartography,map,design,workflow,productivity,batch
 
-homepage=https://github.com/yamamoto-ryuzo/qgis-layoutitem-selector
-tracker=https://github.com/yamamoto-ryuzo/qgis-layoutitem-selector/issues
-repository=https://github.com/yamamoto-ryuzo/qgis-layoutitem-selector
+homepage=https://github.com/yamamoto-ryuzo/geo_report
+tracker=https://github.com/yamamoto-ryuzo/geo_report/issues
+repository=https://github.com/yamamoto-ryuzo/geo_report
 category=Plugins
 icon=icon.png
 # experimental flag (False for stable release)
