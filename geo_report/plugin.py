@@ -1109,13 +1109,15 @@ class LayoutSelectorDialog(QDialog):
 
     def show_print_area_on_map(self):
         from qgis.gui import QgsRubberBand
-        """選択中レイアウトの印刷範囲（ページサイズ・スケール考慮）を地図キャンバスに表示"""
+        """選択中レイアウトの印刷範囲（ページサイズ・スケール考慮）を地図キャンバスに表示/非表示切り替え"""
+        # 既存のrubberbandがある場合は非表示にして終了（トグル）
+        if hasattr(self, '_print_area_rubberband') and self._print_area_rubberband:
+            self._remove_print_area_rubberband()
+            return
+        
         # スケール・角度値を取得
         scale = self.scale_spin.value() if hasattr(self, 'scale_spin') else None
         angle = self.angle_spin.value() if hasattr(self, 'angle_spin') else 0.0
-        # 情報メッセージの表示は削除
-        # 既存の印刷範囲rubberbandがあれば必ず削除
-        self._remove_print_area_rubberband()
 
         if not self.current_layout:
             return
