@@ -22,7 +22,8 @@ def load_ui(ui_file_path):
         ロードされたウィジェットクラス
     """
     if not os.path.exists(ui_file_path):
-        raise FileNotFoundError(f"UI file not found: {ui_file_path}")
+        # 日本語の例外メッセージ（開発者向けログ／説明は日本語）
+        raise FileNotFoundError(f"UI ファイルが見つかりません: {ui_file_path}")
     
     return uic.loadUiType(ui_file_path)[0]
 
@@ -44,11 +45,12 @@ def load_ui_to_widget(ui_name, parent_widget):
     ui_file_path = os.path.join(ui_dir, f"{ui_name}.ui")
     
     if not os.path.exists(ui_file_path):
-        raise FileNotFoundError(f"UI file not found: {ui_file_path}")
-    
+        # 日本語の説明を表示（ログ等は日本語で保つ）
+        raise FileNotFoundError(f"UI ファイルが見つかりません: {ui_file_path}")
+
     # UI をウィジェットにロード
     try:
         uic.loadUi(ui_file_path, parent_widget)
     except Exception as e:
-        # QT6で問題が発生する可能性があるため、詳細なエラー情報を追加
-        raise RuntimeError(f"Failed to load UI from {ui_file_path}: {str(e)}")
+        # QT6で問題が発生する可能性があるため、詳細なエラー情報を日本語で追加
+        raise RuntimeError(f"UI 読み込みに失敗しました: {ui_file_path}: {str(e)}")

@@ -1,156 +1,94 @@
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 """
-翻訳ファイル更新スクリプト
+Update or create Qt .ts translation files using lupdate.
 
-pylupdate5 で .ts ファイルを更新し、lrelease で .qm ファイルを生成します。
-対応言語：英語、フランス語、ドイツ語、スペイン語、イタリア語、ポルトガル語、
-          日本語、中国語、ロシア語、ヒンディー語
+Defaults:
+  lupdate: C:\Qt\linguist_6.9.1\lupdate.exe
+  project: geo_report.pro (in repo root)
+  i18n dir: ./i18n
+
+This script will run lupdate against the project to update each target
+TS file. If lupdate is not found, it will create minimal .ts files as a
+fallback so translators can start editing.
 """
-
 import os
-import sys
 import subprocess
-from pathlib import Path
+import sys
 
-# プロジェクトルート
-PROJECT_ROOT = Path(__file__).parent
-PLUGIN_DIR = PROJECT_ROOT / "geo_report"
-I18N_DIR = PLUGIN_DIR / "i18n"
+DEFAULT_LUPDATE = r"C:\Qt\linguist_6.9.1\lupdate.exe"
 
-# 対応言語のリスト
-LANGUAGES = {
-    'en': 'English',
-    'fr': 'French',
-    'de': 'German',
-    'es': 'Spanish',
-    'it': 'Italian',
-    'pt': 'Portuguese',
-    'ja': 'Japanese',
-    'zh': 'Chinese',
-    'ru': 'Russian',
-    'hi': 'Hindi'
+TARGET_LANGS = {
+    'en': 'en',
+    'fr': 'fr',
+    'de': 'de',
+    'es': 'es',
+    'it': 'it',
+    'pt': 'pt',
+    'ja': 'ja',
+    'zh': 'zh_CN',
+    'ru': 'ru',
+    'hi': 'hi'
 }
 
-# Qt Linguist ツールの場所
-LINGUIST_DIR = r"C:\Qt\linguist_6.9.1"
-LRELEASE_PATH = os.path.join(LINGUIST_DIR, "lrelease.exe")
-LUPDATE_PATH = os.path.join(LINGUIST_DIR, "lupdate.exe")
 
-# PRO ファイルの場所
-PRO_FILE = PROJECT_ROOT / "geo_report.pro"
+def create_minimal_ts(ts_path, lang_code):
+    content = f'''<?xml version="1.0" encoding="utf-8"?>
+<TS version="2.1" language="{lang_code}">
+  <context>
+    <name>geo_report</name>
+  </context>
+</TS>
+'''
+    with open(ts_path, 'w', encoding='utf-8') as fh:
+        fh.write(content)
 
 
-def update_ts_files():
-    """
-    .pro ファイルを使って .ts ファイルを生成・更新
-    """
-    print("\n=== 翻訳ソースファイル (.ts) を更新中 ===")
-    
-    # i18n ディレクトリが存在しない場合は作成
-    I18N_DIR.mkdir(exist_ok=True)
-    
-    # lupdate が存在するか確認
-    if not os.path.exists(LUPDATE_PATH):
-        print(f"× lupdate が見つかりません: {LUPDATE_PATH}")
-        print("  Qt Linguist ツールをインストールしてください")
-        return False
-    
-    # .pro ファイルが存在するか確認
-    if not PRO_FILE.exists():
-        print(f"× プロジェクトファイルが見つかりません: {PRO_FILE}")
-        return False
-    
-    print(f"lupdate を使用: {LUPDATE_PATH}")
-    print(f"プロジェクトファイル: {PRO_FILE}")
-    
-    # lupdate コマンドを実行
-    try:
-        result = subprocess.run(
-            [LUPDATE_PATH, str(PRO_FILE)],
-            capture_output=True,
-            text=True,
-            check=False,
-            cwd=str(PROJECT_ROOT)
-        )
-        
-        if result.returncode == 0:
-            print(f"✓ .ts ファイルを更新しました")
-            if result.stdout:
-                print(result.stdout)
-            return True
+def update_ts(lupdate_path=None, pro_file=None, i18n_dir=None):
+    if lupdate_path is None:
+        lupdate_path = DEFAULT_LUPDATE
+    if pro_file is None:
+        pro_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'geo_report.pro')
+    if i18n_dir is None:
+        repo_dir = os.path.dirname(os.path.abspath(__file__))
+        i18n_dir = os.path.join(repo_dir, 'geo_report', 'i18n')
+
+    os.makedirs(i18n_dir, exist_ok=True)
+
+    lupdate_exists = os.path.exists(lupdate_path)
+
+    rc = 0
+    for short, lang_code in TARGET_LANGS.items():
+        ts_name = f'geo_report_{short}.ts'
+        ts_path = os.path.join(i18n_dir, ts_name)
+        if lupdate_exists:
+            print(f'Running lupdate for {ts_name}...')
+            try:
+                # Use the .pro file if available, otherwise scan current dir
+                if os.path.exists(pro_file):
+                    subprocess.check_call([lupdate_path, pro_file, '-ts', ts_path])
+                else:
+                    subprocess.check_call([lupdate_path, '.', '-ts', ts_path])
+            except subprocess.CalledProcessError as e:
+                print(f'lupdate failed for {ts_name}: {e}')
+                rc = 2
         else:
-            print(f"× エラー: {result.stderr}")
-            return False
-            
-    except Exception as e:
-        print(f"× 例外エラー: {e}")
-        return False
-
-
-def compile_qm_files():
-    """
-    .ts ファイルから .qm ファイルをコンパイル
-    """
-    print("\n=== 翻訳バイナリファイル (.qm) をコンパイル中 ===")
-    
-    if not os.path.exists(LRELEASE_PATH):
-        print(f"× lrelease が見つかりません: {LRELEASE_PATH}")
-        print("  lrelease.exe のパスを確認してください")
-        return
-    
-    for lang_code, lang_name in LANGUAGES.items():
-        ts_file = I18N_DIR / f"geo_report_{lang_code}.ts"
-        qm_file = I18N_DIR / f"geo_report_{lang_code}.qm"
-        
-        if not ts_file.exists():
-            print(f"[{lang_code}] × .ts ファイルが見つかりません: {ts_file}")
-            continue
-        
-        print(f"\n[{lang_code}] {lang_name}")
-        print(f"  入力: {ts_file}")
-        print(f"  出力: {qm_file}")
-        
-        try:
-            result = subprocess.run(
-                [LRELEASE_PATH, str(ts_file), '-qm', str(qm_file)],
-                capture_output=True,
-                text=True,
-                check=False
-            )
-            
-            if result.returncode == 0:
-                print(f"  ✓ .qm ファイルをコンパイルしました")
+            if os.path.exists(ts_path):
+                print(f'{ts_name} already exists; skipping lupdate fallback creation')
             else:
-                print(f"  × エラー: {result.stderr}")
-                
-        except Exception as e:
-            print(f"  × 例外エラー: {e}")
+                print(f'lupdate not found, creating minimal {ts_name}')
+                create_minimal_ts(ts_path, lang_code)
 
-
-def main():
-    """メイン処理"""
-    print("=" * 60)
-    print("geo_report 翻訳ファイル更新スクリプト")
-    print("=" * 60)
-    
-    # .ts ファイルを更新
-    if not update_ts_files():
-        print("\n× .ts ファイルの更新に失敗しました")
-        sys.exit(1)
-    
-    # .qm ファイルをコンパイル
-    compile_qm_files()
-    
-    print("\n" + "=" * 60)
-    print("✓ 完了！")
-    print("=" * 60)
-    print("\n次のステップ:")
-    linguist_path = os.path.join(LINGUIST_DIR, "linguist.exe")
-    print(f"1. Qt Linguist で翻訳を編集: {linguist_path}")
-    print(f"2. 翻訳ファイルの場所: {I18N_DIR}")
-    print("3. 翻訳後、再度このスクリプトを実行して .qm ファイルを更新")
-    print()
+    return rc
 
 
 if __name__ == '__main__':
-    main()
+    import argparse
+
+    p = argparse.ArgumentParser(description='Generate/update .ts translation files')
+    p.add_argument('--lupdate', help='Path to lupdate executable', default=None)
+    p.add_argument('--pro', help='Path to .pro project file', default=None)
+    p.add_argument('--i18n', help='Path to i18n directory', default=None)
+    args = p.parse_args()
+
+    rc = update_ts(args.lupdate, args.pro, args.i18n)
+    sys.exit(rc)

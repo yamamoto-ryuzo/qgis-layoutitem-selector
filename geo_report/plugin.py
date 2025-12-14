@@ -33,15 +33,14 @@ import sys
 import subprocess
 import threading
 
-from qgis.PyQt.QtCore import QSettings, QVariant, QCoreApplication
-from qgis.PyQt.QtCore import Qt
+from qgis.PyQt.QtCore import QSettings, QVariant, QCoreApplication, QTranslator, Qt, QPoint
 from qgis.PyQt.QtGui import QIcon, QColor
 from qgis.PyQt.QtWidgets import (QAction, QDialog, QVBoxLayout, QListWidget, QListWidgetItem, 
                                 QPushButton, QHBoxLayout, QSplitter, QTextEdit, QLabel, 
                                 QTreeWidget, QTreeWidgetItem, QGroupBox, QLineEdit, 
                                 QSpinBox, QDoubleSpinBox, QComboBox, QCheckBox, QFormLayout,
                                 QTabWidget, QWidget, QScrollArea, QFileDialog, QMessageBox,
-                                QDockWidget)
+                                QDockWidget, QTabBar)
 from qgis.core import (QgsProject, QgsLayoutManager, QgsLayoutItem, Qgis, QgsLayoutPoint, 
                        QgsLayoutSize, QgsUnitTypes, QgsPointXY, QgsRectangle, QgsGeometry, 
                        QgsWkbTypes, QgsMessageLog)
@@ -257,7 +256,7 @@ class PrintAreaMoveTool(QgsMapTool):
                 self.map_item.refresh()
         self.dragging = False
         self.iface.messageBar().pushMessage(
-            "情報", "印刷範囲を移動しました（角度維持）", level=3, duration=2
+            tr("Information"), tr("Print area moved (angle preserved)"), level=Qgis.Info, duration=2
         )
 
     def _move_rubberband(self, center):
@@ -329,6 +328,25 @@ class GeoReport:
         self.iface = iface
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
+        # 多言語対応: QGIS のユーザロケール設定に従って翻訳を自動ロード
+        try:
+            settings = QSettings()
+            user_locale = settings.value('locale/userLocale', '') or ''
+            # 'ja' または 'ja_JP' のような形式に対応
+            lang = user_locale.split('_')[0].split('-')[0] if user_locale else 'en'
+            i18n_dir = os.path.join(self.plugin_dir, 'i18n')
+            qm_path = os.path.join(i18n_dir, f'geo_report_{lang}.qm')
+            translator = QTranslator()
+            if os.path.exists(qm_path) and translator.load(qm_path):
+                QCoreApplication.installTranslator(translator)
+                self.translator = translator
+                try:
+                    log_message(f"✓ 翻訳ファイルをロードしました: {qm_path}")
+                except Exception:
+                    pass
+        except Exception:
+            # 翻訳ロードに失敗してもプラグインは継続
+            pass
         # Declare instance attributes
         self.actions = []
         self.menu = 'geo_report'
@@ -563,8 +581,8 @@ class GeoReport:
                 self.dialog = LayoutSelectorDialog(layouts, self.iface)
                 log_message("LayoutSelectorDialog作成成功", Qgis.Info)
                 
-                # ドックウィジェットを作成
-                self.dock_widget = QDockWidget("report", self.iface.mainWindow())
+                # ドックウィジェットを作成（UI 表示名は英語、翻訳対象）
+                self.dock_widget = QDockWidget(tr("Layout Selector"), self.iface.mainWindow())
                 self.dock_widget.setWidget(self.dialog)
                 self.dock_widget.setObjectName("GeoReportLayoutSelectorPanel")
                 
@@ -572,20 +590,60 @@ class GeoReport:
                 self.dock_widget.visibilityChanged.connect(self._on_dock_visibility_changed)
                 
                 # 左エリアの既存のドックウィジェットを探してタブ化
-                # QGISのレイヤーパネルなどの標準パネルを探す
+                # 既存の中で「最後に見つかった（表示上は右/上位になる）」パネルをターゲットにする
                 target_dock = None
+                left_docks = []
                 for widget in self.iface.mainWindow().findChildren(QDockWidget):
                     area = self.iface.mainWindow().dockWidgetArea(widget)
                     if area == Qt.LeftDockWidgetArea and widget.isVisible():
-                        # 最初に見つかった可視パネルをターゲットにする
-                        target_dock = widget
-                        break
+                        left_docks.append(widget)
+                if left_docks:
+                    # 左側ドック群のうち「高さ（ピクセル）が最大」のウィジェットをターゲットにする
+                    # frameGeometry().height() を優先的に使用し、取得できない場合は widget.size().height() を参照
+                    def _height(w):
+                        try:
+                            h = w.frameGeometry().height()
+                            if h:
+                                return h
+                        except Exception:
+                            pass
+                        try:
+                            return w.size().height()
+                        except Exception:
+                            return 0
+
+                    try:
+                        target_dock = max(left_docks, key=_height)
+                    except Exception:
+                        target_dock = left_docks[0]
                 
                 if target_dock:
                     # 既存のドックが見つかった場合、タブ化して追加
                     self.iface.addDockWidget(Qt.LeftDockWidgetArea, self.dock_widget)
                     # ターゲットドックにタブとして追加
                     self.iface.mainWindow().tabifyDockWidget(target_dock, self.dock_widget)
+                    # タブバー上で新しく追加したタブを先頭（上位）に移動する
+                    try:
+                        title = self.dock_widget.windowTitle()
+                        moved = False
+                        for tabbar in self.iface.mainWindow().findChildren(QTabBar):
+                            for idx in range(tabbar.count()):
+                                try:
+                                    if tabbar.tabText(idx) == title:
+                                        # moveTab(from, to)
+                                        try:
+                                            # move the tab to the rightmost position
+                                            tabbar.moveTab(idx, tabbar.count() - 1)
+                                        except Exception:
+                                            pass
+                                        moved = True
+                                        break
+                                except Exception:
+                                    continue
+                            if moved:
+                                break
+                    except Exception:
+                        pass
                 else:
                     # 既存のドックがない場合は通常追加
                     self.iface.addDockWidget(Qt.LeftDockWidgetArea, self.dock_widget)
@@ -1329,7 +1387,7 @@ class LayoutSelectorDialog(QDialog):
                     tree_item.setText(2, visibility)
                     tree_item.setData(0, USER_ROLE, item)
                     # 非表示アイテムは薄いグレーで表示
-                    if visibility == "非表示":
+                    if visibility == "Hidden":
                         for col in range(3):
                             tree_item.setForeground(col, Qt.GlobalColor.gray)
                     self.items_tree.addTopLevelItem(tree_item)
@@ -1342,8 +1400,8 @@ class LayoutSelectorDialog(QDialog):
         # アイテムが見つからない場合のメッセージ
         if valid_items == 0 and total_items > 0:
             placeholder_item = QTreeWidgetItem()
-            placeholder_item.setText(0, f"No items found ({total_items} objects detected)")
-            placeholder_item.setText(1, "Information")
+            placeholder_item.setText(0, tr("No items found ({0} objects detected)").format(total_items))
+            placeholder_item.setText(1, tr("Information"))
             self.items_tree.addTopLevelItem(placeholder_item)
     
     def refresh_layout_items_with_selection(self, selected_layout_item):
