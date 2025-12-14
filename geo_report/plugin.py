@@ -560,10 +560,29 @@ class GeoReport:
                 self.dock_widget.setWidget(self.dialog)
                 self.dock_widget.setObjectName("GeoReportLayoutSelectorPanel")
                 
-                # パネルを左側に追加
-                self.iface.addDockWidget(Qt.LeftDockWidgetArea, self.dock_widget)
+                # 左エリアの既存のドックウィジェットを探してタブ化
+                # QGISのレイヤーパネルなどの標準パネルを探す
+                target_dock = None
+                for widget in self.iface.mainWindow().findChildren(QDockWidget):
+                    area = self.iface.mainWindow().dockWidgetArea(widget)
+                    if area == Qt.LeftDockWidgetArea and widget.isVisible():
+                        # 最初に見つかった可視パネルをターゲットにする
+                        target_dock = widget
+                        break
                 
-                log_message("ドックウィジェット作成成功", Qgis.Info)
+                if target_dock:
+                    # 既存のドックが見つかった場合、タブ化して追加
+                    self.iface.addDockWidget(Qt.LeftDockWidgetArea, self.dock_widget)
+                    # ターゲットドックにタブとして追加
+                    self.iface.mainWindow().tabifyDockWidget(target_dock, self.dock_widget)
+                else:
+                    # 既存のドックがない場合は通常追加
+                    self.iface.addDockWidget(Qt.LeftDockWidgetArea, self.dock_widget)
+                
+                # 作成したパネルをアクティブに
+                self.dock_widget.raise_()
+                
+                log_message("ドックウィジェット作成成功（タブ化）", Qgis.Info)
             else:
                 # 既存のパネルを表示/非表示を切り替え
                 if self.dock_widget.isVisible():
@@ -792,7 +811,11 @@ class LayoutSelectorDialog(QDialog):
         self.setModal(False)  # モデルレスにして他の操作も可能にする
         self.resize(500, 700)
         
-        main_layout = QHBoxLayout()
+        # メインレイアウト（垂直）
+        main_layout = QVBoxLayout()
+        
+        # 上部：左側（レイアウトリスト）+ 右側（ボタン類 + アイテムリスト）
+        top_layout = QHBoxLayout()
         
         # 左側パネル - レイアウトリスト
         left_panel = QWidget()
@@ -851,7 +874,6 @@ class LayoutSelectorDialog(QDialog):
 
         left_layout.addWidget(self.layout_list)
 
-
         # --- スケール入力欄を追加 ---
         scale_layout = QHBoxLayout()
         scale_label = QLabel(self.tr("Scale:"))
@@ -894,7 +916,39 @@ class LayoutSelectorDialog(QDialog):
         # 角度値が変更されたときに印刷範囲を再表示
         self.angle_spin.valueChanged.connect(self.show_print_area_on_map)
 
-        # ボタン
+        left_panel.setLayout(left_layout)
+        left_panel.setMaximumWidth(250)
+        
+        # 右側パネル - 垂直分割（アイテムリスト + ボタン類）
+        right_splitter = QSplitter(Qt.Orientation.Vertical)
+        
+        # アイテムリスト（上部）
+        items_widget = QWidget()
+        items_layout = QVBoxLayout()
+        
+        items_label = QLabel(self.tr("Layout Items:"))
+        items_layout.addWidget(items_label)
+        
+        self.items_tree = QTreeWidget()
+        self.items_tree.setHeaderLabels([
+            self.tr("Item Name"),
+            self.tr("Type"),
+            self.tr("Visible")
+        ])
+        self.items_tree.currentItemChanged.connect(self.on_item_selected)
+        # ダブルクリックでプロパティを直接編集画面に移動
+        self.items_tree.itemDoubleClicked.connect(self.focus_on_properties)
+        # カラム幅を調整
+        self.items_tree.setColumnWidth(0, 150)  # アイテム名
+        self.items_tree.setColumnWidth(1, 80)   # タイプ
+        self.items_tree.setColumnWidth(2, 60)   # 表示
+        items_layout.addWidget(self.items_tree)
+        
+        items_widget.setLayout(items_layout)
+        right_splitter.addWidget(items_widget)
+        
+        # ボタン類（下部）
+        buttons_widget = QWidget()
         button_layout = QVBoxLayout()
 
         self.show_print_area_button = QPushButton(self.tr("Show Print Area on Map"))
@@ -922,45 +976,21 @@ class LayoutSelectorDialog(QDialog):
         self.load_layout_button.clicked.connect(self.load_layout_properties)
         self.load_layout_button.setEnabled(False)
         button_layout.addWidget(self.load_layout_button)
+        
+        button_layout.addStretch()
+        buttons_widget.setLayout(button_layout)
+        right_splitter.addWidget(buttons_widget)
+        right_splitter.setSizes([150, 150])
 
-        self.cancel_button = QPushButton(self.tr("Cancel"))
-        self.cancel_button.clicked.connect(self.reject)
-        button_layout.addWidget(self.cancel_button)
+        # 上部レイアウトに左右を追加
+        top_layout.addWidget(left_panel)
+        top_layout.addWidget(right_splitter)
 
-        left_layout.addLayout(button_layout)
-        left_panel.setLayout(left_layout)
-        left_panel.setMaximumWidth(250)
+        # プロパティパネル（下部全幅）- タブ化
+        properties_container = QWidget()
+        properties_container_layout = QVBoxLayout()
         
-        # 右側パネル - 垂直分割
-        right_splitter = QSplitter(Qt.Orientation.Vertical)
-        
-        # 上部: アイテムリスト
-        items_widget = QWidget()
-        items_layout = QVBoxLayout()
-        
-        items_label = QLabel(self.tr("Layout Items:"))
-        items_layout.addWidget(items_label)
-        
-        self.items_tree = QTreeWidget()
-        self.items_tree.setHeaderLabels([
-            self.tr("Item Name"),
-            self.tr("Type"),
-            self.tr("Visible")
-        ])
-        self.items_tree.currentItemChanged.connect(self.on_item_selected)
-        # ダブルクリックでプロパティを直接編集画面に移動
-        self.items_tree.itemDoubleClicked.connect(self.focus_on_properties)
-        # カラム幅を調整
-        self.items_tree.setColumnWidth(0, 150)  # アイテム名
-        self.items_tree.setColumnWidth(1, 80)   # タイプ
-        self.items_tree.setColumnWidth(2, 60)   # 表示
-        items_layout.addWidget(self.items_tree)
-        
-        items_widget.setLayout(items_layout)
-        right_splitter.addWidget(items_widget)
-        
-
-        # --- タブでプロパティとレイアウト情報を集約 ---
+        # タブウィジェット
         tab_widget = QTabWidget()
 
         # プロパティタブ
@@ -975,11 +1005,6 @@ class LayoutSelectorDialog(QDialog):
         scroll_area.setWidget(scroll_widget)
         scroll_area.setWidgetResizable(True)
         properties_layout.addWidget(scroll_area)
-        properties_buttons_layout = QHBoxLayout()
-        update_properties_btn = QPushButton(self.tr("Apply Properties"))
-        update_properties_btn.clicked.connect(self.update_item_properties)
-        properties_buttons_layout.addWidget(update_properties_btn)
-        properties_layout.addLayout(properties_buttons_layout)
         properties_widget.setLayout(properties_layout)
 
         # レイアウト情報タブ
@@ -989,24 +1014,30 @@ class LayoutSelectorDialog(QDialog):
         info_layout.addWidget(info_label)
         self.info_text = QTextEdit()
         self.info_text.setReadOnly(True)
-        self.info_text.setMaximumHeight(200)
         info_layout.addWidget(self.info_text)
         info_widget.setLayout(info_layout)
 
-        # タブ追加時は仮タイトルで追加し、直後にretranslate_tabsで翻訳タイトルに変更
+        # タブ追加
         self.tab_widget = tab_widget
         tab_widget.addTab(properties_widget, self.tr("Item Properties"))
         tab_widget.addTab(info_widget, self.tr("Layout Info"))
-        right_splitter.addWidget(tab_widget)
-        right_splitter.setSizes([350, 350])
+        
+        properties_container_layout.addWidget(tab_widget)
+        
+        # Apply Properties ボタン
+        properties_buttons_layout = QHBoxLayout()
+        update_properties_btn = QPushButton(self.tr("Apply Properties"))
+        update_properties_btn.clicked.connect(self.update_item_properties)
+        properties_buttons_layout.addWidget(update_properties_btn)
+        properties_container_layout.addLayout(properties_buttons_layout)
+        
+        properties_container.setLayout(properties_container_layout)
 
         # メインレイアウトに追加
-        main_layout.addWidget(left_panel)
-        main_layout.addWidget(right_splitter)
+        main_layout.addLayout(top_layout, 1)  # 上部
+        main_layout.addWidget(properties_container, 1)  # 下部全幅
 
         self.setLayout(main_layout)
-        # タブタイトルを初期化
-        self.retranslate_tabs()
         # 最初のレイアウトを選択
         if self.layout_list.count() > 0:
             self.layout_list.setCurrentRow(0)
