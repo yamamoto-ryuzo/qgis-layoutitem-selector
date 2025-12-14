@@ -129,16 +129,25 @@ def create_distribution_zip(plugin_dir: Path, new_version: str) -> Path:
     with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zf:
         for root, dirs, files in os.walk(plugin_dir):
             root_path = Path(root)
-            
-            # __pycache__などの除外フォルダをスキップ
-            dirs[:] = [d for d in dirs if not should_exclude(root_path / d, plugin_dir)]
-            
+
+            # 明示的に除外するディレクトリ名（__pycache__ 等）はスキップ
+            dirs[:] = [d for d in dirs if d != '__pycache__' and d not in ('.git',)]
+
             for file in files:
                 file_path = root_path / file
-                
+
+                # 拡張子 .pyc は除外
+                if file_path.suffix == '.pyc':
+                    continue
+
+                # ファイルパスに __pycache__ が含まれていれば除外
+                if '__pycache__' in file_path.parts:
+                    continue
+
+                # その他 exclude 判定（例: .gitignore 等）
                 if should_exclude(file_path, plugin_dir):
                     continue
-                
+
                 # ZIPアーカイブ内のパス（相対パス）
                 arcname = file_path.relative_to(plugin_dir.parent)
                 zf.write(file_path, arcname)
