@@ -53,6 +53,14 @@ try:
 except ImportError as e:
     pass
 
+# PyQt5/PyQt6互換性対応
+try:
+    # PyQt6の場合
+    USER_ROLE = Qt.ItemDataRole.UserRole
+except AttributeError:
+    # PyQt5の場合
+    USER_ROLE = Qt.UserRole
+
 # ログ出力関数
 def log_message(message, level=Qgis.Info):
     """QGIS のログメッセージタブに出力"""
@@ -449,14 +457,35 @@ class GeoReport:
 
     def run(self):
         """Run method that performs all the real work"""
-        self.show_layout_selector()
+        try:
+            self.show_layout_selector()
+        except Exception as e:
+            import traceback
+            error_msg = f"プラグイン起動エラー: {str(e)}\n{traceback.format_exc()}"
+            log_message(error_msg, Qgis.Critical)
+            self.iface.messageBar().pushCritical(
+                "geo_report",
+                f"エラー: {str(e)}"
+            )
 
     def show_layout_selector(self):
         """レイアウト選択ダイアログを表示"""
+        log_message("show_layout_selector開始", Qgis.Info)
         import glob
         import os
         from qgis.core import QgsReadWriteContext, QgsPrintLayout
-        from qgis.PyQt.QtXml import QDomDocument
+        try:
+            from qgis.PyQt.QtXml import QDomDocument
+            log_message("QtXmlインポート成功（qgis.PyQt経由）", Qgis.Info)
+        except ImportError as e:
+            # QT6環境の場合
+            log_message(f"QtXmlインポート失敗（qgis.PyQt経由）、PyQt6から再試行: {e}", Qgis.Warning)
+            try:
+                from PyQt6.QtXml import QDomDocument
+                log_message("QtXmlインポート成功（PyQt6直接）", Qgis.Info)
+            except ImportError as e2:
+                log_message(f"QtXmlインポート完全失敗: {e2}", Qgis.Critical)
+                raise
         project = QgsProject.instance()
         layout_manager = project.layoutManager()
         layouts = layout_manager.layouts()
@@ -507,10 +536,19 @@ class GeoReport:
                 duration=3
             )
             return
-        self.dialog = LayoutSelectorDialog(layouts, self.iface)
+        log_message(f"LayoutSelectorDialog作成開始（レイアウト数: {len(layouts)}）", Qgis.Info)
+        try:
+            self.dialog = LayoutSelectorDialog(layouts, self.iface)
+            log_message("LayoutSelectorDialog作成成功", Qgis.Info)
+        except Exception as e:
+            import traceback
+            error_msg = f"LayoutSelectorDialog作成失敗: {str(e)}\n{traceback.format_exc()}"
+            log_message(error_msg, Qgis.Critical)
+            raise
         self.dialog.show()
         self.dialog.raise_()
         self.dialog.activateWindow()
+        log_message("ダイアログ表示完了", Qgis.Info)
 
 
 class LayoutSelectorDialog(QDialog):
@@ -762,7 +800,7 @@ class LayoutSelectorDialog(QDialog):
             except Exception:
                 size_str = ""
             item = QListWidgetItem(f"{qgs_layout.name()} {size_str}")
-            item.setData(Qt.ItemDataRole.UserRole, qgs_layout)
+            item.setData(USER_ROLE, qgs_layout)
             self.layout_list.addItem(item)
 
         # レイアウト選択時にアイテム情報を更新
@@ -949,7 +987,7 @@ class LayoutSelectorDialog(QDialog):
             self.clear_item_info()
             return
             
-        self.current_layout = current.data(Qt.ItemDataRole.UserRole)
+        self.current_layout = current.data(USER_ROLE)
         self.open_button.setEnabled(True)
         self.refresh_button.setEnabled(True)
         self.show_print_area_button.setEnabled(True)
@@ -1166,7 +1204,7 @@ class LayoutSelectorDialog(QDialog):
                     tree_item.setText(0, display_name)
                     tree_item.setText(1, item_type)
                     tree_item.setText(2, visibility)
-                    tree_item.setData(0, Qt.ItemDataRole.UserRole, item)
+                    tree_item.setData(0, USER_ROLE, item)
                     # 非表示アイテムは薄いグレーで表示
                     if visibility == "非表示":
                         for col in range(3):
@@ -1203,7 +1241,7 @@ class LayoutSelectorDialog(QDialog):
         """指定されたUUIDのアイテムを選択状態に復元"""
         for i in range(self.items_tree.topLevelItemCount()):
             tree_item = self.items_tree.topLevelItem(i)
-            layout_item = tree_item.data(0, Qt.ItemDataRole.UserRole)
+            layout_item = tree_item.data(0, USER_ROLE)
             
             if layout_item and hasattr(layout_item, 'uuid'):
                 if layout_item.uuid() == target_uuid:
@@ -1342,7 +1380,7 @@ class LayoutSelectorDialog(QDialog):
             self.clear_properties_form()
             return
             
-        item = current.data(0, Qt.ItemDataRole.UserRole)
+        item = current.data(0, USER_ROLE)
         if item:
             # すぐにプロパティを表示
             self.load_item_properties(item)
@@ -1501,7 +1539,7 @@ class LayoutSelectorDialog(QDialog):
             )
             return
         
-        layout_item = current_item.data(0, Qt.ItemDataRole.UserRole)
+        layout_item = current_item.data(0, USER_ROLE)
         if not layout_item or not isinstance(layout_item, QgsLayoutItem):
             self.iface.messageBar().pushMessage(
                 "Warning", "No valid layout item selected.",
@@ -1760,7 +1798,12 @@ class LayoutSelectorDialog(QDialog):
             else:
                 # ファイル選択ダイアログを作成
                 dialog = LayoutFileSelectDialog(default_folder, json_files, self)
-                if dialog.exec_() != QDialog.Accepted:
+                # PyQt5/PyQt6互換性: exec_() -> exec()
+                try:
+                    dialog_result = dialog.exec()
+                except AttributeError:
+                    dialog_result = dialog.exec_()
+                if dialog_result != QDialog.Accepted:
                     return
                 
                 selected_file = dialog.get_selected_file()
@@ -2357,13 +2400,13 @@ class LayoutFileSelectDialog(QDialog):
                 # リストアイテムを作成
                 item_text = f"{file}{layout_name}\n  サイズ: {file_size:,} bytes, 更新: {time_str}"
                 item = QListWidgetItem(item_text)
-                item.setData(Qt.ItemDataRole.UserRole, file)
+                item.setData(USER_ROLE, file)
                 self.file_list.addItem(item)
                 
             except Exception as e:
                 # エラーがあってもファイル名だけは表示
                 item = QListWidgetItem(f"{file} (情報取得エラー)")
-                item.setData(Qt.ItemDataRole.UserRole, file)
+                item.setData(USER_ROLE, file)
                 self.file_list.addItem(item)
         
         # ダブルクリックで選択
@@ -2401,7 +2444,7 @@ class LayoutFileSelectDialog(QDialog):
     def on_selection_changed(self, current, previous):
         """選択が変更された時の処理"""
         if current:
-            self.selected_file = current.data(Qt.ItemDataRole.UserRole)
+            self.selected_file = current.data(USER_ROLE)
             self.ok_button.setEnabled(True)
         else:
             self.selected_file = None
@@ -2409,7 +2452,7 @@ class LayoutFileSelectDialog(QDialog):
     
     def on_file_double_clicked(self, item):
         """ファイルがダブルクリックされた時の処理"""
-        self.selected_file = item.data(Qt.ItemDataRole.UserRole)
+        self.selected_file = item.data(USER_ROLE)
         self.accept()
     
     def browse_other_folder(self):

@@ -3,6 +3,7 @@
 UI ローダー - Qt Designer の .ui ファイルを動的にロード
 
 Qt Designer で作成した .ui ファイルから UI をプログラムで読み込むためのユーティリティ。
+QT6 (PyQt6) と QT5 (PyQt5) の両方に対応。
 """
 
 import os
@@ -29,6 +30,7 @@ def load_ui(ui_file_path):
 def load_ui_to_widget(ui_name, parent_widget):
     """
     .ui ファイルを既存のウィジェットにロード
+    QT5/QT6の両方に対応
     
     Args:
         ui_name: UI ファイル名（拡張子なし）。例: 'main_dialog' -> 'main_dialog.ui'
@@ -45,4 +47,8 @@ def load_ui_to_widget(ui_name, parent_widget):
         raise FileNotFoundError(f"UI file not found: {ui_file_path}")
     
     # UI をウィジェットにロード
-    uic.loadUi(ui_file_path, parent_widget)
+    try:
+        uic.loadUi(ui_file_path, parent_widget)
+    except Exception as e:
+        # QT6で問題が発生する可能性があるため、詳細なエラー情報を追加
+        raise RuntimeError(f"Failed to load UI from {ui_file_path}: {str(e)}")
