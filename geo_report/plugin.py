@@ -2535,7 +2535,7 @@ class LayoutFileSelectDialog(QDialog):
     def tr(self, message):
         """翻訳用ヘルパーメソッド"""
         from qgis.PyQt.QtCore import QCoreApplication
-        return QCoreApplication.translate('GeoReport', message)
+        return QCoreApplication.translate('geo_report', message)
         
     def init_ui(self):
         """UIを初期化"""

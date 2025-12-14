@@ -98,4 +98,71 @@
         <translation>レイアウト情報:</translation>
     </message>
 </context>
+<context>
+    <name>geo_report</name>
+    <message>
+        <source>report</source>
+        <translation>レポート</translation>
+    </message>
+    <message>
+        <source>Create Report</source>
+        <translation>レポートを作成</translation>
+    </message>
+    <message>
+        <source>Select Layout Property File</source>
+        <translation>レイアウトプロパティファイルを選択</translation>
+    </message>
+    <message>
+        <source>Folder: </source>
+        <translation>フォルダ: </translation>
+    </message>
+    <message>
+        <source>Available Layout Property Files:</source>
+        <translation>利用可能なレイアウトプロパティファイル:</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation>サイズ</translation>
+    </message>
+    <message>
+        <source>bytes</source>
+        <translation>バイト</translation>
+    </message>
+    <message>
+        <source>Modified</source>
+        <translation>更新日時</translation>
+    </message>
+    <message>
+        <source>Error getting information</source>
+        <translation>情報取得エラー</translation>
+    </message>
+    <message>
+        <source>Import failed</source>
+        <translation>インポートに失敗しました</translation>
+    </message>
+    <message>
+        <source>Could not add layouts from composer folder.</source>
+        <translation>composer フォルダからレイアウトを追加できませんでした。</translation>
+    </message>
+    <message>
+        <source>Error: {}</source>
+        <translation>エラー: {}</translation>
+    </message>
+    <message>
+        <source>Information</source>
+        <translation>情報</translation>
+    </message>
+    <message>
+        <source>Print area moved.</source>
+        <translation>印刷領域を移動しました。</translation>
+    </message>
+    <message>
+        <source>Print area moved (angle preserved)</source>
+        <translation>印刷領域を移動しました（角度を維持）</translation>
+    </message>
+    <message>
+        <source>Print area removed.</source>
+        <translation>印刷領域を削除しました。</translation>
+    </message>
+</context>
 </TS>
